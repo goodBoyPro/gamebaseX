@@ -1,0 +1,8 @@
+{
+    "classType": {
+        "actorStatic":1,
+        "palyer":2,
+        "LandBlock":3
+
+    }
+}

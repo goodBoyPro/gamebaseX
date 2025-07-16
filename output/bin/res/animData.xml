@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<node>
+		<id>1</id>
+		<name>walk.png</name>
+		<path>res/animation/walk.png</path>
+		<sizex>50</sizex>
+		<sizey>50</sizey>
+		<row>4</row>
+		<column>20</column>
+		<originX>25</originX>
+		<originY>48</originY>
+	</node>
+</root>
