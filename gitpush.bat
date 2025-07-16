@@ -15,7 +15,7 @@ git commit -m %time%
 git remote get-url tx > nul 2>&1
 if %errorlevel% neq 0 (
     echo config repository tx
-    git remote add tx https://e.coding.net/g-pspk8679/learn/codeLearn.git
+    git remote add tx https://e.coding.net/g-pspk8679/gameBase/gameBaseX.git
 )
 
 
