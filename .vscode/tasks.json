@@ -1,12 +1,29 @@
 {
 	"version": "2.0.0",
 	"tasks": [
-		{
-			"type": "cmake",
-			"label": "Build_label",
-			"command": "test",
+		{			
+			"label": "导入资源",
+			"group": "build",
+			"command": "${workspaceFolder}/script/importSource.bat",			
 			"problemMatcher": [],
-			"detail": "CMake 模板 测试 任务"
+			"options": {"cwd": "${workspaceFolder}"},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+			
+		},
+		{			
+			"label": "导入资源x",
+			"group": "build",
+			"command": "echo",	
+			"args": ["test"],		
+			"problemMatcher": [],
+			"options": {"cwd": "${workspaceFolder}"}
 		}
 	]
 }

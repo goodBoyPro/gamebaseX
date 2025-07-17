@@ -9,8 +9,9 @@ class Pad(TkPad):
         super().__init__()
         self.title("资源导入器")
         self.geometry("800x800")
-        self.createMenuCommand(self.file_menu,"wenjian",lambda:print("test"))
-    
+        self.createMenuCommand(self.file_menu,"文件",lambda:print("test"))
+        self.btn=tk.Button(self.main_frame,text="test")
+        self.btn.grid(row=1,column=1)
 
 if __name__=="__main__":
     Pad().mainloop()

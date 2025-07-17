@@ -1,6 +1,6 @@
 #include<heads.h>
 
-
+#include"controller.h"
 int main()
 {
     // 创建一个 800x600 像素的窗口，标题为 "SFML Window"
@@ -8,7 +8,10 @@ int main()
     
     // 设置垂直同步，避免画面撕裂
     window.setVerticalSyncEnabled(true);
-
+    GController controller;
+    controller.bind(GController::onKeybordA, [](){
+        printf("hello");
+    });
     // 主循环
     while (window.isOpen())
     {
@@ -26,6 +29,7 @@ int main()
                 // 按下 Escape 键关闭窗口
                 if (event.key.code == sf::Keyboard::Escape)
                     window.close();
+                controller.loop(window, event);
             }
         }
 
