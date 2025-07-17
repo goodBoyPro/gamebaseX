@@ -10,7 +10,7 @@ set time="%current_date% %current_time% Windows平台"
 git add .
 git commit -m %time%
 
-
+git remote set-url origin https://github.com/goodBoyPro/gamebaseX.git
 
 git remote get-url tx > nul 2>&1
 if %errorlevel% neq 0 (
