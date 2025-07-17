@@ -2,8 +2,12 @@
 class GController {
    private:
     struct Cbk {
+        Cbk(const std::function<void()> cbk, int handle) {
+            function = cbk;
+            id = handle;
+        }
         std::function<void()> function;
-        int id=0;
+        int id = 0;
     };
 
    public:
@@ -12,7 +16,6 @@ class GController {
     GController() {
         for (int i = 0; i < (int)count; i++) {
             cbks.push_back(std::vector<std::function<void()>>());
-            
         }
     }
     int bind(Input eInput, const std::function<void()>& cbk) {
