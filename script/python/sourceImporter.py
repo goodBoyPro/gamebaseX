@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkpad import TkPad
+from module.tkpad import TkPad
 import os
 class Opt:
     def __init__(self):

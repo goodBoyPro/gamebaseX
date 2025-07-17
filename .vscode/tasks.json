@@ -12,18 +12,10 @@
 				"reveal": "always",
 				"focus": false,
 				"panel": "shared",
-				"showReuseMessage": true,
+				"showReuseMessage": true, 
 				"clear": false
 			}
 			
-		},
-		{			
-			"label": "导入资源x",
-			"group": "build",
-			"command": "echo",	
-			"args": ["test"],		
-			"problemMatcher": [],
-			"options": {"cwd": "${workspaceFolder}"}
 		}
 	]
 }

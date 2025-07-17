@@ -1,5 +1,5 @@
-BasedOnStyle: Google
+BasedOnStyle: LLVM
 SortIncludes: false
 IndentWidth: 4
 TabWidth: 4
-ColumnLimit: 100
+ColumnLimit: 200

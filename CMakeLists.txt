@@ -10,12 +10,21 @@ set(ABS_DIR ./)
 get_filename_component(ABS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${ABS_DIR} ABSOLUTE)
 message(RootDirectory:${ABS_DIR})
 ########################################################################################
+#预编译任务
+execute_process(
+    
+    COMMAND ${ABS_DIR}/script/cmakePreTasks.bat
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    RESULT_VARIABLE SCRIPT_RESULT
+)
+########################################################################################
 SET(CMAKE_CXX_COMPILE_FEATURES "gcc")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fexec-charset=UTF-8 ")
 
 include_directories(
     ${ABS_DIR}/Engine/ExternLibrary/SFML/include
     ${ABS_DIR}/Engine/gameFramework/public
+    ${ABS_DIR}/build/generatedCodeFile
 )
 
 #自定义设置

@@ -1,0 +1,11 @@
+{
+    "linear":{
+        "a":"sf::Keyboard::A",
+        "w":"sf::Keyboard::W",
+        "s":"sf::Keyboard::S",
+        "d":"sf::Keyboard::D"
+    },
+    "click":{
+        "q":"sf::Keyboard::Q"
+    }
+}

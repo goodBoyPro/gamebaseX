@@ -1,37 +1,23 @@
-#include<heads.h>
+#include <heads.h>
 
-#include"controller.h"
-int main()
-{
+#include "controller.h"
+int main() {
     // 创建一个 800x600 像素的窗口，标题为 "SFML Window"
     sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Window");
-    
+
     // 设置垂直同步，避免画面撕裂
     window.setVerticalSyncEnabled(true);
     GController controller;
-    controller.bind(GController::onKeybordA, [](){
-        printf("hello");
-    });
+    int handle = controller.bind(GController::a, []() { printf("hello"); });
+    controller.bind(GController::q,
+                    [&]() { controller.unBind(GController::a, handle); });
+
     // 主循环
-    while (window.isOpen())
-    {
+    while (window.isOpen()) {
         // 事件处理
         sf::Event event;
-        while (window.pollEvent(event))
-        {
-            // 关闭窗口事件
-            if (event.type == sf::Event::Closed)
-                window.close();
-            
-            // 键盘按下事件
-            if (event.type == sf::Event::KeyPressed)
-            {
-                // 按下 Escape 键关闭窗口
-                if (event.key.code == sf::Keyboard::Escape)
-                    window.close();
-                controller.loop(window, event);
-            }
-        }
+        controller.loop(window, event);
+        
 
         // 清空窗口，使用黑色背景
         window.clear(sf::Color::Black);
@@ -43,4 +29,4 @@ int main()
     }
 
     return 0;
-}    
+}
