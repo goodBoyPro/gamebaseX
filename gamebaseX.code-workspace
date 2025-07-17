@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+	
+		"clangd.arguments": [
+			"--background-index",
+			"--compile-commands-dir=build",
+			"-pretty",
+			"--clang-tidy",
+			"-j=12",
+			"--header-insertion=iwyu",
+			"--all-scopes-completion",
+			"--completion-style=detailed",
+			"--pch-storage=memory",
+			"--header-insertion=never"
+		]
+	}
+}
