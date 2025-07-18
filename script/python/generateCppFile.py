@@ -1,6 +1,8 @@
 import json
 class cppdata:
-    CONTROLLER_DATA=R'''#include "heads.h"
+    CONTROLLER_DATA=R'''#ifndef  CONTROLLER_H
+#define CONTROLLER_H
+#include "heads.h"
 class GController {
   private:
     int cbkId = 0;
@@ -50,6 +52,7 @@ class GController {
         }
     }
 };
+#endif
 '''
 def openAndWrite(str,filepath):
     with open(filepath,'w',encoding='utf8')as file:

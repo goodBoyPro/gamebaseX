@@ -1,3 +1,5 @@
+#ifndef  HEADS_
+#define HEADS_
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -8,3 +10,4 @@
 #include "base/base.h"
 
 #include <SFML/Graphics.hpp>
+#endif // HEADS_

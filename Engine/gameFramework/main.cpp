@@ -1,5 +1,4 @@
 #include <heads.h>
-
 #include "controller.h"
 int main() {
     // 创建一个 800x600 像素的窗口，标题为 "SFML Window"

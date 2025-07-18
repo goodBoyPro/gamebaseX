@@ -7,5 +7,5 @@ if not exist "%GENERATED_DIR%" (
     mkdir "%GENERATED_DIR%"
 ) else (
     echo DERECTORY_EXIST: %GENERATED_DIR%
-) &&^
+) 
 python script\python\generateCppFile.py
