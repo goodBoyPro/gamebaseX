@@ -38,7 +38,7 @@ class GController {
         }
     }
     void loop(sf::RenderWindow &window, sf::Event &event) {
-        LINE_HODER_PLACE
+        LINEAR_HODER_PLACE
         // 点击时
         while (window.pollEvent(event)) {
             // 关闭窗口事件
@@ -73,7 +73,7 @@ def generate_CONTROLLER_H():
             clicks.append(f" if (event.key.code == {v}) {{for (Cbk &cbk : cbks[{k}]) {{cbk.function();}}}}")
         clicksHolder=''.join(clicks)
     str=cppdata.CONTROLLER_DATA.replace("ENUM_HOLDER_PLACE",enum_holder)
-    str=str.replace("LINE_HODER_PLACE",linearsHolder)
+    str=str.replace("LINEAR_HODER_PLACE",linearsHolder)
     str=str.replace("CLICK_HODER_PLACE",clicksHolder)
     openAndWrite(str,"build/generatedCodeFile/controller.h")
     
