@@ -15,7 +15,7 @@ git remote set-url origin https://github.com/goodBoyPro/gamebaseX.git
 git remote get-url tx > nul 2>&1
 if %errorlevel% neq 0 (
     echo config repository tx
-    git remote add tx https://e.coding.net/g-pspk8679/gameBase/gameBaseX.git
+    git remote add tx https://cnb.cool/compass.lol/gameBaseX.git
 )
 
 
