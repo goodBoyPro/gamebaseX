@@ -1,7 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.26.4)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(PROJECT_NAME game)
 project(${PROJECT_NAME})
+set(CMAKE_BUILD_TYPE Debug)
 add_compile_options(-finput-charset=UTF-8)
 ########################################################################################
 #设置项目绝对路径

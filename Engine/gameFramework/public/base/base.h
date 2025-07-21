@@ -3,7 +3,8 @@
 #include <SFML/Graphics.hpp>
 typedef sf::Vector3f FVector3;
 typedef sf::Vector2i IVector2 ;
-typedef sf::RenderWindow GameWindow;
-typedef sf::Event GameEvent ;
-typedef sf::Sprite GSprite;
+typedef sf::RenderWindow WindowBase;
+typedef sf::Event EventBase ;
+typedef sf::Sprite SpriteBase;
+typedef sf::Texture GTexture;
 #endif //BASE_H
