@@ -5,7 +5,7 @@ int main() {
     gameins.loop();
     return 0;
 }
-void GActor::loop(float deltatime, WindowBase &window) {
+void GActor::loop(float deltatime, WindowBase &window,GCamera*camera_) {
     for (GComponent *comp : __allComponents) {
         comp->loop();
     }
@@ -23,6 +23,4 @@ void GActor::disableActive() {
         actor->disableActive();
     }
 };
-void GActor::draw(class GCamera *camera_, WindowBase &window_,int winW_,int winH_) {
 
-}
