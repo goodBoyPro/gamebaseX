@@ -78,10 +78,9 @@ class GActorStatic : public GActor {
     GSprite spr;
 
   public:
-    GActorStatic(GTexture &tex, int row, int column) : spr(tex, row, column) {}
+    GActorStatic(TextureBase &tex, int row, int column) : spr(tex, row, column) {}
     void draw(WindowBase &window_, GCamera *camera_) { 
-      spr.drawWin(window_);
-      // camera_->drawSpr(spr, window_, getPositionWs());
+            camera_->drawSpr(spr, window_, getPositionWs());
        }
     void loop(float deltatime, WindowBase &window, GCamera *camera_) override {
         GActor::loop(deltatime, window, camera_);
@@ -97,7 +96,7 @@ class GWorld : public GObject {
     TimeManager timeManager;
     GController controllerDefault;
     GController *controllerActive = nullptr;
-  GTexture tex;
+  TextureBase tex;
   public:
     GWorld() {
         cameraActive = &cameraDefault;

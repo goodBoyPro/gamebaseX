@@ -12,7 +12,7 @@ int mainx() {
     GController controller;
     int handle = controller.bind(GController::a, []() { printf("hello"); });
     controller.bind(GController::q, [&]() { controller.unBind(GController::a, handle); });
-    GTexture tex;
+   TextureBase tex;
     tex.loadFromFile("res/test.png");
    
     GSprite spr(tex,1,1);

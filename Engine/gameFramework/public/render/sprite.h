@@ -2,6 +2,12 @@
 #define SPRITE_H
 #include "base/base.h"
 #include "cmath"
+class GTexture{
+    public:
+    TextureBase texture;
+    int column;
+    int row;
+};
 // 图片资源大小应为2的幂
 class GSprite {
   private:
@@ -12,7 +18,7 @@ class GSprite {
     int curId = 0;
 
   public:
-    GSprite(GTexture &textureArray, int rows_, int columns_) {
+    GSprite(TextureBase &textureArray, int rows_, int columns_) {
         rows = rows_;
         columns = columns_;
         sizeTexUnit = {(int)(textureArray.getSize().x / columns), (int)(textureArray.getSize().y / rows)};
