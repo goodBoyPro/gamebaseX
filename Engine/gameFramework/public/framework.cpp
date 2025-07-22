@@ -12,15 +12,15 @@ void GActor::loop(float deltatime, WindowBase &window,GCamera*camera_) {
 }
 void GActor::setActive() {
     isActive = true;
-    for (GActor *actor : __allActorComponents) {
-        actor->setActive();
+    for (GComponent *comp : __allComponents) {
+        comp->setActive();
     }
     allActorsActive.push_back(this);
 };
 void GActor::disableActive() {
     isActive = false;
-    for (GActor *actor : __allActorComponents) {
-        actor->disableActive();
+    for (GComponent*comp : __allComponents) {
+        comp->disableActive();
     }
 };
 

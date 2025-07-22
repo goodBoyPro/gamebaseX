@@ -2,11 +2,23 @@
 #define SPRITE_H
 #include "base/base.h"
 #include "cmath"
-class GTexture{
-    public:
+#include "string"
+class GTexture {
+  public:
     TextureBase texture;
     int column;
     int row;
+    IVector2 sizeTexUnit;
+    GTexture()=default;
+    void init(int row_, int column_, const std::string &path) {
+        texture.loadFromFile(path);
+        row = row_;
+        column = column_;
+        sizeTexUnit = {(int)(texture.getSize().x / column_), (int)(texture.getSize().y / row_)};
+    }
+    GTexture(int row_, int column_, const std::string &path) {
+        init(row_, column_, path);
+    }
 };
 // 图片资源大小应为2的幂
 class GSprite {
@@ -18,12 +30,16 @@ class GSprite {
     int curId = 0;
 
   public:
-    GSprite(TextureBase &textureArray, int rows_, int columns_) {
-        rows = rows_;
-        columns = columns_;
-        sizeTexUnit = {(int)(textureArray.getSize().x / columns), (int)(textureArray.getSize().y / rows)};
-        sprite.setTexture(textureArray);
+    GSprite() =default;
+    void init(const GTexture &textureArray) {
+        rows = textureArray.row;
+        columns = textureArray.column;
+        sizeTexUnit = textureArray.sizeTexUnit;
+        sprite.setTexture(textureArray.texture);
         setId(0);
+    }
+    GSprite(const GTexture &textureArray) {
+        init(textureArray);
     }
     void setId(int index) {
         if (index >= rows * columns)
