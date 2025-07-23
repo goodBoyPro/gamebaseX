@@ -20,6 +20,7 @@ class GComponent : public GObject {
     virtual void disableActive(){}
 };
 class GRenderObj : public GComponent {};
+class GStaticSpriteComponent{};
 class GActor : GObject {
   private:
     static std::vector<GActor *> allActorsActive;
@@ -30,8 +31,10 @@ class GActor : GObject {
     class GWorld *worldPtr = nullptr;
 
   public:
+    GActor() {};
+    void actorBaseInit(GWorld *worldPtr_){worldPtr=worldPtr_;}
     GWorld *getWorld() { return worldPtr; }
-    virtual void loop(float deltatime_, WindowBase &window_, class GCamera *camera_);
+    virtual void loop(float deltatime_, WindowBase &window_);
     const FVector3 &getPositionWs() const { return positionWs; }
     void setPositionWs(const FVector3 &posWs_) { positionWs = posWs_; };
     template<class T>
@@ -49,7 +52,7 @@ class GActor : GObject {
   public:
     static void loopAllActorsActive(float deltatime_, class GCamera *camera_, WindowBase &window_) {
         for (GActor *actor : allActorsActive) {
-            actor->loop(deltatime_, window_, camera_);
+            actor->loop(deltatime_, window_);
         }
     }
 };
@@ -64,7 +67,7 @@ class GActorComponentX : public GActor {
     GActorComponentX() {}
     const FVector3 &getPositionRelative() const { return positionRelative; }
     void setPositionRelative(const FVector3 &posRelative) { positionRelative = posRelative; }
-    virtual void loop(float deltatime, WindowBase &window, GCamera *camera_) override { followParent(); }
+    virtual void loop(float deltatime, WindowBase &window) override { followParent(); }
 };
 class GActorComponentIF : public GComponent {
     GActor *actor = nullptr;
@@ -109,10 +112,7 @@ class GActorIF : public GActor {
   public:
     GActorIF() {}
     void draw(WindowBase &window_, GCamera *camera_) { camera_->drawSpr(spr, window_, getPositionWs()); }
-    void loop(float deltatime, WindowBase &window, GCamera *camera_) override {
-        GActor::loop(deltatime, window, camera_);
-        draw(window, camera_);
-    }
+    void loop(float deltatime, WindowBase &window) override;
     void setActiveSpr(GSprite *sprPtr_) { spr = sprPtr_; }
 };
 class GActorStatic : public GActorIF {
@@ -147,12 +147,15 @@ class GWorld : public GObject {
     }
 
   public:
+    GCamera *getCameraActive() { return cameraActive; }
+    GController*getControllerActive(){return controllerActive;}
     GWorld() {
         bindDefaultCameraController();
 
         // test
         tex.init(1, 1, "res/ui1.png");
         GActorStatic *ac1 = new GActorStatic(tex);
+        ac1->actorBaseInit(this);
         ac1->setActive();
         //
     }
