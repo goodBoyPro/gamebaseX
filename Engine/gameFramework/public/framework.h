@@ -19,8 +19,17 @@ class GComponent : public GObject {
     virtual void setActive() {}
     virtual void disableActive(){}
 };
-class GRenderObj : public GComponent {};
-class GStaticSpriteComponent{};
+class GSceneComponent:public GComponent{
+  private:
+  FVector3 positionRelative={0,0,0};
+  public:
+  void setPositionRelative(const FVector3&posRelative_){
+    positionRelative=posRelative_;
+  }
+  FVector3&getPositionRelative(){return positionRelative;}
+  FVector3 getPositionWs();
+};
+class GPriimitiveComponent:public GSceneComponent{};
 class GActor : GObject {
   private:
     static std::vector<GActor *> allActorsActive;

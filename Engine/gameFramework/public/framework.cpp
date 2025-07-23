@@ -28,3 +28,4 @@ void GActorIF::loop(float deltatime, WindowBase &window) {
     GActor::loop(deltatime, window);
     draw(window, getWorld()->getCameraActive());
 }
+FVector3 GSceneComponent::getPositionWs() {return parent->getPositionWs()+positionRelative; }
