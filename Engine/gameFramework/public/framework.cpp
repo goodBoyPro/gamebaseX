@@ -12,16 +12,11 @@ void GActor::loop(float deltatime, WindowBase &window_) {
 }
 void GActor::setActive() {
     isActive = true;
-    for (GComponent *comp : __allComponents) {
-        comp->setActive();
-    }
-    allActorsActive.push_back(this);
+   
+    
 };
 void GActor::disableActive() {
     isActive = false;
-    for (GComponent *comp : __allComponents) {
-        comp->disableActive();
-    }
 };
 
 FVector3 GSceneComponent::getPositionWs() {

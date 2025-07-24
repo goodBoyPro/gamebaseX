@@ -18,8 +18,6 @@ class GComponent : public GObject {
     virtual void init(GActor *owner_) { owner = owner_; }
 
     virtual void loop(WindowBase &window_) {}
-    virtual void setActive() {}
-    virtual void disableActive() {}
 };
 class GSceneComponent : public GComponent {
   private:
@@ -45,8 +43,6 @@ class GStaticSpriteComponent : public GSceneComponent {
 };
 class GActor : GObject {
   private:
-    static std::vector<GActor *> allActorsActive;
-
   private:
     std::vector<GComponent *> __allComponents;
     GSceneComponent *rootComponent = nullptr;
@@ -81,15 +77,14 @@ class GActor : GObject {
 
   public:
   public:
-    static void loopAllActorsActive(float deltatime_, class GCamera *camera_, WindowBase &window_) {
-        for (GActor *actor : allActorsActive) {
+    static void loopAllActorsActive(std::vector<GActor *> allActorsActive_, float deltatime_, class GCameraComponent *camera_, WindowBase &window_) {
+        for (GActor *actor : allActorsActive_) {
             actor->loop(deltatime_, window_);
         }
     }
 };
-inline std::vector<GActor *> GActor::allActorsActive;
 
-class GCamera : public GActor {
+class GCameraComponent : public GSceneComponent {
   private:
     float pixSize = 15;
     FVector3 positionForRender;
@@ -108,15 +103,11 @@ class GCamera : public GActor {
         spr_->drawWin(window_);
     }
 };
-class GCameraComponent : public GSceneComponent {
-
+class GCamera : public GActor {
 
   public:
-  GCamera camera;
-    virtual void loop(WindowBase &window_) override {
-        GSceneComponent::loop(window_);
-        camera.setPositionWs(getPositionWs());
-    }
+    GCameraComponent *cameraComp = nullptr;
+    GCamera() { cameraComp = createComponent<GCameraComponent>(); }
 };
 class GPlayer : public GActor {
   public:
@@ -129,11 +120,10 @@ class GPlayer : public GActor {
         spr = createComponent<GStaticSpriteComponent>();
         tex.init(1, 1, "res/a.png");
         spr->setTex(tex);
-        controller.bind(GController::a, [this](){setPositionWs(getPositionWs()+FVector3(-0.1,0,0));});
-        controller.bind(GController::d, [this](){setPositionWs(getPositionWs()+FVector3(0.1,0,0));});
-        controller.bind(GController::w, [this](){setPositionWs(getPositionWs()+FVector3(0,-0.1,0));});
-        controller.bind(GController::s, [this](){setPositionWs(getPositionWs()+FVector3(0,0.1,0));});
-        
+        controller.bind(GController::a, [this]() { setPositionWs(getPositionWs() + FVector3(-0.1, 0, 0)); });
+        controller.bind(GController::d, [this]() { setPositionWs(getPositionWs() + FVector3(0.1, 0, 0)); });
+        controller.bind(GController::w, [this]() { setPositionWs(getPositionWs() + FVector3(0, -0.1, 0)); });
+        controller.bind(GController::s, [this]() { setPositionWs(getPositionWs() + FVector3(0, 0.1, 0)); });
     }
 };
 class actorTest : public GActor {
@@ -145,18 +135,30 @@ class actorTest : public GActor {
         comp->setTex(tex_);
     }
 };
+class GameMode : public GObject {
+  public:
+    GPlayer *player = nullptr;
+    GController *controller = nullptr;
+    ~GameMode() {
+
+        if (controller)
+            delete controller;
+    }
+};
+
 class GWorld : public GObject {
   private:
+    GameMode gm;
     struct ActorsType {};
-    std::vector<GActor *> allActors;
+    std::vector<GActor *> allActorsActive;
     GCamera cameraDefault;
-    GCamera *cameraActive = nullptr;
+    GCameraComponent *cameraActive = nullptr;
     TimeManager timeManager;
     GController controllerDefault;
     GController *controllerActive = nullptr;
     GTexture tex;
     void bindDefaultCameraController() {
-        cameraActive = &cameraDefault;
+        cameraActive = (cameraDefault.cameraComp);
         controllerActive = &controllerDefault;
         controllerDefault.bind(GController::w, [&]() { cameraDefault.setPositionWs(cameraDefault.getPositionWs() + FVector3(0, -0.1, 0)); });
         controllerDefault.bind(GController::s, [&]() { cameraDefault.setPositionWs(cameraDefault.getPositionWs() + FVector3(0, 0.1, 0)); });
@@ -165,28 +167,25 @@ class GWorld : public GObject {
     }
 
   public:
-    struct GameMode {
-        GPlayer *player=nullptr;
-        GController *controller=nullptr;
-    };
-
-  public:
+    template <class playerClass> void setGameMode() { gm.player = createActor<playerClass>(); }
     template <class T> T *createActor() {
         T *actor = new T();
         actor->actorBaseInit(this);
-        actor->setActive();
+        allActorsActive.push_back(actor);
         return actor;
     }
-    GCamera *getCameraActive() { return cameraActive; }
+    GCameraComponent *getCameraActive() { return cameraActive; }
     GController *getControllerActive() { return controllerActive; }
 
     GWorld() {
         bindDefaultCameraController();
 
+        setGameMode<GPlayer>();
+        if (gm.player) {
+            cameraActive = (gm.player->camera);
+            controllerActive = &(gm.player->controller);
+        }
         createActor<actorTest>();
-        GPlayer *player = createActor<GPlayer>();
-        cameraActive = &(player->camera->camera);
-        controllerActive=&(player->controller);
     }
     void loop(float deltaTime_, WindowBase &window_, EventBase &event_) {
         controllerActive->loop(window_, event_);
@@ -198,9 +197,10 @@ class GWorld : public GObject {
         window_.clear(sf::Color::Black);
 
         // actor逻辑
-        GActor::loopAllActorsActive(deltaTime_, cameraActive, window_);
+        GActor::loopAllActorsActive(allActorsActive, deltaTime_, cameraActive, window_);
         window_.display();
     }
+    ~GWorld() {}
 };
 class GGame : GObject {
   private:
@@ -211,6 +211,10 @@ class GGame : GObject {
   public:
     GGame() {
         window.create(sf::VideoMode(800, 600), "Game");
+        sf::Image icon;
+        icon.loadFromFile("res/a.png");
+
+        window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
         curWorld = new GWorld();
     }
     void loop() {
