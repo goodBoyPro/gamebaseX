@@ -9,53 +9,75 @@ class GObject {
     virtual ~GObject() {};
 };
 class GComponent : public GObject {
-    protected:
-    class GActor *parent = nullptr;
+  protected:
+    class GActor *owner = nullptr;
 
+  private:
   public:
     GComponent() {}
-    void init(GActor *parent_) { parent = parent_; }
-    virtual void loop() {};
+    virtual void init(GActor *owner_) { owner = owner_; }
+
+    virtual void loop(WindowBase &window_) {}
     virtual void setActive() {}
-    virtual void disableActive(){}
+    virtual void disableActive() {}
 };
-class GSceneComponent:public GComponent{
+class GSceneComponent : public GComponent {
   private:
-  FVector3 positionRelative={0,0,0};
+    std::vector<GSceneComponent *> __childs;
+    FVector3 positionRelative = {0, 0, 0};
+    GSceneComponent *parentComp = nullptr;
+
   public:
-  void setPositionRelative(const FVector3&posRelative_){
-    positionRelative=posRelative_;
-  }
-  FVector3&getPositionRelative(){return positionRelative;}
-  FVector3 getPositionWs();
+    void setPositionRelative(const FVector3 &posRelative_) { positionRelative = posRelative_; }
+    void attachToComponent(GSceneComponent *parent_) { parentComp = this; }
+    FVector3 &getPositionRelative() { return positionRelative; }
+    FVector3 getPositionWs();
 };
-class GPriimitiveComponent:public GSceneComponent{};
+class GPriimitiveComponent : public GSceneComponent {};
+class GStaticSpriteComponent : public GSceneComponent {
+    GSprite spr;
+
+  public:
+    GStaticSpriteComponent() {}
+    void setTex(GTexture &tex) { spr.init(tex); }
+    GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
+    virtual void loop(WindowBase &window_) override;
+};
 class GActor : GObject {
   private:
     static std::vector<GActor *> allActorsActive;
 
   private:
     std::vector<GComponent *> __allComponents;
+    GSceneComponent *rootComponent = nullptr;
     FVector3 positionWs = {0, 0, 0};
     class GWorld *worldPtr = nullptr;
 
   public:
     GActor() {};
-    void actorBaseInit(GWorld *worldPtr_){worldPtr=worldPtr_;}
+    void actorBaseInit(GWorld *worldPtr_) { worldPtr = worldPtr_; }
     GWorld *getWorld() { return worldPtr; }
     virtual void loop(float deltatime_, WindowBase &window_);
     const FVector3 &getPositionWs() const { return positionWs; }
     void setPositionWs(const FVector3 &posWs_) { positionWs = posWs_; };
-    template<class T>
-    T *createComponent() {
+    template <class T> T *createComponent() {
         T *comp = new T();
         comp->init(this);
         __allComponents.push_back(comp);
         return comp;
     }
+    void setRootComponent(GSceneComponent *comp_) {
+        rootComponent = comp_;
+        comp_->init(this);
+    }
     bool isActive = false;
     void setActive();
     void disableActive();
+    ~GActor() {
+        for (GComponent *comp : __allComponents) {
+            delete comp;
+        }
+    };
 
   public:
   public:
@@ -66,40 +88,14 @@ class GActor : GObject {
     }
 };
 inline std::vector<GActor *> GActor::allActorsActive;
-class GActorComponentX : public GActor {
-  private:
-    GActor *parent = nullptr;
-    FVector3 positionRelative = {0, 0, 0};
-    void followParent() { setPositionWs(parent->getPositionWs() + positionRelative); }
 
-  public:
-    GActorComponentX() {}
-    const FVector3 &getPositionRelative() const { return positionRelative; }
-    void setPositionRelative(const FVector3 &posRelative) { positionRelative = posRelative; }
-    virtual void loop(float deltatime, WindowBase &window) override { followParent(); }
-};
-class GActorComponentIF : public GComponent {
-    GActor *actor = nullptr;
-    FVector3 positionRelative = {0, 0, 0};
-  public:
-    GActorComponentIF() {}   
-    void followParent() { actor->setPositionWs(parent->getPositionWs() + positionRelative); }
-    const FVector3 &getPositionRelative() const { return positionRelative; }
-    void setPositionRelative(const FVector3 &posRelative) { positionRelative = posRelative; }
-    virtual void loop() override { followParent(); }
-    void setActive() override {actor->setActive();}
-    void disableActive() override{actor->disableActive();}
-    
-};
-
-class GCamera : public GActorComponentX {
+class GCamera : public GActor {
   private:
-    float pixSize=15;
+    float pixSize = 15;
     FVector3 positionForRender;
     FVector3 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
         return {((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f), ((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f - (PositionInWS.z / pixSize)), 0};
     }
-
 
   public:
     // 统一渲染时相机位置
@@ -112,29 +108,42 @@ class GCamera : public GActorComponentX {
         spr_->drawWin(window_);
     }
 };
+class GCameraComponent : public GSceneComponent {
+
+
+  public:
+  GCamera camera;
+    virtual void loop(WindowBase &window_) override {
+        GSceneComponent::loop(window_);
+        camera.setPositionWs(getPositionWs());
+    }
+};
 class GPlayer : public GActor {
   public:
-};
-class GActorIF : public GActor {
-    GSprite *spr = nullptr;
-
-  public:
-    GActorIF() {}
-    void draw(WindowBase &window_, GCamera *camera_) { camera_->drawSpr(spr, window_, getPositionWs()); }
-    void loop(float deltatime, WindowBase &window) override;
-    void setActiveSpr(GSprite *sprPtr_) { spr = sprPtr_; }
-};
-class GActorStatic : public GActorIF {
-  private:
-    GSprite spr;
-
-  public:
-    GActorStatic() {}
-    void init(GTexture &tex_) {
-        spr.init(tex_);
-        setActiveSpr(&spr);
+    GCameraComponent *camera = nullptr;
+    GStaticSpriteComponent *spr = nullptr;
+    GController controller;
+    GTexture tex;
+    GPlayer() {
+        camera = createComponent<GCameraComponent>();
+        spr = createComponent<GStaticSpriteComponent>();
+        tex.init(1, 1, "res/a.png");
+        spr->setTex(tex);
+        controller.bind(GController::a, [this](){setPositionWs(getPositionWs()+FVector3(-0.1,0,0));});
+        controller.bind(GController::d, [this](){setPositionWs(getPositionWs()+FVector3(0.1,0,0));});
+        controller.bind(GController::w, [this](){setPositionWs(getPositionWs()+FVector3(0,-0.1,0));});
+        controller.bind(GController::s, [this](){setPositionWs(getPositionWs()+FVector3(0,0.1,0));});
+        
     }
-    GActorStatic(GTexture &tex_) { init(tex_); }
+};
+class actorTest : public GActor {
+  public:
+    GTexture tex_;
+    actorTest() {
+        tex_.init(1, 1, "res/test.png");
+        GStaticSpriteComponent *comp = createComponent<GStaticSpriteComponent>();
+        comp->setTex(tex_);
+    }
 };
 class GWorld : public GObject {
   private:
@@ -156,17 +165,28 @@ class GWorld : public GObject {
     }
 
   public:
+    struct GameMode {
+        GPlayer *player=nullptr;
+        GController *controller=nullptr;
+    };
+
+  public:
+    template <class T> T *createActor() {
+        T *actor = new T();
+        actor->actorBaseInit(this);
+        actor->setActive();
+        return actor;
+    }
     GCamera *getCameraActive() { return cameraActive; }
-    GController*getControllerActive(){return controllerActive;}
+    GController *getControllerActive() { return controllerActive; }
+
     GWorld() {
         bindDefaultCameraController();
 
-        // test
-        tex.init(1, 1, "res/ui1.png");
-        GActorStatic *ac1 = new GActorStatic(tex);
-        ac1->actorBaseInit(this);
-        ac1->setActive();
-        //
+        createActor<actorTest>();
+        GPlayer *player = createActor<GPlayer>();
+        cameraActive = &(player->camera->camera);
+        controllerActive=&(player->controller);
     }
     void loop(float deltaTime_, WindowBase &window_, EventBase &event_) {
         controllerActive->loop(window_, event_);

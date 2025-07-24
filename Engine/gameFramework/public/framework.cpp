@@ -5,9 +5,9 @@ int main() {
     gameins.loop();
     return 0;
 }
-void GActor::loop(float deltatime, WindowBase &window) {
+void GActor::loop(float deltatime, WindowBase &window_) {
     for (GComponent *comp : __allComponents) {
-        comp->loop();
+        comp->loop(window_);
     }
 }
 void GActor::setActive() {
@@ -19,13 +19,16 @@ void GActor::setActive() {
 };
 void GActor::disableActive() {
     isActive = false;
-    for (GComponent*comp : __allComponents) {
+    for (GComponent *comp : __allComponents) {
         comp->disableActive();
     }
 };
 
-void GActorIF::loop(float deltatime, WindowBase &window) {
-    GActor::loop(deltatime, window);
-    draw(window, getWorld()->getCameraActive());
+FVector3 GSceneComponent::getPositionWs() {
+    if (parentComp)
+        return parentComp->getPositionWs() + positionRelative;
+    return owner->getPositionWs()+positionRelative;
 }
-FVector3 GSceneComponent::getPositionWs() {return parent->getPositionWs()+positionRelative; }
+void GStaticSpriteComponent::loop(WindowBase &window_) {
+    owner->getWorld()->getCameraActive()->drawSpr(&spr,window_,getPositionWs());
+}
