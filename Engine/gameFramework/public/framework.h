@@ -18,7 +18,7 @@ class GComponent : public GObject {
     GComponent() {}
     virtual void init(GActor *owner_) { owner = owner_; }
 
-    virtual void loop(WindowBase &window_) {}
+    virtual void loop(WindowBase &window_,float deltaTime_) {}
 };
 class GSceneComponent : public GComponent {
   private:
@@ -33,15 +33,22 @@ class GSceneComponent : public GComponent {
     FVector3 getPositionWs();
 };
 class GPriimitiveComponent : public GSceneComponent {};
-class GStaticSpriteComponent : public GSceneComponent {
+class GRnderObjComponent:public GSceneComponent{
+  private:
+  GSprite*sprite=nullptr;;
+  public:
+  void setRenderSpr(GSprite*spr_){sprite=spr_;}
+  virtual void loop(WindowBase &window_,float deltaTime_) override;
+};
+class GStaticSpriteComponent : public GRnderObjComponent {
     GSprite spr;
 
   public:
-    GStaticSpriteComponent() {}
+    GStaticSpriteComponent() {setRenderSpr(&spr);}
     void setTex(GTexture &tex) { spr.init(tex); }
     GSprite& getSprite(){return spr;}
     GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
-    virtual void loop(WindowBase &window_) override;
+    
 };
 class GActor : public GObject {
   private:
@@ -125,15 +132,15 @@ class GMoveComponent : public GComponent {
     float moveZ = 0;
     float speed = 0.03;
     FVector3 getMoveVector() { return moveVector; }
-    void move() {
+    void move(float deltaTime_) {
         moveVector = vectorNormalize({moveX, moveY, moveZ});
-        owner->addPositionOffsetWs(moveVector * speed);
+        owner->addPositionOffsetWs(moveVector * speed*deltaTime_);
         moveX = 0;
         moveY = 0;
         moveZ = 0;
     }
     bool isAutoMove = false;
-    void autoMove() {
+    void autoMove(float deltaTime_) {
         const FVector3 &vec = target - owner->getPositionWs();
         float len = getVectorLen(vec);
         if (len < 0.001) {
@@ -142,24 +149,24 @@ class GMoveComponent : public GComponent {
         } else {
             moveVector = vectorNormalize(vec);
         }
-        owner->addPositionOffsetWs(moveVector * speed);
+        owner->addPositionOffsetWs(moveVector * speed*deltaTime_);
     }
     void setTarget(const FVector3 &target_) {
         target = target_;
         isAutoMove = true;
     }
-    void loop(WindowBase &window_) override {
+    void loop(WindowBase &window_,float deltaTime_) override {
         if (isAutoMove) {
-            autoMove();
+            autoMove(deltaTime_);
         } else {
-            move();
+            move(deltaTime_);
         }
     }
 };
 class GPlayer : public GActor {
   public:
-    GCameraComponent *camera = nullptr;
-    GStaticSpriteComponent *spr = nullptr;
+    GCameraComponent *cameraComp = nullptr;
+    GStaticSpriteComponent *sprComp = nullptr;
     GMoveComponent *moveComp = nullptr;
     GController controller;
     GTexture tex;
@@ -191,6 +198,7 @@ class GWorld : public GObject {
     GController *controllerActive = nullptr;
     GTexture tex;
     float deltaTime = 0.1;
+    sf::Clock clock;
     void bindDefaultCameraController() {
         cameraActive = (cameraDefault.cameraComp);
         controllerActive = &controllerDefault;
@@ -216,7 +224,7 @@ class GWorld : public GObject {
 
         setGameMode<GPlayer>();
         if (gm.player) {
-            cameraActive = (gm.player->camera);
+            cameraActive = (gm.player->cameraComp);
             controllerActive = &(gm.player->controller);
         }
         createActor<actorTest>();
@@ -228,6 +236,7 @@ class GWorld : public GObject {
         }
     }
     void loop(WindowBase &window_, EventBase &event_) {
+        deltaTime=clock.restart().asSeconds();
         controllerActive->loop(window_, event_);
 
         //  计时器任务
@@ -238,6 +247,8 @@ class GWorld : public GObject {
 
         // actor逻辑
         pollActorsActive(window_);
+        // UI逻辑
+        //
         window_.display();
     }
     ~GWorld() {

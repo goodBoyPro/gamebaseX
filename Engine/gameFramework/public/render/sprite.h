@@ -32,9 +32,10 @@ class GSprite {
     int rows;
     int columns;
     int curId = 0;
-
+    float sortFlag=0;
   public:
     GSprite() =default;
+    void setSortFlag(float value_){sortFlag=value_;}
     void init(const GTexture &textureArray) {
         rows = textureArray.row;
         columns = textureArray.column;
