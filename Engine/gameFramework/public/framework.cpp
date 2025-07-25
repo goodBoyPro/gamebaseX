@@ -23,8 +23,9 @@ GPlayer::GPlayer() {
     moveComp = createComponent<GMoveComponent>();
     camera = createComponent<GCameraComponent>();
     spr = createComponent<GStaticSpriteComponent>();
-    tex.init(1, 1, 0.5, 1, "res/a.png");
+    tex.init(5, 5, 0.5, 1, "res/trees_256x5.png");
     spr->setTex(tex);
+    spr->getSprite().setId(10);
     controller.bind(GController::a, [this]() {
         moveComp->moveX = -1;
         moveComp->isAutoMove = false;

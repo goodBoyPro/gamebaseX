@@ -2,7 +2,7 @@
 #define FRAMEWORK_H
 #include "heads.h"
 #include <timeManager.h>
-#include "controller.h"
+#include "controllerX.h"
 #include "render/sprite.h"
 #include "GComman.h"
 class GObject {
@@ -39,6 +39,7 @@ class GStaticSpriteComponent : public GSceneComponent {
   public:
     GStaticSpriteComponent() {}
     void setTex(GTexture &tex) { spr.init(tex); }
+    GSprite& getSprite(){return spr;}
     GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
     virtual void loop(WindowBase &window_) override;
 };
