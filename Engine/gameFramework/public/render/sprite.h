@@ -8,16 +8,20 @@ class GTexture {
     TextureBase texture;
     int column;
     int row;
+    float centerX;
+    float centerY;
     IVector2 sizeTexUnit;
     GTexture()=default;
-    void init(int row_, int column_, const std::string &path) {
+    void init(int row_, int column_, float centerX_,float centerY_,const std::string &path) {
         texture.loadFromFile(path);
         row = row_;
         column = column_;
+        centerX = centerX_;
+        centerY=centerY_;
         sizeTexUnit = {(int)(texture.getSize().x / column_), (int)(texture.getSize().y / row_)};
     }
-    GTexture(int row_, int column_, const std::string &path) {
-        init(row_, column_, path);
+    GTexture(int row_, int column_, float centerX_,float centerY_,const std::string &path) {
+        init(row_, column_,centerX_,centerY_, path);
     }
 };
 // 图片资源大小应为2的幂
@@ -36,6 +40,7 @@ class GSprite {
         columns = textureArray.column;
         sizeTexUnit = textureArray.sizeTexUnit;
         sprite.setTexture(textureArray.texture);
+        setCenter(textureArray.centerX, textureArray.centerY);
         setId(0);
     }
     GSprite(const GTexture &textureArray) {

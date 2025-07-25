@@ -4,6 +4,7 @@
 #include <timeManager.h>
 #include "controller.h"
 #include "render/sprite.h"
+#include "GComman.h"
 class GObject {
   public:
     virtual ~GObject() {};
@@ -27,7 +28,7 @@ class GSceneComponent : public GComponent {
 
   public:
     void setPositionRelative(const FVector3 &posRelative_) { positionRelative = posRelative_; }
-    void attachToComponent(GSceneComponent *parent_) { parentComp = this; }
+    void attachToComponent(GSceneComponent *parent_) { parentComp = parent_; }
     FVector3 &getPositionRelative() { return positionRelative; }
     FVector3 getPositionWs();
 };
@@ -41,7 +42,7 @@ class GStaticSpriteComponent : public GSceneComponent {
     GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
     virtual void loop(WindowBase &window_) override;
 };
-class GActor : GObject {
+class GActor : public GObject {
   private:
   private:
     std::vector<GComponent *> __allComponents;
@@ -56,6 +57,7 @@ class GActor : GObject {
     virtual void loop(float deltatime_, WindowBase &window_);
     const FVector3 &getPositionWs() const { return positionWs; }
     void setPositionWs(const FVector3 &posWs_) { positionWs = posWs_; };
+    void addPositionOffsetWs(const FVector3 &offset) { setPositionWs(positionWs + offset); }
     template <class T> T *createComponent() {
         T *comp = new T();
         comp->init(this);
@@ -86,18 +88,21 @@ class GActor : GObject {
 
 class GCameraComponent : public GSceneComponent {
   private:
-    float pixSize = 15;
+    float pixSize = 1;
     FVector3 positionForRender;
     FVector3 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
         return {((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f), ((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f - (PositionInWS.z / pixSize)), 0};
     }
 
   public:
+    FVector3 winToWs(const IVector2 &posWin_, WindowBase &window_) {
+        return {(posWin_.x - window_.getDefaultView().getSize().x / 2) * pixSize + getPositionWs().x, (posWin_.y - window_.getDefaultView().getSize().y / 2) * pixSize + getPositionWs().y, 0};
+    }
     // 统一渲染时相机位置
     void renderFix() { positionForRender = getPositionWs(); }
     void drawSpr(GSprite *spr_, WindowBase &window_, const FVector3 &posWs_) {
-        int winW = window_.getSize().x;
-        int winH = window_.getSize().y;
+        int winW = window_.getDefaultView().getSize().x;
+        int winH = window_.getDefaultView().getSize().y;
         const FVector3 &posWin = wsToWin(posWs_, winW, winH);
         spr_->setPositionWin(posWin.x, posWin.y);
         spr_->drawWin(window_);
@@ -109,28 +114,61 @@ class GCamera : public GActor {
     GCameraComponent *cameraComp = nullptr;
     GCamera() { cameraComp = createComponent<GCameraComponent>(); }
 };
+class GMoveComponent : public GComponent {
+    FVector3 moveVector = {0, 0, 0};
+    FVector3 target = {0, 0, 0};
+
+  public:
+    float moveX = 0;
+    float moveY = 0;
+    float moveZ = 0;
+    float speed = 0.03;
+    FVector3 getMoveVector() { return moveVector; }
+    void move() {
+        moveVector = vectorNormalize({moveX, moveY, moveZ});
+        owner->addPositionOffsetWs(moveVector * speed);
+        moveX = 0;
+        moveY = 0;
+        moveZ = 0;
+    }
+    bool isAutoMove = false;
+    void autoMove() {
+        const FVector3 &vec = target - owner->getPositionWs();
+        float len = getVectorLen(vec);
+        if (len < 0.001) {
+            moveVector = {0, 0, 0};
+            isAutoMove=false;
+        } else {
+            moveVector = vectorNormalize(vec);
+        }
+        owner->addPositionOffsetWs(moveVector * speed);
+    }
+    void setTarget(const FVector3 &target_) {
+        target = target_;
+        isAutoMove = true;
+    }
+    void loop(WindowBase &window_) override {
+        if (isAutoMove) {
+            autoMove();
+        } else {
+            move();
+        }
+    }
+};
 class GPlayer : public GActor {
   public:
     GCameraComponent *camera = nullptr;
     GStaticSpriteComponent *spr = nullptr;
+    GMoveComponent *moveComp = nullptr;
     GController controller;
     GTexture tex;
-    GPlayer() {
-        camera = createComponent<GCameraComponent>();
-        spr = createComponent<GStaticSpriteComponent>();
-        tex.init(1, 1, "res/a.png");
-        spr->setTex(tex);
-        controller.bind(GController::a, [this]() { setPositionWs(getPositionWs() + FVector3(-0.1, 0, 0)); });
-        controller.bind(GController::d, [this]() { setPositionWs(getPositionWs() + FVector3(0.1, 0, 0)); });
-        controller.bind(GController::w, [this]() { setPositionWs(getPositionWs() + FVector3(0, -0.1, 0)); });
-        controller.bind(GController::s, [this]() { setPositionWs(getPositionWs() + FVector3(0, 0.1, 0)); });
-    }
+    GPlayer();
 };
 class actorTest : public GActor {
   public:
     GTexture tex_;
     actorTest() {
-        tex_.init(1, 1, "res/test.png");
+        tex_.init(1, 1, 0, 0, "res/test.png");
         GStaticSpriteComponent *comp = createComponent<GStaticSpriteComponent>();
         comp->setTex(tex_);
     }
@@ -138,12 +176,6 @@ class actorTest : public GActor {
 class GameMode : public GObject {
   public:
     GPlayer *player = nullptr;
-    GController *controller = nullptr;
-    ~GameMode() {
-
-        if (controller)
-            delete controller;
-    }
 };
 
 class GWorld : public GObject {
@@ -157,6 +189,7 @@ class GWorld : public GObject {
     GController controllerDefault;
     GController *controllerActive = nullptr;
     GTexture tex;
+    float deltaTime = 0.1;
     void bindDefaultCameraController() {
         cameraActive = (cameraDefault.cameraComp);
         controllerActive = &controllerDefault;
@@ -187,7 +220,13 @@ class GWorld : public GObject {
         }
         createActor<actorTest>();
     }
-    void loop(float deltaTime_, WindowBase &window_, EventBase &event_) {
+    void pollActorsActive(WindowBase &window_) {
+        std::sort(allActorsActive.begin(), allActorsActive.end(), [](GActor *a, GActor *b) { return a->getPositionWs().y < b->getPositionWs().y; });
+        for (GActor *actor : allActorsActive) {
+            actor->loop(deltaTime, window_);
+        }
+    }
+    void loop(WindowBase &window_, EventBase &event_) {
         controllerActive->loop(window_, event_);
 
         //  计时器任务
@@ -197,32 +236,40 @@ class GWorld : public GObject {
         window_.clear(sf::Color::Black);
 
         // actor逻辑
-        GActor::loopAllActorsActive(allActorsActive, deltaTime_, cameraActive, window_);
+        pollActorsActive(window_);
         window_.display();
     }
-    ~GWorld() {}
+    ~GWorld() {
+        for (GActor *ptr : allActorsActive) {
+            delete ptr;
+        }
+    }
 };
+class LevelManager : public GObject {};
 class GGame : GObject {
   private:
     GWorld *curWorld = nullptr;
-    WindowBase window;
+
     sf::Event event;
 
   public:
+    WindowBase window;
+    static GGame *getGameIns() {
+        static GGame game;
+        return &game;
+    }
     GGame() {
         window.create(sf::VideoMode(800, 600), "Game");
         sf::Image icon;
         icon.loadFromFile("res/a.png");
-
         window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
         curWorld = new GWorld();
     }
     void loop() {
-        float deltaTime = 0.1;
 
         while (window.isOpen()) {
 
-            curWorld->loop(deltaTime, window, event);
+            curWorld->loop(window, event);
         }
     }
 };
