@@ -63,7 +63,7 @@ class GController {
             }
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
-                    for (Cbk &cbk : cbks[q]) {
+                    for (Cbk &cbk : cbks[left]) {
                         cbk.function();
                     }
                 }

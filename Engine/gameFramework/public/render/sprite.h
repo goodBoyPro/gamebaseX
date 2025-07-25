@@ -11,18 +11,16 @@ class GTexture {
     float centerX;
     float centerY;
     IVector2 sizeTexUnit;
-    GTexture()=default;
-    void init(int row_, int column_, float centerX_,float centerY_,const std::string &path) {
+    GTexture() = default;
+    void init(int row_, int column_, float centerX_, float centerY_, const std::string &path) {
         texture.loadFromFile(path);
         row = row_;
         column = column_;
         centerX = centerX_;
-        centerY=centerY_;
+        centerY = centerY_;
         sizeTexUnit = {(int)(texture.getSize().x / column_), (int)(texture.getSize().y / row_)};
     }
-    GTexture(int row_, int column_, float centerX_,float centerY_,const std::string &path) {
-        init(row_, column_,centerX_,centerY_, path);
-    }
+    GTexture(int row_, int column_, float centerX_, float centerY_, const std::string &path) { init(row_, column_, centerX_, centerY_, path); }
 };
 // 图片资源大小应为2的幂
 class GSprite {
@@ -32,10 +30,15 @@ class GSprite {
     int rows;
     int columns;
     int curId = 0;
-    float sortFlag=0;
+
   public:
-    GSprite() =default;
-    void setSortFlag(float value_){sortFlag=value_;}
+    // 用户不要引用
+    float sortFlag = 0;
+    FVector3 posWs={0,0,0};
+
+  public:
+    GSprite() = default;
+    void setSortFlag(float value_) { sortFlag = value_; }
     void init(const GTexture &textureArray) {
         rows = textureArray.row;
         columns = textureArray.column;
@@ -44,9 +47,7 @@ class GSprite {
         setCenter(textureArray.centerX, textureArray.centerY);
         setId(0);
     }
-    GSprite(const GTexture &textureArray) {
-        init(textureArray);
-    }
+    GSprite(const GTexture &textureArray) { init(textureArray); }
     void setId(int index) {
         if (index >= rows * columns)
             index = rows * columns - 1;

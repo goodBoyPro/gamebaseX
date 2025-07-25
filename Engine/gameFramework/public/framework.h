@@ -18,7 +18,7 @@ class GComponent : public GObject {
     GComponent() {}
     virtual void init(GActor *owner_) { owner = owner_; }
 
-    virtual void loop(WindowBase &window_,float deltaTime_) {}
+    virtual void loop(WindowBase &window_, float deltaTime_) {}
 };
 class GSceneComponent : public GComponent {
   private:
@@ -33,22 +33,23 @@ class GSceneComponent : public GComponent {
     FVector3 getPositionWs();
 };
 class GPriimitiveComponent : public GSceneComponent {};
-class GRnderObjComponent:public GSceneComponent{
+class GRnderObjComponent : public GSceneComponent {
   private:
-  GSprite*sprite=nullptr;;
+    GSprite *sprite = nullptr;
+
   public:
-  void setRenderSpr(GSprite*spr_){sprite=spr_;}
-  virtual void loop(WindowBase &window_,float deltaTime_) override;
+    void setRenderSpr(GSprite *spr_) { sprite = spr_; }
+    GSprite *getRenderSpr() { return sprite; }
+    virtual void loop(WindowBase &window_, float deltaTime_) override;
 };
 class GStaticSpriteComponent : public GRnderObjComponent {
     GSprite spr;
 
   public:
-    GStaticSpriteComponent() {setRenderSpr(&spr);}
+    GStaticSpriteComponent() { setRenderSpr(&spr); }
     void setTex(GTexture &tex) { spr.init(tex); }
-    GSprite& getSprite(){return spr;}
+    GSprite &getSprite() { return spr; }
     GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
-    
 };
 class GActor : public GObject {
   private:
@@ -134,7 +135,7 @@ class GMoveComponent : public GComponent {
     FVector3 getMoveVector() { return moveVector; }
     void move(float deltaTime_) {
         moveVector = vectorNormalize({moveX, moveY, moveZ});
-        owner->addPositionOffsetWs(moveVector * speed*deltaTime_);
+        owner->addPositionOffsetWs(moveVector * speed * deltaTime_);
         moveX = 0;
         moveY = 0;
         moveZ = 0;
@@ -145,17 +146,17 @@ class GMoveComponent : public GComponent {
         float len = getVectorLen(vec);
         if (len < 0.001) {
             moveVector = {0, 0, 0};
-            isAutoMove=false;
+            isAutoMove = false;
         } else {
             moveVector = vectorNormalize(vec);
         }
-        owner->addPositionOffsetWs(moveVector * speed*deltaTime_);
+        owner->addPositionOffsetWs(moveVector * speed * deltaTime_);
     }
     void setTarget(const FVector3 &target_) {
         target = target_;
         isAutoMove = true;
     }
-    void loop(WindowBase &window_,float deltaTime_) override {
+    void loop(WindowBase &window_, float deltaTime_) override {
         if (isAutoMove) {
             autoMove(deltaTime_);
         } else {
@@ -191,6 +192,7 @@ class GWorld : public GObject {
     GameMode gm;
     struct ActorsType {};
     std::vector<GActor *> allActorsActive;
+    std::vector<GSprite *> allRenderObj;
     GCamera cameraDefault;
     GCameraComponent *cameraActive = nullptr;
     TimeManager timeManager;
@@ -216,6 +218,7 @@ class GWorld : public GObject {
         allActorsActive.push_back(actor);
         return actor;
     }
+    std::vector<GSprite *>&getRenderObjComps(){return allRenderObj;}
     GCameraComponent *getCameraActive() { return cameraActive; }
     GController *getControllerActive() { return controllerActive; }
 
@@ -230,13 +233,18 @@ class GWorld : public GObject {
         createActor<actorTest>();
     }
     void pollActorsActive(WindowBase &window_) {
-        std::sort(allActorsActive.begin(), allActorsActive.end(), [](GActor *a, GActor *b) { return a->getPositionWs().y < b->getPositionWs().y; });
+        // std::sort(allActorsActive.begin(), allActorsActive.end(), [](GActor *a, GActor *b) { return a->getPositionWs().y < b->getPositionWs().y; });
         for (GActor *actor : allActorsActive) {
             actor->loop(deltaTime, window_);
         }
+        std::sort(allRenderObj.begin(), allRenderObj.end(), [](GSprite *a, GSprite *b) { return a->posWs.y < b->posWs.y; });
+        for (GSprite *robj : allRenderObj) {
+            cameraActive->drawSpr(robj, window_, robj->posWs);
+        }
+        allRenderObj.resize(0);
     }
     void loop(WindowBase &window_, EventBase &event_) {
-        deltaTime=clock.restart().asSeconds();
+        deltaTime = clock.restart().asSeconds();
         controllerActive->loop(window_, event_);
 
         //  计时器任务

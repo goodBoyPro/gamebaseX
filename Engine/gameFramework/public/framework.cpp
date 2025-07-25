@@ -7,7 +7,7 @@ int main() {
 }
 void GActor::loop(float deltatime, WindowBase &window_) {
     for (GComponent *comp : __allComponents) {
-        comp->loop(window_,deltatime);
+        comp->loop(window_, deltatime);
     }
 }
 void GActor::setActive() { isActive = true; };
@@ -18,10 +18,14 @@ FVector3 GSceneComponent::getPositionWs() {
         return parentComp->getPositionWs() + positionRelative;
     return owner->getPositionWs() + positionRelative;
 }
-void GRnderObjComponent::loop(WindowBase &window_,float deltaTime_) { owner->getWorld()->getCameraActive()->drawSpr(sprite, window_, getPositionWs()); }
+void GRnderObjComponent::loop(WindowBase &window_, float deltaTime_) {
+    // owner->getWorld()->getCameraActive()->drawSpr(sprite, window_, getPositionWs());
+    owner->getWorld()->getRenderObjComps().push_back(sprite);
+    sprite->posWs = getPositionWs();
+}
 GPlayer::GPlayer() {
     moveComp = createComponent<GMoveComponent>();
-    moveComp->speed=100;
+    moveComp->speed = 100;
     cameraComp = createComponent<GCameraComponent>();
     sprComp = createComponent<GStaticSpriteComponent>();
     tex.init(5, 5, 0.5, 1, "res/trees_256x5.png");
