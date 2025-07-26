@@ -18,7 +18,7 @@ FVector3 GSceneComponent::getPositionWs() {
         return parentComp->getPositionWs() + positionRelative;
     return owner->getPositionWs() + positionRelative;
 }
-void GRnderObjComponent::loop(WindowBase &window_, float deltaTime_) {
+void GRenderObjComponent::loop(WindowBase &window_, float deltaTime_) {
     // owner->getWorld()->getCameraActive()->drawSpr(sprite, window_, getPositionWs());
     owner->getWorld()->getRenderObjComps().push_back(sprite);
     sprite->posWs = getPositionWs();

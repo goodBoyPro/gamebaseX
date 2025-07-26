@@ -33,7 +33,7 @@ class GSceneComponent : public GComponent {
     FVector3 getPositionWs();
 };
 class GPriimitiveComponent : public GSceneComponent {};
-class GRnderObjComponent : public GSceneComponent {
+class GRenderObjComponent : public GSceneComponent {
   private:
     GSprite *sprite = nullptr;
 
@@ -42,7 +42,7 @@ class GRnderObjComponent : public GSceneComponent {
     GSprite *getRenderSpr() { return sprite; }
     virtual void loop(WindowBase &window_, float deltaTime_) override;
 };
-class GStaticSpriteComponent : public GRnderObjComponent {
+class GStaticSpriteComponent : public GRenderObjComponent {
     GSprite spr;
 
   public:
@@ -50,6 +50,22 @@ class GStaticSpriteComponent : public GRnderObjComponent {
     void setTex(GTexture &tex) { spr.init(tex); }
     GSprite &getSprite() { return spr; }
     GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
+};
+class GSympleAnimationComponent : public GRenderObjComponent {
+  public:
+    GAnimation anim;
+    GSympleAnimationComponent() {        
+        setRenderSpr(&anim);        
+        anim.play();
+    }
+    GAnimation&getAnimation(){return anim;}
+    void setAnim(GTexture &tex, int beg_, int end_) {
+        anim.init(tex,beg_,end_);
+    }
+    void loop(WindowBase &window_, float deltaTime_) override {
+        GRenderObjComponent::loop(window_, deltaTime_);
+        anim.loop(deltaTime_);
+    }
 };
 class GActor : public GObject {
   private:
@@ -144,7 +160,7 @@ class GMoveComponent : public GComponent {
     void autoMove(float deltaTime_) {
         const FVector3 &vec = target - owner->getPositionWs();
         float len = getVectorLen(vec);
-        if (len < 0.001) {
+        if (len < 2) {
             moveVector = {0, 0, 0};
             isAutoMove = false;
         } else {
@@ -177,9 +193,8 @@ class actorTest : public GActor {
   public:
     GTexture tex_;
     actorTest() {
-        tex_.init(1, 1, 0, 0, "res/test.png");
-        GStaticSpriteComponent *comp = createComponent<GStaticSpriteComponent>();
-        comp->setTex(tex_);
+        tex_.init(4, 20, 0.5, 1, "res/animation/walk.png");
+        createComponent<GSympleAnimationComponent>()->setAnim(tex_, 0, 19);
     }
 };
 class GameMode : public GObject {
@@ -218,7 +233,7 @@ class GWorld : public GObject {
         allActorsActive.push_back(actor);
         return actor;
     }
-    std::vector<GSprite *>&getRenderObjComps(){return allRenderObj;}
+    std::vector<GSprite *> &getRenderObjComps() { return allRenderObj; }
     GCameraComponent *getCameraActive() { return cameraActive; }
     GController *getControllerActive() { return controllerActive; }
 
@@ -252,7 +267,7 @@ class GWorld : public GObject {
         cameraActive->renderFix();
         // 渲染
         window_.clear(sf::Color::Black);
-
+        printText(window_,L"文本测试");
         // actor逻辑
         pollActorsActive(window_);
         // UI逻辑
@@ -280,6 +295,7 @@ class GGame : GObject {
     }
     GGame() {
         window.create(sf::VideoMode(800, 600), "Game");
+        window.setFramerateLimit(60);
         sf::Image icon;
         icon.loadFromFile("res/a.png");
         window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());

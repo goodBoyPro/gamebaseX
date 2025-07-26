@@ -3,7 +3,11 @@
 #include "base/base.h"
 #include "cmath"
 #include "string"
-class GTexture {
+class GSource {
+  public:
+    virtual ~GSource() {}
+};
+class GTexture : public GSource {
   public:
     TextureBase texture;
     int column;
@@ -34,7 +38,7 @@ class GSprite {
   public:
     // 用户不要引用
     float sortFlag = 0;
-    FVector3 posWs={0,0,0};
+    FVector3 posWs = {0, 0, 0};
 
   public:
     GSprite() = default;
@@ -48,6 +52,7 @@ class GSprite {
         setId(0);
     }
     GSprite(const GTexture &textureArray) { init(textureArray); }
+    int getCurId() { return curId; }
     void setId(int index) {
         if (index >= rows * columns)
             index = rows * columns - 1;
@@ -66,5 +71,53 @@ class GSprite {
     void setCenter(float x, float y) { sprite.setOrigin(x * sizeTexUnit.x, y * sizeTexUnit.y); }
     void drawWin(WindowBase &window_) { window_.draw(sprite); }
 };
-class GAnimation : public GSprite {};
+class GAnimation : public GSprite {
+  private:
+    int idBegin = 0;
+    int idEnd = 0;
+    bool bPlaying = false;
+
+    float updateDelayS = 0.05;
+    float updateFlag = 0;
+
+  public:
+    GAnimation() {}
+    void init(const GTexture &textureArray, int beg_, int end_) {
+        GSprite::init(textureArray);
+        setAnimPiece(beg_, end_);
+    }
+    void setFramePerS(int f_) {
+        if (f_ < 1)
+            return;
+        updateDelayS = 1.f / f_;
+    }
+    void setAnimPiece(int idBeg_, int idEnd_) {
+        idBegin = idBeg_;
+        idEnd = idEnd_;
+        setId(idBegin);
+    }
+    void play() { bPlaying = true; }
+    void playFrom(int id_) {
+        bPlaying = true;
+        int i=idBegin;
+        if (id_ < idBegin || id_ > idEnd)
+            return;
+        i=id_;
+        setId(i);
+    }
+    void stop() { bPlaying = false; }
+    void loop(float deltaTime) {
+        if (!bPlaying)
+            return;
+        if (updateFlag > updateDelayS) {
+            if (getCurId() < idEnd) {
+                setId(getCurId() + 1);
+            } else {
+                setId(idBegin);
+            }
+            updateFlag = 0;
+        }
+        updateFlag += deltaTime;
+    }
+};
 #endif // SPRITE_H
