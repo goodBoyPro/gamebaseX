@@ -1,10 +1,5 @@
 #include <framework.h>
 
-int main() {
-    GGame *gameins = GGame::getGameIns();
-    gameins->loop();
-    return 0;
-}
 void GActor::loop(float deltatime, WindowBase &window_) {
     for (GComponent *comp : __allComponents) {
         comp->loop(window_, deltatime);

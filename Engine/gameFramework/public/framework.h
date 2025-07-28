@@ -54,14 +54,12 @@ class GStaticSpriteComponent : public GRenderObjComponent {
 class GSympleAnimationComponent : public GRenderObjComponent {
   public:
     GAnimation anim;
-    GSympleAnimationComponent() {        
-        setRenderSpr(&anim);        
+    GSympleAnimationComponent() {
+        setRenderSpr(&anim);
         anim.play();
     }
-    GAnimation&getAnimation(){return anim;}
-    void setAnim(GTexture &tex, int beg_, int end_) {
-        anim.init(tex,beg_,end_);
-    }
+    GAnimation &getAnimation() { return anim; }
+    void setAnim(GTexture &tex, int beg_, int end_) { anim.init(tex, beg_, end_); }
     void loop(WindowBase &window_, float deltaTime_) override {
         GRenderObjComponent::loop(window_, deltaTime_);
         anim.loop(deltaTime_);
@@ -76,6 +74,8 @@ class GActor : public GObject {
     class GWorld *worldPtr = nullptr;
 
   public:
+    virtual void beginPlay() {}
+    virtual void tick() {}
     GActor() {};
     void actorBaseInit(GWorld *worldPtr_) { worldPtr = worldPtr_; }
     GWorld *getWorld() { return worldPtr; }
@@ -180,6 +180,7 @@ class GMoveComponent : public GComponent {
         }
     }
 };
+class GAnimationSystemComponent : public GRenderObjComponent {};
 class GPlayer : public GActor {
   public:
     GCameraComponent *cameraComp = nullptr;
@@ -189,12 +190,25 @@ class GPlayer : public GActor {
     GTexture tex;
     GPlayer();
 };
-class actorTest : public GActor {
+class GAnimActor : public GActor {
+  public:
+    GSympleAnimationComponent *sprComp = nullptr;
+    GAnimActor() {}
+    void construct(GTexture &tex_, int begin_ = 0, int end_ = 0, int frameSpeed_ = 15) {
+        sprComp = createComponent<GSympleAnimationComponent>();
+        sprComp->setAnim(tex_, begin_, end_);
+        sprComp->getAnimation().setFramePerS(frameSpeed_);
+    }
+};
+class GStaticActor : public GActor {
   public:
     GTexture tex_;
-    actorTest() {
-        tex_.init(4, 20, 0.5, 1, "res/animation/walk.png");
-        createComponent<GSympleAnimationComponent>()->setAnim(tex_, 0, 19);
+    GStaticSpriteComponent *sprComp = nullptr;
+    GStaticActor() {}
+    void construct(GTexture &tex_, int id_) {
+        sprComp = createComponent<GStaticSpriteComponent>();
+        sprComp->getSprite().init(tex_);
+        sprComp->getSprite().setId(id_);
     }
 };
 class GameMode : public GObject {
@@ -213,7 +227,6 @@ class GWorld : public GObject {
     TimeManager timeManager;
     GController controllerDefault;
     GController *controllerActive = nullptr;
-    GTexture tex;
     float deltaTime = 0.1;
     sf::Clock clock;
     void bindDefaultCameraController() {
@@ -226,7 +239,12 @@ class GWorld : public GObject {
     }
 
   public:
-    template <class playerClass> void setGameMode() { gm.player = createActor<playerClass>(); }
+    template <class playerClass> void setGameMode() {
+        //如果gm.player不为空，应先释放
+        gm.player = createActor<playerClass>();
+        cameraActive = (gm.player->cameraComp);
+        controllerActive = &(gm.player->controller);
+    }
     template <class T> T *createActor() {
         T *actor = new T();
         actor->actorBaseInit(this);
@@ -240,12 +258,9 @@ class GWorld : public GObject {
     GWorld() {
         bindDefaultCameraController();
 
-        setGameMode<GPlayer>();
-        if (gm.player) {
-            cameraActive = (gm.player->cameraComp);
-            controllerActive = &(gm.player->controller);
-        }
-        createActor<actorTest>();
+        
+
+        // test
     }
     void pollActorsActive(WindowBase &window_) {
         // std::sort(allActorsActive.begin(), allActorsActive.end(), [](GActor *a, GActor *b) { return a->getPositionWs().y < b->getPositionWs().y; });
@@ -267,7 +282,7 @@ class GWorld : public GObject {
         cameraActive->renderFix();
         // 渲染
         window_.clear(sf::Color::Black);
-        printText(window_,L"文本测试");
+        printText(window_, L"文本测试");
         // actor逻辑
         pollActorsActive(window_);
         // UI逻辑
@@ -289,6 +304,12 @@ class GGame : GObject {
 
   public:
     WindowBase window;
+    template <class T>GWorld* createWorld() {
+        delete curWorld;
+        curWorld = new T;
+        return curWorld;
+    }
+
     static GGame *getGameIns() {
         static GGame game;
         return &game;
@@ -299,8 +320,8 @@ class GGame : GObject {
         sf::Image icon;
         icon.loadFromFile("res/a.png");
         window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
-        curWorld = new GWorld();
     }
+    ~GGame() { delete curWorld; }
     void loop() {
 
         while (window.isOpen()) {
@@ -310,5 +331,4 @@ class GGame : GObject {
     }
 };
 
-int main();
 #endif // FRAMEWORK_H
