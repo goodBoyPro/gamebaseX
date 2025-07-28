@@ -39,12 +39,20 @@ set(CMAKE_BUILD_RPATH ${ABS_DIR}/build)
 set(EXECUTABLE_OUTPUT_PATH ${ABS_DIR}/output)
 add_executable(Start start.cpp version.rc)
 
+#Game
 set(exeName Game)
 file(GLOB_RECURSE src 
     ${ABS_DIR}/Engine/gameFramework/*.cpp
     version.rc)
-
 add_executable(${exeName}  ${src})
 set_target_properties(${exeName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ABS_DIR}/output/bin)
 target_link_directories(${exeName} PRIVATE ${ABS_DIR}/Engine/ExternLibrary/SFML/lib)
 target_link_libraries(${exeName} opengl32 sfml-graphics sfml-window sfml-system sfml-audio  winmm)
+
+#mainTest
+set(exeName mainTest)
+file(GLOB_RECURSE src 
+    ${ABS_DIR}/cpptest/*.cpp
+    )
+add_executable(${exeName}  ${src})
+set_target_properties(${exeName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ABS_DIR}/output/bin)
