@@ -11,5 +11,5 @@ int main(){
     std::cout << c << std::endl;
     buf->sgetn(c, 9);
     std::cout << c << std::endl;
-    return 0;
+    return 0; 
 }
