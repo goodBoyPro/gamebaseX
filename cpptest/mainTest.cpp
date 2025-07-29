@@ -2,14 +2,16 @@
 #include"fstream"
 #include "string"
 #include"iostream"
+struct Wtest{int a=10;float b=0.5;};
 int main(){
     std::ifstream ifile;
     ifile.open("fileTest.txt", std::ios::binary);
     char c[10]={0};
     std::streambuf *buf = ifile.rdbuf();
-    buf->sgetn(c, 9);
-    std::cout << c << std::endl;
-    buf->sgetn(c, 9);
-    std::cout << c << std::endl;
+    
+    std::ofstream ofile;
+    ofile.open("writeTest.txt",std::ios::binary);
+    Wtest w;
+    ofile.write((char*)(&w), sizeof w);
     return 0; 
 }
