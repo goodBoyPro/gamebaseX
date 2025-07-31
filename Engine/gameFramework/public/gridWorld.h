@@ -1,7 +1,12 @@
+#ifndef GRIDWORLD_H
+#define GRIDWORLD_H
+
+
 #include <functional>
 #include <mutex>
 #include <set>
 #include <mutex>
+#include <shared_mutex>
 #include<base//base.h>
 template <class T> class ListSafe : public std::multiset<T> {
   private:
@@ -205,3 +210,4 @@ template <class T> class GridMap {
         printf("releasedActorNumber:%d\n", releasedActorNum);
     }
 };
+#endif // GRIDWORLD_H
