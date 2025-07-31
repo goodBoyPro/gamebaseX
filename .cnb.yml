@@ -1,0 +1,17 @@
+# 这是一个云原生构建流水线的示例模板
+# 完整语法参考：https://docs.cool.cn/zh/cnb/grammar/
+
+main: # 定义触发分支为main
+  push: # 定义触发事件为代码推送
+    - name: pipeline-1  # 第一条流水线名称
+      stages:
+        - name: stage-1  # 流水线中的阶段
+          jobs:
+            - name: job-1  # 阶段中的任务
+              script: echo "in pipeline-1"  # 任务执行脚本
+    - name: pipeline-2  # 第二条流水线名称
+      stages:
+        - name: stage-1  # 流水线中的阶段（可与第一条同名）
+          jobs:
+            - name: job-1  # 阶段中的任务
+              script: echo "in pipeline-2"  # 任务执行脚本
