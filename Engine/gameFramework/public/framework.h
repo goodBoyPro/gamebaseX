@@ -5,6 +5,7 @@
 #include "controllerX.h"
 #include "render/sprite.h"
 #include "GComman.h"
+#include<GDebug.h>
 class GObject {
   public:
     virtual ~GObject() {};
@@ -282,11 +283,12 @@ class GWorld : public GObject {
         cameraActive->renderFix();
         // 渲染
         window_.clear(sf::Color::Black);
-        printText(window_, L"文本测试");
         // actor逻辑
         pollActorsActive(window_);
         // UI逻辑
         //
+        // debug
+        GDebug::debugDisplay(window_);
         window_.display();
     }
     ~GWorld() {
