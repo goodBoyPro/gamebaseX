@@ -3,11 +3,11 @@
 #include "base/base.h"
 #include "cmath"
 #include "string"
-class GSource {
+class GSourceObj {
   public:
-    virtual ~GSource() {}
+    virtual ~GSourceObj() {}
 };
-class GTexture : public GSource {
+class GTexture : public GSourceObj {
   public:
     TextureBase texture;
     int column;
@@ -15,7 +15,7 @@ class GTexture : public GSource {
     float centerX;
     float centerY;
     IVector2 sizeTexUnit;
-    GTexture() = default;
+    GTexture(){};
     void init(int row_, int column_, float centerX_, float centerY_, const std::string &path) {
         texture.loadFromFile(path);
         row = row_;

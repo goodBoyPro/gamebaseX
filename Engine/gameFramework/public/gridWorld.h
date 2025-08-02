@@ -6,7 +6,7 @@
 #include <set>
 #include <shared_mutex>
 
-template <class T> class ListSafe : public std::multiset<T*> {
+template <class T> class ListSafe : public std::multiset<T *> {
 private:
   std::vector<T *> invalidActors;
 
@@ -14,11 +14,11 @@ public:
   std::mutex mut;
   void addActor(T *a) {
     std::unique_lock lk(mut);
-    std::multiset<T*>::insert(a);
+    std::multiset<T *>::insert(a);
   }
   void remove(T *ptr) {
     std::unique_lock lk(mut);
-    std::multiset<T>::erase(ptr);
+    std::multiset<T *>::erase(ptr);
   }
   void pollList(std::function<void(T *)> callback) {
     std::unique_lock lk(mut);
@@ -92,7 +92,8 @@ public:
   float edgeUp;
   float edgeDown;
   gridmapNode<T> *allNode;
-  std::multiset<T *, compare> actorsAlive;
+  //   std::multiset<T *, compare> actorsAlive;
+  std::vector<T *> actorsAlive;
 
 public:
   GridMap() {}
@@ -115,7 +116,7 @@ public:
     edgeLeft = beginPoint.x + width;
     edgeRight = beginPoint.x + width * (column - 1);
     int num = row * column;
-    allNode = new gridmapNode<T >[num];
+    allNode = new gridmapNode<T>[num];
     for (int i = 0; i < num; i++) {
       gridmapNode<T> &an = allNode[i];
 
@@ -125,29 +126,29 @@ public:
         continue;
       }
 
-      an.nodeNear[gridmapNode<T >::down] =
+      an.nodeNear[gridmapNode<T>::down] =
           i + column < num - row ? &allNode[i + column] : nullptr; // ok
-      an.nodeNear[gridmapNode<T >::left] =
+      an.nodeNear[gridmapNode<T>::left] =
           (i - 1) % column != 0 ? &allNode[i - 1] : nullptr; // ok
-      an.nodeNear[gridmapNode<T >::leftdown] =
+      an.nodeNear[gridmapNode<T>::leftdown] =
           i + column - 1 < num - row && (i + column - 1) % column != 0
               ? &allNode[i + column - 1]
               : nullptr;
-      an.nodeNear[gridmapNode<T >::leftup] =
+      an.nodeNear[gridmapNode<T>::leftup] =
           i - column - 1 > column - 1 && (i - column - 1) % column != 0
               ? &allNode[i - column - 1]
               : nullptr;
-      an.nodeNear[gridmapNode<T >::right] =
+      an.nodeNear[gridmapNode<T>::right] =
           (i + 1) % column != column - 1 ? &allNode[i + 1] : nullptr; // ok
-      an.nodeNear[gridmapNode<T >::rightdown] =
+      an.nodeNear[gridmapNode<T>::rightdown] =
           i + column + 1 < num - row && (i + column + 1) % column != column - 1
               ? &allNode[i + column + 1]
               : nullptr;
-      an.nodeNear[gridmapNode<T >::rightup] =
+      an.nodeNear[gridmapNode<T>::rightup] =
           i - column + 1 > column - 1 && (i - column + 1) % column != column - 1
               ? &allNode[i - column + 1]
               : nullptr;
-      an.nodeNear[gridmapNode<T >::up] =
+      an.nodeNear[gridmapNode<T>::up] =
           i - column > column - 1 ? &allNode[i - column] : nullptr; // ok
     }
   }
@@ -160,7 +161,7 @@ public:
     int row_ = (pos.y - beginPoint.y) / height;
     return row_ * column + column_;
   }
-  std::vector<T *> badActors;//未处理
+  std::vector<T *> badActors;
   int addActor(T *a) {
     int id = getPositionIndex(a->getPositionWs());
     if (id) {
@@ -183,16 +184,16 @@ public:
     for (auto elem : badActors)
       delete elem;
     badActors.clear();
-    gridmapNode<T > &gridNode = allNode[centerId];
-
-    gridNode.actors.pollList([&](T *a) { actorsAlive.insert(a); });
+    gridmapNode<T> &gridNode = allNode[centerId];
+    actorsAlive.resize(0);
+    gridNode.actors.pollList([&](T *a) { actorsAlive.push_back(a); });
     for (auto elem : gridNode.nodeNear) {
       if (elem) {
-        elem->actors.pollList([&](T *a) { actorsAlive.insert(a); });
+        elem->actors.pollList([&](T *a) { actorsAlive.push_back(a); });
       }
     }
   }
-  void changeActorNode(T* ptr, int idNew, int idOld) {
+  void changeActorNode(T *ptr, int idNew, int idOld) {
     allNode[idOld].actors.remove(ptr);
     allNode[idNew].actors.addActor(ptr);
   }
@@ -205,7 +206,11 @@ public:
 
     return a;
   }
-  ~GridMap() { delete[] allNode; }
+  ~GridMap() {
+    delete[] allNode;
+    for (auto elem : badActors)
+      delete elem;
+  }
 };
 
 #endif // GRIDWORLD_H

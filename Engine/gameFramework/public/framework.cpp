@@ -18,14 +18,18 @@ void GRenderObjComponent::loop(WindowBase &window_, float deltaTime_) {
     owner->getWorld()->getRenderObjComps().push_back(sprite);
     sprite->posWs = getPositionWs();
 }
+GSource gs;
 GPlayer::GPlayer() {
     moveComp = createComponent<GMoveComponent>();
     moveComp->speed = 100;
     cameraComp = createComponent<GCameraComponent>();
     sprComp = createComponent<GStaticSpriteComponent>();
-    tex.init(5, 5, 0.5, 1, "res/trees_256x5.png");
-    sprComp->setTex(tex);
+
+    sprComp->setTex(getWorld()->getSource()->getTexture(110110));
     sprComp->getSprite().setId(10);
+    // tex.init(5, 5, 0.5, 1, "res/arr_110110_c_5_5_0_0_tree.png");
+    // sprComp->setTex(tex);
+    // sprComp->getSprite().setId(5);
     controller.bind(GController::a, [this]() {
         moveComp->moveX = -1;
         moveComp->isAutoMove = false;
@@ -47,4 +51,11 @@ GPlayer::GPlayer() {
         moveComp->setTarget(target);
     });
 }
-void GActor::setPositionWs(const FVector3 &posWs_) { positionWs = posWs_; };
+void GActor::setPositionWs(const FVector3 &posWs_) {
+  int nodeIdTemp = getWorld()->gridMap.getPositionIndex(posWs_);
+  if (nodeIdTemp != nodeId) {
+    getWorld()->gridMap.changeActorNode(this, nodeIdTemp, nodeId);
+    nodeId=nodeIdTemp;
+  }
+  
+  positionWs = posWs_; };
