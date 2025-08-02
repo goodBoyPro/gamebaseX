@@ -16,7 +16,8 @@ class MyWorld : public GWorld {
         createActor<GStaticActor>()->construct(tex, 0);
         createActor<MyActor>()->construct(tex, 0);
         createActor<GAnimActor>()->construct(tex, 0, 29);
-        setGameMode<GPlayer>();
+        setGameMode<GPlayer>().player->moveComp->speed=10;
+        
     }
 };
 int main() {

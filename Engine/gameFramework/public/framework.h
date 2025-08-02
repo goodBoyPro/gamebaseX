@@ -5,9 +5,11 @@
 #include "controllerX.h"
 #include "render/sprite.h"
 #include "GComman.h"
+#include"gridWorld.h"
 #include<GDebug.h>
 class GObject {
-  public:
+public:
+  bool isValid=true;
     virtual ~GObject() {};
 };
 class GComponent : public GObject {
@@ -82,7 +84,7 @@ class GActor : public GObject {
     GWorld *getWorld() { return worldPtr; }
     virtual void loop(float deltatime_, WindowBase &window_);
     const FVector3 &getPositionWs() const { return positionWs; }
-    void setPositionWs(const FVector3 &posWs_) { positionWs = posWs_; };
+    void setPositionWs(const FVector3 &posWs_);
     void addPositionOffsetWs(const FVector3 &offset) { setPositionWs(positionWs + offset); }
     template <class T> T *createComponent() {
         T *comp = new T();
@@ -221,7 +223,8 @@ class GWorld : public GObject {
   private:
     GameMode gm;
     struct ActorsType {};
-    std::vector<GActor *> allActorsActive;
+    // std::vector<GActor *> allActorsActive;
+    GridMap<GActor>gridMap;
     std::vector<GSprite *> allRenderObj;
     GCamera cameraDefault;
     GCameraComponent *cameraActive = nullptr;
@@ -240,16 +243,18 @@ class GWorld : public GObject {
     }
 
   public:
-    template <class playerClass> void setGameMode() {
+    template <class playerClass> GameMode& setGameMode() {
         //如果gm.player不为空，应先释放
         gm.player = createActor<playerClass>();
         cameraActive = (gm.player->cameraComp);
         controllerActive = &(gm.player->controller);
+        return gm;
     }
     template <class T> T *createActor() {
         T *actor = new T();
         actor->actorBaseInit(this);
-        allActorsActive.push_back(actor);
+        // allActorsActive.push_back(actor);
+        gridMap.addActor(actor);
         return actor;
     }
     std::vector<GSprite *> &getRenderObjComps() { return allRenderObj; }
@@ -257,7 +262,8 @@ class GWorld : public GObject {
     GController *getControllerActive() { return controllerActive; }
 
     GWorld() {
-        bindDefaultCameraController();
+      bindDefaultCameraController();
+      gridMap.init({-100,-100}, 50, 50, 10, 10);
 
         
 
@@ -265,7 +271,9 @@ class GWorld : public GObject {
     }
     void pollActorsActive(WindowBase &window_) {
         // std::sort(allActorsActive.begin(), allActorsActive.end(), [](GActor *a, GActor *b) { return a->getPositionWs().y < b->getPositionWs().y; });
-        for (GActor *actor : allActorsActive) {
+        int centerId=gridMap.getPositionIndex(cameraActive->getPositionWs());
+        gridMap.setActorsAlive(centerId);
+        for (GActor *actor : gridMap.actorsAlive) {
             actor->loop(deltaTime, window_);
         }
         std::sort(allRenderObj.begin(), allRenderObj.end(), [](GSprite *a, GSprite *b) { return a->posWs.y < b->posWs.y; });
@@ -292,9 +300,7 @@ class GWorld : public GObject {
         window_.display();
     }
     ~GWorld() {
-        for (GActor *ptr : allActorsActive) {
-            delete ptr;
-        }
+        
     }
 };
 class LevelManager : public GObject {};

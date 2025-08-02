@@ -47,3 +47,4 @@ GPlayer::GPlayer() {
         moveComp->setTarget(target);
     });
 }
+void GActor::setPositionWs(const FVector3 &posWs_) { positionWs = posWs_; };
