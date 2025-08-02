@@ -212,6 +212,7 @@ public:
   GController controller;
 
   GPlayer();
+  void beginPlay() override;
 };
 class GAnimActor : public GActor {
 public:
@@ -289,6 +290,7 @@ public:
   }
   template <class T> T *createActor() {
     T *actor = new T();
+    //特别注意，init是在构造函数之后执行的，子类要慎重写构造函数，推荐beginPlay()
     actor->actorBaseInit(this);
     int nodeId = gridMap.addActor(actor);
     actor->nodeId = nodeId;

@@ -24,9 +24,7 @@ GPlayer::GPlayer() {
     moveComp->speed = 100;
     cameraComp = createComponent<GCameraComponent>();
     sprComp = createComponent<GStaticSpriteComponent>();
-
-    sprComp->setTex(getWorld()->getSource()->getTexture(110110));
-    sprComp->getSprite().setId(10);
+   
     // tex.init(5, 5, 0.5, 1, "res/arr_110110_c_5_5_0_0_tree.png");
     // sprComp->setTex(tex);
     // sprComp->getSprite().setId(5);
@@ -58,4 +56,9 @@ void GActor::setPositionWs(const FVector3 &posWs_) {
     nodeId=nodeIdTemp;
   }
   
-  positionWs = posWs_; };
+  positionWs = posWs_;
+};
+void GPlayer::beginPlay() {
+  sprComp->setTex(getWorld()->getSource()->getTexture(110110));
+  sprComp->getSprite().setId(10);
+}
