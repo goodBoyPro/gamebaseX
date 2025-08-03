@@ -49,6 +49,7 @@ add_executable(${exeName}  ${src})
 set_target_properties(${exeName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ABS_DIR}/output/bin)
 target_link_directories(${exeName} PRIVATE ${ABS_DIR}/Engine/ExternLibrary/SFML/lib)
 target_link_libraries(${exeName} opengl32 sfml-graphics sfml-window sfml-system sfml-audio  winmm)
+target_compile_definitions(${exeName} PRIVATE -DEDITOR)
 
 #mainTest
 set(exeName mainTest)

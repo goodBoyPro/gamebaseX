@@ -3,8 +3,8 @@
         {
             "texId": 110110,
             "index":11,
-            "position":[100,-200,0],
-            "sizeWs":[100,100,0]
+            "position":[3,-3,0],
+            "sizeWs":[2,2,0]
         }
     ],
     "animActors":[
@@ -13,8 +13,8 @@
             "beginIndex":0,
             "endIndex":29,
             "frameSpeed":25,
-            "position":[100,0,0],
-            "sizeWs":[500,500,0]
+            "position":[1,0,0],
+            "sizeWs":[3,3,0]
         }
         
     ]

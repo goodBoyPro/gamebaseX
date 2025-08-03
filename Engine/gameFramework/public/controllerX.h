@@ -14,7 +14,7 @@ class GController {
     };
 
   public:
-    enum Input { a, w, s, d, q,left, count };
+    enum Input { a, w, s, d, q,m,left, count };
     std::vector<std::vector<Cbk>> cbks;
     GController() {
         for (int i = 0; i < (int)count; i++) {
@@ -48,6 +48,9 @@ class GController {
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
             executeCbk(d);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+            executeCbk(m);
         }
         // 点击时
         while (window.pollEvent(event)) {

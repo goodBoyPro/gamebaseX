@@ -7,15 +7,16 @@
 #include "render/gsource.h"
 #include "render/sprite.h"
 #include <GDebug.h>
-#include <timeManager.h>
 #include <fstream>
 #include <nlohmann_json/json.hpp>
+#include <timeManager.h>
 
 class GObject {
 public:
   bool isValid = true;
   virtual ~GObject() {};
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GComponent : public GObject {
 protected:
   class GActor *owner = nullptr;
@@ -27,11 +28,12 @@ public:
 
   virtual void loop(WindowBase &window_, float deltaTime_) {}
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GSceneComponent : public GComponent {
 private:
   std::vector<GSceneComponent *> __childs;
   FVector3 positionRelative = {0, 0, 0};
-  FVector3 sizeWs={50,50,50};
+  FVector3 sizeWs = {50, 50, 50};
   GSceneComponent *parentComp = nullptr;
 
 public:
@@ -41,10 +43,12 @@ public:
   void attachToComponent(GSceneComponent *parent_) { parentComp = parent_; }
   FVector3 &getPositionRelative() { return positionRelative; }
   FVector3 getPositionWs();
-  FVector3 getSizeWs() {return sizeWs;}
-  void setSizeWs(const FVector3&sizeWs_){sizeWs=sizeWs_;}
+  FVector3 getSizeWs() { return sizeWs; }
+  void setSizeWs(const FVector3 &sizeWs_) { sizeWs = sizeWs_; }
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GPriimitiveComponent : public GSceneComponent {};
+///////////////////////////////////////////////////////////////////////////////////////////
 class GRenderObjComponent : public GSceneComponent {
 private:
   GSprite *sprite = nullptr;
@@ -52,11 +56,12 @@ private:
 public:
   void setRenderSpr(GSprite *spr_) { sprite = spr_; }
   GSprite *getRenderSpr() { return sprite; }
-  void setSize(float width_, float height_) {
+  void setSizeWin(float width_, float height_) {
     sprite->setSizeWin(width_, height_);
   }
   virtual void loop(WindowBase &window_, float deltaTime_) override;
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GStaticSpriteComponent : public GRenderObjComponent {
   GSprite spr;
 
@@ -66,6 +71,7 @@ public:
   GSprite &getSprite() { return spr; }
   GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GSympleAnimationComponent : public GRenderObjComponent {
 public:
   GAnimation anim;
@@ -82,6 +88,7 @@ public:
     anim.loop(deltaTime_);
   }
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GActor : public GObject {
 private:
 private:
@@ -125,7 +132,6 @@ public:
   };
 
 public:
-public:
   static void loopAllActorsActive(std::vector<GActor *> allActorsActive_,
                                   float deltatime_,
                                   class GCameraComponent *camera_,
@@ -135,10 +141,10 @@ public:
     }
   }
 };
-
+///////////////////////////////////////////////////////////////////////////////////////////
 class GCameraComponent : public GSceneComponent {
 private:
-  float pixSize = 1;
+  float pixSize = 0.01;
   FVector3 positionForRender;
   FVector3 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
     return {((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f),
@@ -146,8 +152,12 @@ private:
              (PositionInWS.z / pixSize)),
             0};
   }
-
+  void renderFix() { positionForRender = getPositionWs(); }
+  void drawSpr(GRenderObjComponent *spr_, WindowBase &window_);
+  std::vector<sf::Vertex>points;
 public:
+  void setPixSize(float pSize_) { pixSize = pSize_; }
+  float getPixSize() { return pixSize; }
   FVector3 winToWs(const IVector2 &posWin_, WindowBase &window_) {
     return {(posWin_.x - window_.getDefaultView().getSize().x / 2) * pixSize +
                 getPositionWs().x,
@@ -155,25 +165,32 @@ public:
                 getPositionWs().y,
             0};
   }
-  // 统一渲染时相机位置
-  void renderFix() { positionForRender = getPositionWs(); }
-  // void drawSpr(GSprite *spr_, WindowBase &window_, const FVector3 &posWs_) {
-  //   int winW = window_.getDefaultView().getSize().x;
-  //   int winH = window_.getDefaultView().getSize().y;
-  //   const FVector3 &posWin = wsToWin(posWs_, winW, winH);
-  //   spr_->setPositionWin(posWin.x, posWin.y);
-  //   spr_->drawWin(window_);
-  // }
-  void drawSpr(GRenderObjComponent *spr_, WindowBase &window_) {
+  FVector3 getMousePositionWs(WindowBase &window_) {
+    return winToWs(sf::Mouse::getPosition(window_), window_);
+  };
+  
+  void drawLineWs( const std::vector<FVector3>&pointsVector_, WindowBase &window_,ColorBase color=ColorBase::Red) {
+    points.resize(0);
+    int n=0;
     int winW = window_.getDefaultView().getSize().x;
     int winH = window_.getDefaultView().getSize().y;
-    const FVector3 &posWin = wsToWin(spr_->getPositionWs(), winW, winH);
-    spr_->getRenderSpr()->setPositionWin(posWin.x, posWin.y);
-    const FVector3 &sizeWin=spr_->getSizeWs()/pixSize;
-    spr_->getRenderSpr()->setSizeWin(sizeWin.x,sizeWin.y);
-    spr_->getRenderSpr()->drawWin(window_);
+    for (const FVector3&pos:pointsVector_) {
+      const FVector3 &poswin = wsToWin(pos, winW, winH);
+      points.emplace_back(sf::Vertex({poswin.x, poswin.y}, color));
+      if (n)
+        points.emplace_back(sf::Vertex({poswin.x, poswin.y}, color));
+      n++;
+    }
+    
+    
+    window_.draw(points.data(),points.size(),sf::Lines);
   }
+  // 统一渲染时相机位置
+
+  void drawAllRenDerObj(std::vector<GRenderObjComponent *> rObjs,
+                        WindowBase &window_);
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GCamera : public GActor {
 
 public:
@@ -188,7 +205,7 @@ public:
   float moveX = 0;
   float moveY = 0;
   float moveZ = 0;
-  float speed = 0.03;
+  float speed = 1;
   FVector3 getMoveVector() { return moveVector; }
   void move(float deltaTime_) {
     moveVector = vectorNormalize({moveX, moveY, moveZ});
@@ -201,7 +218,7 @@ public:
   void autoMove(float deltaTime_) {
     const FVector3 &vec = target - owner->getPositionWs();
     float len = getVectorLen(vec);
-    if (len < 2) {
+    if (len < 0.01) {
       moveVector = {0, 0, 0};
       isAutoMove = false;
     } else {
@@ -221,7 +238,9 @@ public:
     }
   }
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GAnimationSystemComponent : public GRenderObjComponent {};
+///////////////////////////////////////////////////////////////////////////////////////////
 class GPlayer : public GActor {
 public:
   GCameraComponent *cameraComp = nullptr;
@@ -243,9 +262,9 @@ public:
     sprComp->getAnimation().setFramePerS(frameSpeed_);
   }
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GStaticActor : public GActor {
 public:
-  GTexture tex_;
   GStaticSpriteComponent *sprComp = nullptr;
   GStaticActor() {}
   void construct(GTexture &tex_, int id_) {
@@ -258,7 +277,7 @@ class GameMode : public GObject {
 public:
   GPlayer *player = nullptr;
 };
-
+///////////////////////////////////////////////////////////////////////////////////////////
 class GWorld : public GObject {
 private:
   GSource *source = nullptr;
@@ -304,35 +323,19 @@ public:
   GController *getControllerActive() { return controllerActive; }
   TimeManager &getTimeManager() { return timeManager; }
   void loadBaseActors(const std::string &jsonPath_);
+  void showGridMap(WindowBase&window_);
   GWorld() {
     source = new GSource();
     bindDefaultCameraController();
-    gridMap.init({-1000, -1000}, 50, 50, 300, 300);
+    gridMap.init({-100, -100}, 50, 50,10, 10);
 
     // test
   }
+  virtual void tick();
+  virtual void beginPlay() {}
   void pollActorsActive(WindowBase &window_);
-  void loop(WindowBase &window_, EventBase &event_) {
-    deltaTime = clock.restart().asSeconds();
-    controllerActive->loop(window_, event_);
-
-    //  计时器任务
-    timeManager.loop();
-    cameraActive->renderFix();
-    // 渲染
-    window_.clear(sf::Color::Black);
-    // actor逻辑
-    pollActorsActive(window_);
-    // UI逻辑
-    //
-    // debug
-
-    GDebug::debugDisplay(window_);
-    // test
-    PRINTDEBUG(L"Actors:%d", gridMap.getActorsNumber());
-    window_.display();
-  }
-  ~GWorld() {}
+  void loop(WindowBase &window_, EventBase &event_);
+  ~GWorld() { delete source; }
 };
 class LevelManager : public GObject {};
 class GGame : GObject {
@@ -346,6 +349,7 @@ public:
   template <class T> GWorld *createWorld() {
     delete curWorld;
     curWorld = new T;
+    curWorld->beginPlay();
     return curWorld;
   }
 

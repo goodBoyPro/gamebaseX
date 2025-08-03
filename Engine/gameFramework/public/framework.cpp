@@ -1,67 +1,70 @@
 #include <framework.h>
 
 void GActor::loop(float deltatime, WindowBase &window_) {
-    for (GComponent *comp : __allComponents) {
-        comp->loop(window_, deltatime);
-    }
+  for (GComponent *comp : __allComponents) {
+    comp->loop(window_, deltatime);
+  }
 }
 void GActor::setActive() { isActive = true; };
 void GActor::disableActive() { isActive = false; };
-
-FVector3 GSceneComponent::getPositionWs() {
-    if (parentComp)
-        return parentComp->getPositionWs() + positionRelative;
-    return owner->getPositionWs() + positionRelative;
-}
-void GRenderObjComponent::loop(WindowBase &window_, float deltaTime_) {
-    // owner->getWorld()->getCameraActive()->drawSpr(sprite, window_, getPositionWs());
-    owner->getWorld()->getRenderObjComps().push_back(this);
-    sprite->posWs = getPositionWs();
-}
-GSource gs;
-GPlayer::GPlayer() {
-    moveComp = createComponent<GMoveComponent>();
-    moveComp->speed = 100;
-    cameraComp = createComponent<GCameraComponent>();
-    sprComp = createComponent<GStaticSpriteComponent>();
-   
-    // tex.init(5, 5, 0.5, 1, "res/arr_110110_c_5_5_0_0_tree.png");
-    // sprComp->setTex(tex);
-    // sprComp->getSprite().setId(5);
-    controller.bind(GController::a, [this]() {
-        moveComp->moveX = -1;
-        moveComp->isAutoMove = false;
-    });
-    controller.bind(GController::d, [this]() {
-        moveComp->moveX = 1;
-        moveComp->isAutoMove = false;
-    });
-    controller.bind(GController::w, [this]() {
-        moveComp->moveY = -1;
-        moveComp->isAutoMove = false;
-    });
-    controller.bind(GController::s, [this]() {
-        moveComp->moveY = 1;
-        moveComp->isAutoMove = false;
-    });
-    controller.bind(GController::left, [this]() {
-        FVector3 target = cameraComp->winToWs(sf::Mouse::getPosition(GGame::getGameIns()->window), GGame::getGameIns()->window);
-        moveComp->setTarget(target);
-    });
-}
 void GActor::setPositionWs(const FVector3 &posWs_) {
   int nodeIdTemp = getWorld()->gridMap.getPositionIndex(posWs_);
   if (nodeIdTemp != nodeId) {
     getWorld()->gridMap.changeActorNode(this, nodeIdTemp, nodeId);
-    nodeId=nodeIdTemp;
+    nodeId = nodeIdTemp;
   }
-  
+
   positionWs = posWs_;
 };
+///////////////////////////////////////////////////////////////////////////////////////////
+FVector3 GSceneComponent::getPositionWs() {
+  if (parentComp)
+    return parentComp->getPositionWs() + positionRelative;
+  return owner->getPositionWs() + positionRelative;
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+void GRenderObjComponent::loop(WindowBase &window_, float deltaTime_) {
+  owner->getWorld()->getRenderObjComps().push_back(this);
+  sprite->posWs = getPositionWs();
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+GPlayer::GPlayer() {
+  moveComp = createComponent<GMoveComponent>();
+  moveComp->speed = 1;
+  cameraComp = createComponent<GCameraComponent>();
+  sprComp = createComponent<GStaticSpriteComponent>();
+  controller.bind(GController::a, [this]() {
+    moveComp->moveX = -1;
+    moveComp->isAutoMove = false;
+  });
+  controller.bind(GController::d, [this]() {
+    moveComp->moveX = 1;
+    moveComp->isAutoMove = false;
+  });
+  controller.bind(GController::w, [this]() {
+    moveComp->moveY = -1;
+    moveComp->isAutoMove = false;
+  });
+  controller.bind(GController::s, [this]() {
+    moveComp->moveY = 1;
+    moveComp->isAutoMove = false;
+  });
+  controller.bind(GController::left, [this]() {
+    FVector3 target =
+        cameraComp->getMousePositionWs(GGame::getGameIns()->window);
+    moveComp->setTarget(target);
+  });
+  controller.bind(GController::m, [this]() {
+    cameraComp->setPixSize(cameraComp->getPixSize() + 0.001);
+  });
+}
+
 void GPlayer::beginPlay() {
   sprComp->setTex(getWorld()->getSource()->getTexture(110110));
   sprComp->getSprite().setId(10);
+  sprComp->setSizeWs({2, 2, 0});
 }
+///////////////////////////////////////////////////////////////////////////////////////////
 void GWorld::loadBaseActors(const std::string &jsonPath_) {
   nlohmann::json jsobj;
   std::ifstream ifile(jsonPath_);
@@ -106,9 +109,7 @@ void GWorld::pollActorsActive(WindowBase &window_) {
             [](GRenderObjComponent *a, GRenderObjComponent *b) {
               return a->getPositionWs().y < b->getPositionWs().y;
             });
-  for (GRenderObjComponent *robj : allRenderObj) {
-    cameraActive->drawSpr(robj, window_);
-  }
+  cameraActive->drawAllRenDerObj(allRenderObj, window_);
   allRenderObj.resize(0);
 }
 void GWorld::bindDefaultCameraController() {
@@ -130,4 +131,60 @@ void GWorld::bindDefaultCameraController() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
                                 FVector3(0.1, 0, 0));
   });
+}
+void GWorld::loop(WindowBase &window_, EventBase &event_) {
+  deltaTime = clock.restart().asSeconds();
+  controllerActive->loop(window_, event_);
+
+  //  计时器任务
+  timeManager.loop();
+  // 渲染
+  window_.clear(sf::Color::Black);
+  // actor逻辑
+  pollActorsActive(window_);
+  // 世界tick
+  tick();
+  // UI逻辑
+  //
+  // debug
+  showGridMap(window_);
+  GDebug::debugDisplay(window_);
+  // test
+  PRINTDEBUG(L"Actors:%d", gridMap.getActorsNumber());
+  window_.display();
+}
+void GCameraComponent::drawSpr(GRenderObjComponent *spr_, WindowBase &window_) {
+  int winW = window_.getDefaultView().getSize().x;
+  int winH = window_.getDefaultView().getSize().y;
+  const FVector3 &posWin = wsToWin(spr_->getPositionWs(), winW, winH);
+  spr_->getRenderSpr()->setPositionWin(posWin.x, posWin.y);
+  const FVector3 &sizeWin = spr_->getSizeWs() / pixSize;
+  spr_->getRenderSpr()->setSizeWin(sizeWin.x, sizeWin.y);
+  spr_->getRenderSpr()->drawWin(window_);
+}
+void GCameraComponent::drawAllRenDerObj(
+    std::vector<GRenderObjComponent *> rObjs, WindowBase &window_) {
+  renderFix();
+  for (GRenderObjComponent *rObj : rObjs) {
+    drawSpr(rObj, window_);
+  }
+}
+void GWorld::tick() {
+
+};
+void GWorld::showGridMap(WindowBase &window_) {
+  #ifdef EDITOR
+  FVector2 p = gridMap.allNode[gm.player->nodeId].point;
+  FVector3 p1={p.x,p.y,0};
+  FVector3 p2={p.x+gridmapNode<GActor>::gridmapNodeWidth,p.y,0};
+  FVector3 p3={p.x+gridmapNode<GActor>::gridmapNodeWidth,p.y+gridmapNode<GActor>::gridmapNodeHeight,0};
+  FVector3 p4={p.x,p.y+gridmapNode<GActor>::gridmapNodeHeight,0};
+  std::vector<FVector3> points;
+  points.push_back(p1);
+  points.push_back(p2);
+  points.push_back(p3);
+  points.push_back(p4);
+  points.push_back(p1);
+  cameraActive->drawLineWs(points, window_);
+  #endif
 }

@@ -20,13 +20,14 @@ public:
   void tick() override { PRINTDEBUG(L"node:%d", nodeId); }
 };
 class MyWorld : public GWorld {
-public:
-  GTexture tex;
-  GTexture tex2;
-  
+public:  
   MyWorld() {
     loadBaseActors("res/myWorld.json");
-    setGameMode<MyPlayer>().player->moveComp->speed = 100;
+    setGameMode<MyPlayer>().player->moveComp->speed = 1;
+  }
+  void tick() override {
+    GWorld::tick();
+    
   }
 };
 int main() {
