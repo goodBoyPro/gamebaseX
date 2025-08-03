@@ -10,6 +10,7 @@ class Pad(TkPad):
         self.title("资源导入器")
         self.geometry("800x800")
         self.createMenuCommand(self.file_menu,"文件",lambda:print("test"))
+        self.createMenuCommand(self.edit_menu,"撤销",lambda:print("撤销"))
         self.btn=tk.Button(self.main_frame,text="test")
         self.btn.grid(row=1,column=1)
 
