@@ -8,6 +8,8 @@
 #include "render/sprite.h"
 #include <GDebug.h>
 #include <timeManager.h>
+#include <fstream>
+#include <nlohmann_json/json.hpp>
 
 class GObject {
 public:
@@ -29,6 +31,7 @@ class GSceneComponent : public GComponent {
 private:
   std::vector<GSceneComponent *> __childs;
   FVector3 positionRelative = {0, 0, 0};
+  FVector3 sizeWs={50,50,50};
   GSceneComponent *parentComp = nullptr;
 
 public:
@@ -38,6 +41,8 @@ public:
   void attachToComponent(GSceneComponent *parent_) { parentComp = parent_; }
   FVector3 &getPositionRelative() { return positionRelative; }
   FVector3 getPositionWs();
+  FVector3 getSizeWs() {return sizeWs;}
+  void setSizeWs(const FVector3&sizeWs_){sizeWs=sizeWs_;}
 };
 class GPriimitiveComponent : public GSceneComponent {};
 class GRenderObjComponent : public GSceneComponent {
@@ -47,6 +52,9 @@ private:
 public:
   void setRenderSpr(GSprite *spr_) { sprite = spr_; }
   GSprite *getRenderSpr() { return sprite; }
+  void setSize(float width_, float height_) {
+    sprite->setSizeWin(width_, height_);
+  }
   virtual void loop(WindowBase &window_, float deltaTime_) override;
 };
 class GStaticSpriteComponent : public GRenderObjComponent {
@@ -80,6 +88,7 @@ private:
   std::vector<GComponent *> __allComponents;
   GSceneComponent *rootComponent = nullptr;
   FVector3 positionWs = {0, 0, 0};
+
   class GWorld *worldPtr = nullptr;
 
 public:
@@ -148,12 +157,21 @@ public:
   }
   // 统一渲染时相机位置
   void renderFix() { positionForRender = getPositionWs(); }
-  void drawSpr(GSprite *spr_, WindowBase &window_, const FVector3 &posWs_) {
+  // void drawSpr(GSprite *spr_, WindowBase &window_, const FVector3 &posWs_) {
+  //   int winW = window_.getDefaultView().getSize().x;
+  //   int winH = window_.getDefaultView().getSize().y;
+  //   const FVector3 &posWin = wsToWin(posWs_, winW, winH);
+  //   spr_->setPositionWin(posWin.x, posWin.y);
+  //   spr_->drawWin(window_);
+  // }
+  void drawSpr(GRenderObjComponent *spr_, WindowBase &window_) {
     int winW = window_.getDefaultView().getSize().x;
     int winH = window_.getDefaultView().getSize().y;
-    const FVector3 &posWin = wsToWin(posWs_, winW, winH);
-    spr_->setPositionWin(posWin.x, posWin.y);
-    spr_->drawWin(window_);
+    const FVector3 &posWin = wsToWin(spr_->getPositionWs(), winW, winH);
+    spr_->getRenderSpr()->setPositionWin(posWin.x, posWin.y);
+    const FVector3 &sizeWin=spr_->getSizeWs()/pixSize;
+    spr_->getRenderSpr()->setSizeWin(sizeWin.x,sizeWin.y);
+    spr_->getRenderSpr()->drawWin(window_);
   }
 };
 class GCamera : public GActor {
@@ -250,7 +268,7 @@ private:
   // std::vector<GActor *> allActorsActive;
   GridMap<GActor> gridMap;
   friend void GActor::setPositionWs(const FVector3 &posWs_);
-  std::vector<GSprite *> allRenderObj;
+  std::vector<GRenderObjComponent *> allRenderObj;
   GCamera cameraDefault;
   GCameraComponent *cameraActive = nullptr;
   TimeManager timeManager;
@@ -258,26 +276,7 @@ private:
   GController *controllerActive = nullptr;
   float deltaTime = 0.1;
   sf::Clock clock;
-  void bindDefaultCameraController() {
-    cameraActive = (cameraDefault.cameraComp);
-    controllerActive = &controllerDefault;
-    controllerDefault.bind(GController::w, [&]() {
-      cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
-                                  FVector3(0, -0.1, 0));
-    });
-    controllerDefault.bind(GController::s, [&]() {
-      cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
-                                  FVector3(0, 0.1, 0));
-    });
-    controllerDefault.bind(GController::a, [&]() {
-      cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
-                                  FVector3(-0.1, 0, 0));
-    });
-    controllerDefault.bind(GController::d, [&]() {
-      cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
-                                  FVector3(0.1, 0, 0));
-    });
-  }
+  void bindDefaultCameraController();
 
 public:
   GSource *getSource() { return source; };
@@ -298,11 +297,13 @@ public:
     actor->beginPlay();
     return actor;
   }
-  std::vector<GSprite *> &getRenderObjComps() { return allRenderObj; }
+  std::vector<GRenderObjComponent *> &getRenderObjComps() {
+    return allRenderObj;
+  }
   GCameraComponent *getCameraActive() { return cameraActive; }
   GController *getControllerActive() { return controllerActive; }
   TimeManager &getTimeManager() { return timeManager; }
-
+  void loadBaseActors(const std::string &jsonPath_);
   GWorld() {
     source = new GSource();
     bindDefaultCameraController();
@@ -310,20 +311,7 @@ public:
 
     // test
   }
-  void pollActorsActive(WindowBase &window_) {
-    int centerId = gridMap.getPositionIndex(cameraActive->getPositionWs());
-    gridMap.setActorsAlive(centerId);
-    for (GActor *actor : gridMap.actorsAlive) {
-      actor->loop(deltaTime, window_);
-      actor->tick();
-    }
-    std::sort(allRenderObj.begin(), allRenderObj.end(),
-              [](GSprite *a, GSprite *b) { return a->posWs.y < b->posWs.y; });
-    for (GSprite *robj : allRenderObj) {
-      cameraActive->drawSpr(robj, window_, robj->posWs);
-    }
-    allRenderObj.resize(0);
-  }
+  void pollActorsActive(WindowBase &window_);
   void loop(WindowBase &window_, EventBase &event_) {
     deltaTime = clock.restart().asSeconds();
     controllerActive->loop(window_, event_);

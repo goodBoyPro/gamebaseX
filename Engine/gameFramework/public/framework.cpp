@@ -15,7 +15,7 @@ FVector3 GSceneComponent::getPositionWs() {
 }
 void GRenderObjComponent::loop(WindowBase &window_, float deltaTime_) {
     // owner->getWorld()->getCameraActive()->drawSpr(sprite, window_, getPositionWs());
-    owner->getWorld()->getRenderObjComps().push_back(sprite);
+    owner->getWorld()->getRenderObjComps().push_back(this);
     sprite->posWs = getPositionWs();
 }
 GSource gs;
@@ -61,4 +61,73 @@ void GActor::setPositionWs(const FVector3 &posWs_) {
 void GPlayer::beginPlay() {
   sprComp->setTex(getWorld()->getSource()->getTexture(110110));
   sprComp->getSprite().setId(10);
+}
+void GWorld::loadBaseActors(const std::string &jsonPath_) {
+  nlohmann::json jsobj;
+  std::ifstream ifile(jsonPath_);
+  ifile >> jsobj;
+  ifile.close();
+  // staticActor
+  for (auto info : jsobj["staticActors"]) {
+    int texId = info["texId"];
+    int index = info["index"];
+    const std::vector<float> &pos = info["position"].get<std::vector<float>>();
+    FVector3 position = {pos[0], pos[1], pos[2]};
+    const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
+    FVector3 sizeWs = {size[0], size[1], size[2]};
+    auto actor = createActor<GStaticActor>(position);
+    actor->construct(getSource()->getTexture(texId), index);
+    actor->sprComp->setSizeWs(sizeWs);
+  }
+  // animActor
+  for (auto info : jsobj["animActors"]) {
+    int texId = info["texId"];
+    int beginIndex = info["beginIndex"];
+    int endIndex = info["endIndex"];
+    int frameSpeed = info["frameSpeed"];
+    const std::vector<float> &pos = info["position"].get<std::vector<float>>();
+    FVector3 position = {pos[0], pos[1], pos[2]};
+    const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
+    FVector3 sizeWs = {size[0], size[1], size[2]};
+    auto actor = createActor<GAnimActor>(position);
+    actor->construct(getSource()->getTexture(texId), beginIndex, endIndex,
+                     frameSpeed);
+    actor->sprComp->setSizeWs(sizeWs);
+  }
+}
+void GWorld::pollActorsActive(WindowBase &window_) {
+  int centerId = gridMap.getPositionIndex(cameraActive->getPositionWs());
+  gridMap.setActorsAlive(centerId);
+  for (GActor *actor : gridMap.actorsAlive) {
+    actor->loop(deltaTime, window_);
+    actor->tick();
+  }
+  std::sort(allRenderObj.begin(), allRenderObj.end(),
+            [](GRenderObjComponent *a, GRenderObjComponent *b) {
+              return a->getPositionWs().y < b->getPositionWs().y;
+            });
+  for (GRenderObjComponent *robj : allRenderObj) {
+    cameraActive->drawSpr(robj, window_);
+  }
+  allRenderObj.resize(0);
+}
+void GWorld::bindDefaultCameraController() {
+  cameraActive = (cameraDefault.cameraComp);
+  controllerActive = &controllerDefault;
+  controllerDefault.bind(GController::w, [&]() {
+    cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
+                                FVector3(0, -0.1, 0));
+  });
+  controllerDefault.bind(GController::s, [&]() {
+    cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
+                                FVector3(0, 0.1, 0));
+  });
+  controllerDefault.bind(GController::a, [&]() {
+    cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
+                                FVector3(-0.1, 0, 0));
+  });
+  controllerDefault.bind(GController::d, [&]() {
+    cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
+                                FVector3(0.1, 0, 0));
+  });
 }

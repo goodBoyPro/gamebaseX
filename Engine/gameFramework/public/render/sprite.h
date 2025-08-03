@@ -39,6 +39,7 @@ class GSprite {
     // 用户不要引用
     float sortFlag = 0;
     FVector3 posWs = {0, 0, 0};
+   
 
   public:
     GSprite() = default;
@@ -66,7 +67,9 @@ class GSprite {
         int y = (index >> (int)log2(columns)) * sizeTexUnit.y;
         sprite.setTextureRect({x, y, sizeTexUnit.x, sizeTexUnit.y});
     }
-    void setSizeWin(float x, float y) { sprite.setScale(x / sizeTexUnit.x, y / sizeTexUnit.y); }
+    void setSizeWin(float x, float y) {
+      sprite.setScale(x / sizeTexUnit.x, y / sizeTexUnit.y);
+    }
     void setPositionWin(float x, float y) { sprite.setPosition(x, y); }
     void setCenter(float x, float y) { sprite.setOrigin(x * sizeTexUnit.x, y * sizeTexUnit.y); }
     void drawWin(WindowBase &window_) { window_.draw(sprite); }
