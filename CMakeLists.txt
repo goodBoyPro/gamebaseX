@@ -24,6 +24,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fexec-charset=UTF-8 ")
 
 include_directories(
     ${ABS_DIR}/Engine/ExternLibrary/SFML/include
+    ${ABS_DIR}/Engine/ExternLibrary/include
     ${ABS_DIR}/Engine/gameFramework/public
     ${ABS_DIR}/build/generatedCodeFile
 )

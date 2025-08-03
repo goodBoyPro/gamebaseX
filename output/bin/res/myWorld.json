@@ -1,0 +1,19 @@
+{
+    "staticActors": [
+        {
+            "texId": 110110,
+            "index":11,
+            "position":[100,-200,0]
+        }
+    ],
+    "animActors":[
+        {
+            "texId": 110111,
+            "beginIndex":0,
+            "endIndex":29,
+            "frameSpeed":25,
+            "position":[100,0,0]
+        }
+        
+    ]
+}

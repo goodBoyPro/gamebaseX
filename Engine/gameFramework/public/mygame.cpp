@@ -1,6 +1,7 @@
 #include "GDebug.h"
 #include <framework.h>
-
+#include <nlohmann_json/json.hpp>
+#include<fstream>
 class MyActor : public GStaticActor {
 public:
   FVector3 direction;
@@ -22,17 +23,44 @@ class MyWorld : public GWorld {
 public:
   GTexture tex;
   GTexture tex2;
-  MyWorld() {
+  void loadStaticActors() {
+    nlohmann::json jsobj;
+    std::ifstream ifile("res/myWorld.json");
+    ifile >> jsobj;
+    ifile.close();
+    //staticActor
+    for (auto info : jsobj["staticActors"]) {
+      int texId = info["texId"];
+      int index = info["index"];
+      const std::vector<float> &pos =
+          info["position"].get<std::vector<float>>();
+      FVector3 position = {pos[0], pos[1], pos[2]};
+      auto actor = createActor<GStaticActor>(position);
+      actor->construct(getSource()->getTexture(texId), index);
+    }
+    // animActor
+    for (auto info : jsobj["animActors"]) {
+      int texId = info["texId"];
+      int beginIndex = info["beginIndex"];
+      int endIndex = info["endIndex"];
+      int frameSpeed=info["frameSpeed"];
+      const std::vector<float> &pos =
+          info["position"].get<std::vector<float>>();
+      FVector3 position = {pos[0], pos[1], pos[2]};
+      auto actor = createActor<GAnimActor>(position);
+      actor->construct(getSource()->getTexture(texId),beginIndex,endIndex,frameSpeed);
+    }
+   
     
+    
+  }
+  MyWorld() {
+    loadStaticActors();
     tex.init(20, 20, 0.5, 1, "res/comb.png");
     tex2.init(1, 1, 0.5, 0.5, "res/a.png");
-    for (int i = 0; i < 10000; i++) {
-      auto a = createActor<MyActor>();
-      a->construct(tex2, 0);
-      a->direction = {(float)sin(i), (float)cos(i), 0};
-    }
+    
 
-    createActor<GAnimActor>()->construct(tex, 0, 29, 25);
+   
     setGameMode<MyPlayer>().player->moveComp->speed = 100;
   }
 };

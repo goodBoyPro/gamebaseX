@@ -288,12 +288,13 @@ public:
     controllerActive = &(gm.player->controller);
     return gm;
   }
-  template <class T> T *createActor() {
+  template <class T> T *createActor(const FVector3 &position = {0, 0, 0}) {
     T *actor = new T();
-    //特别注意，init是在构造函数之后执行的，子类要慎重写构造函数，推荐beginPlay()
+    // 特别注意，init是在构造函数之后执行的，子类要慎重写构造函数，推荐beginPlay()
     actor->actorBaseInit(this);
     int nodeId = gridMap.addActor(actor);
     actor->nodeId = nodeId;
+    actor->setPositionWs(position);
     actor->beginPlay();
     return actor;
   }

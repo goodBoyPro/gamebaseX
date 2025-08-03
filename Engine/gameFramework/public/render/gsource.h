@@ -88,7 +88,6 @@ public:
         float centerX = std::stof(cvec[ecenterX]);
         float centerY = std::stof(cvec[ecenterY]);
         std::string path = cvec[epath];
-        std::cout<<id<<row<<column<<path;
         allTexture[id].init(row, column, centerX, centerY, path);
        
         
