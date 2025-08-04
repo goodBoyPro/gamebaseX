@@ -43,6 +43,7 @@ public:
   void attachToComponent(GSceneComponent *parent_) { parentComp = parent_; }
   FVector3 &getPositionRelative() { return positionRelative; }
   FVector3 getPositionWs();
+  void setPositionWs(const FVector3 &posWs_);
   FVector3 getSizeWs() { return sizeWs; }
   void setSizeWs(const FVector3 &sizeWs_) { sizeWs = sizeWs_; }
 };

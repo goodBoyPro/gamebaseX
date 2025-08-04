@@ -23,6 +23,9 @@ FVector3 GSceneComponent::getPositionWs() {
     return parentComp->getPositionWs() + positionRelative;
   return owner->getPositionWs() + positionRelative;
 }
+void GSceneComponent::setPositionWs(const FVector3 &posWs_) {
+  setPositionRelative(posWs_-owner->getPositionWs());
+}
 ///////////////////////////////////////////////////////////////////////////////////////////
 void GRenderObjComponent::loop(WindowBase &window_, float deltaTime_) {
   owner->getWorld()->getRenderObjComps().push_back(this);
@@ -50,13 +53,17 @@ GPlayer::GPlayer() {
     moveComp->moveY = 1;
     moveComp->isAutoMove = false;
   });
-  controller.bind(GController::left, [this]() {
+  controller.bind(GController::mleft, [this]() {
     FVector3 target =
         cameraComp->getMousePositionWs(GGame::getGameIns()->window);
     moveComp->setTarget(target);
   });
-  controller.bind(GController::m, [this]() {
+  controller.bind(GController::kup, [this]() {
     cameraComp->setPixSize(cameraComp->getPixSize() + 0.001);
+  });
+  controller.bind(GController::kdown, [this]() {
+    if(cameraComp->getPixSize()<0.0001)return;
+    cameraComp->setPixSize(cameraComp->getPixSize() -0.001);
   });
 }
 
@@ -189,3 +196,4 @@ void GWorld::showGridMap(WindowBase &window_) {
   cameraActive->drawLineWs(points, window_);
   #endif
 }
+
