@@ -1,7 +1,6 @@
 #include "GDebug.h"
 #include <framework.h>
 
-
 class MyActor : public GStaticActor {
 public:
   FVector3 direction;
@@ -17,22 +16,25 @@ public:
 };
 class MyPlayer : public GPlayer {
 public:
-void beginPlay() override{
-  GPlayer::beginPlay();
-  setPositionWs({-79,-79,0});
-}
-  void tick() override { PRINTDEBUG(L"node:%d", nodeId); }
+  void beginPlay() override {
+    GPlayer::beginPlay();
+    setPositionWs({-79, -79, 0});
+  }
+  void tick() override {
+    PRINTDEBUG(L"node:%d", nodeId);
+    PRINTDEBUG(L"window:%d,%d", GGame::getGameIns()->window.getSize().x,
+               GGame::getGameIns()->window.getSize().y)
+    PRINTDEBUG(L"windowDV:%f,%f", GGame::getGameIns()->window.getDefaultView().getSize().x,
+               GGame::getGameIns()->window.getDefaultView().getSize().y)
+  }
 };
 class MyWorld : public GWorld {
-public:  
+public:
   MyWorld() {
     loadBaseActors("res/myWorld.json");
     setGameMode<MyPlayer>().player->moveComp->speed = 1;
   }
-  void tick() override {
-    GWorld::tick();
-    
-  }
+  void tick() override { GWorld::tick(); }
 };
 int main() {
   GGame *gameins = GGame::getGameIns();
