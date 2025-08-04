@@ -155,7 +155,8 @@ private:
   }
   void renderFix() { positionForRender = getPositionWs(); }
   void drawSpr(GRenderObjComponent *spr_, WindowBase &window_);
-  std::vector<sf::Vertex>points;
+  std::vector<sf::Vertex> points;
+
 public:
   void setPixSize(float pSize_) { pixSize = pSize_; }
   float getPixSize() { return pixSize; }
@@ -167,24 +168,29 @@ public:
             0};
   }
   FVector3 getMousePositionWs(WindowBase &window_) {
-    return winToWs(sf::Mouse::getPosition(window_), window_);
+    const IVector2 &posWin = sf::Mouse::getPosition(window_);
+    IVector2 posfix = {
+        (int)(posWin.x * window_.getDefaultView().getSize().x / window_.getSize().x),
+        (int)(posWin.y * window_.getDefaultView().getSize().y / window_.getSize().y)};
+
+    return winToWs(posfix, window_);
   };
-  
-  void drawLineWs( const std::vector<FVector3>&pointsVector_, WindowBase &window_,ColorBase color=ColorBase::Red) {
+
+  void drawLineWs(const std::vector<FVector3> &pointsVector_,
+                  WindowBase &window_, ColorBase color = ColorBase::Red) {
     points.resize(0);
-    int n=0;
+    int n = 0;
     int winW = window_.getDefaultView().getSize().x;
     int winH = window_.getDefaultView().getSize().y;
-    for (const FVector3&pos:pointsVector_) {
+    for (const FVector3 &pos : pointsVector_) {
       const FVector3 &poswin = wsToWin(pos, winW, winH);
       points.emplace_back(sf::Vertex({poswin.x, poswin.y}, color));
       if (n)
         points.emplace_back(sf::Vertex({poswin.x, poswin.y}, color));
       n++;
     }
-    
-    
-    window_.draw(points.data(),points.size(),sf::Lines);
+
+    window_.draw(points.data(), points.size(), sf::Lines);
   }
   // 统一渲染时相机位置
 
@@ -324,11 +330,11 @@ public:
   GController *getControllerActive() { return controllerActive; }
   TimeManager &getTimeManager() { return timeManager; }
   void loadBaseActors(const std::string &jsonPath_);
-  void showGridMap(WindowBase&window_);
+  void showGridMap(WindowBase &window_);
   GWorld() {
     source = new GSource();
     bindDefaultCameraController();
-    gridMap.init({-100, -100}, 50, 50,10, 10);
+    gridMap.init({-100, -100}, 50, 50, 10, 10);
 
     // test
   }
@@ -359,7 +365,7 @@ public:
     return &game;
   }
   GGame() {
-    window.create(sf::VideoMode(800, 600), "Game");
+    window.create(sf::VideoMode(1600,900), "Game");
     window.setFramerateLimit(60);
     sf::Image icon;
     icon.loadFromFile("res/a.png");
