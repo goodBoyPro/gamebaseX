@@ -9,6 +9,7 @@ void GActor::setActive() { isActive = true; };
 void GActor::disableActive() { isActive = false; };
 void GActor::setPositionWs(const FVector3 &posWs_) {
   int nodeIdTemp = getWorld()->gridMap.getPositionIndex(posWs_);
+  if(!nodeIdTemp)return;
   if (nodeIdTemp != nodeId) {
     getWorld()->gridMap.changeActorNode(this, nodeIdTemp, nodeId);
     nodeId = nodeIdTemp;

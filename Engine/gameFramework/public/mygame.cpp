@@ -17,6 +17,10 @@ public:
 };
 class MyPlayer : public GPlayer {
 public:
+void beginPlay() override{
+  GPlayer::beginPlay();
+  setPositionWs({-79,-79,0});
+}
   void tick() override { PRINTDEBUG(L"node:%d", nodeId); }
 };
 class MyWorld : public GWorld {
