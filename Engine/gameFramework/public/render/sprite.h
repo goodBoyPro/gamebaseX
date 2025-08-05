@@ -109,7 +109,7 @@ class GAnimation : public GSprite {
         setId(i);
     }
     void stop() { bPlaying = false; }
-    void loop1(float deltaTime) {
+    void loop(float deltaTime) {
         if (!bPlaying)
             return;
         if (updateFlag > updateDelayS) {
@@ -123,7 +123,7 @@ class GAnimation : public GSprite {
         updateFlag += deltaTime;
     }
     
-    void loop(float deltaTime) {
+    void loop2(float deltaTime) {
         if (!bPlaying)
           return;
         if (getCurId() < idEnd) {

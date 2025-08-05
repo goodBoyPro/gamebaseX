@@ -12,7 +12,7 @@
             "texId": 110111,
             "beginIndex":0,
             "endIndex":29,
-            "frameSpeed":0.5,
+            "frameSpeed":60,
             "position":[1,0,0],
             "sizeWs":[3,3,0]
         }
