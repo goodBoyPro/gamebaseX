@@ -9,4 +9,14 @@ typedef sf::Event EventBase;
 typedef sf::Sprite SpriteBase;
 typedef sf::Texture TextureBase;
 typedef sf::Color ColorBase;
+class GameWindow : public WindowBase {
+  class GCameraComponent *cameraActive = nullptr;
+
+public:
+  void setCameraActive(GCameraComponent *cameraComp_) {
+    cameraActive = cameraComp_;
+  }
+  GCameraComponent*getCameraActve(){return cameraActive;}
+};
+
 #endif // BASE_H

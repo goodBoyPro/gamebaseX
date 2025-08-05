@@ -15,13 +15,13 @@
 // 已实现线程安全
 class GDebug{
   private:
-    void drawLog(sf::RenderWindow&window_,int index);
+    void drawLog(GameWindow&window_,int index);
     static std::mutex mtxDebugs___;
   public:
     wchar_t wchar_[STRINGSIZE] = {0};
     GDebug();
     virtual ~GDebug();
-    static void debugDisplay(sf::RenderWindow&window_);
+    static void debugDisplay(GameWindow&window_);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ class GDebug{
 inline std::set<GDebug *> debugs__;
 inline std::mutex GDebug::mtxDebugs___;
 
-inline void GDebug::debugDisplay(sf::RenderWindow&window_)
+inline void GDebug::debugDisplay(GameWindow&window_)
 {
     // 非必要操作，应避免在堆区创建对象；
     //  debugs__.erase(std::remove_if(debugs__.begin(), debugs__.end(),
@@ -57,7 +57,7 @@ inline GDebug::~GDebug() {
    debugs__.erase(this);//可能存在线程安全问题，遇到时解决//与clearDebugs()冲突
 }
 
-inline void GDebug::drawLog(sf::RenderWindow&window_,int index)
+inline void GDebug::drawLog(GameWindow&window_,int index)
 {
     printText(window_,wchar_, 0, 30 * index);
 }

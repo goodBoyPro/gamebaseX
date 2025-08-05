@@ -72,7 +72,7 @@ class GSprite {
     }
     void setPositionWin(float x, float y) { sprite.setPosition(x, y); }
     void setCenter(float x, float y) { sprite.setOrigin(x * sizeTexUnit.x, y * sizeTexUnit.y); }
-    void drawWin(WindowBase &window_) { window_.draw(sprite); }
+    void drawWin(GameWindow &window_) { window_.draw(sprite); }
 };
 class GAnimation : public GSprite {
   private:

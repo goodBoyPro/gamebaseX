@@ -6,7 +6,7 @@ sf::Font &getFont(int id) {
     static bool f3 = font[2].loadFromFile("res/font/zhunyuan.ttf");
     return font[id];
 }
-void printText(WindowBase &window_, const std::wstring &str, int x, int y, int size, ColorBase color, int fontId) {
+void printText(GameWindow &window_, const std::wstring &str, int x, int y, int size, ColorBase color, int fontId) {
     static sf::Text text;
     text.setFont(getFont(fontId));
     text.setString(str);
@@ -15,7 +15,7 @@ void printText(WindowBase &window_, const std::wstring &str, int x, int y, int s
     text.setCharacterSize(size);
     window_.draw(text);
 }
-void printTextLimit(WindowBase &window_, const std::wstring &str, float x, float y, int size, const FVector2 &sprSize, const ColorBase &color, int fontId) {
+void printTextLimit(GameWindow &window_, const std::wstring &str, float x, float y, int size, const FVector2 &sprSize, const ColorBase &color, int fontId) {
     static sf::Text text;
     text.setFont(getFont(fontId));
     text.setString(str);
@@ -26,13 +26,13 @@ void printTextLimit(WindowBase &window_, const std::wstring &str, float x, float
     text.setScale(scale);
     window_.draw(text);
 }
-void printNum(WindowBase &window_, float __float, int x, int y, int size, ColorBase color, int fontId) {
+void printNum(GameWindow &window_, float __float, int x, int y, int size, ColorBase color, int fontId) {
     wchar_t num[32];
     swprintf_s(num, L"%f", __float);
     printText(window_, num, x, y, size, color, fontId);
 }
 
-void printNum(WindowBase &window_, int __int, int x, int y, int size, ColorBase color, int fontId) {
+void printNum(GameWindow &window_, int __int, int x, int y, int size, ColorBase color, int fontId) {
     wchar_t num[32];
     swprintf_s(num, L"%d", __int);
     printText(window_, num, x, y, size, color, fontId);

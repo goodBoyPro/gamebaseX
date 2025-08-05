@@ -26,7 +26,7 @@ public:
   GComponent() {}
   virtual void init(GActor *owner_) { owner = owner_; }
 
-  virtual void loop(WindowBase &window_, float deltaTime_) {}
+  virtual void loop(GameWindow &window_, float deltaTime_) {}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
 class GSceneComponent : public GComponent {
@@ -56,7 +56,6 @@ public:
     xTex.init(1, 1, 0.5, 1, "system/texture/x.png");
     xSpr.init(xTex);
   }
-  
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
 class GRenderObjComponent : public GSceneComponent {
@@ -69,7 +68,7 @@ public:
   void setSizeWin(float width_, float height_) {
     sprite->setSizeWin(width_, height_);
   }
-  virtual void loop(WindowBase &window_, float deltaTime_) override;
+  virtual void loop(GameWindow &window_, float deltaTime_) override;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
 class GStaticSpriteComponent : public GRenderObjComponent {
@@ -93,7 +92,7 @@ public:
   void setAnim(GTexture &tex, int beg_, int end_) {
     anim.init(tex, beg_, end_);
   }
-  void loop(WindowBase &window_, float deltaTime_) override {
+  void loop(GameWindow &window_, float deltaTime_) override {
     GRenderObjComponent::loop(window_, deltaTime_);
     anim.loop(deltaTime_);
   }
@@ -115,7 +114,7 @@ public:
   GActor() {};
   void actorBaseInit(GWorld *worldPtr_) { worldPtr = worldPtr_; }
   GWorld *getWorld() { return worldPtr; }
-  virtual void loop(float deltatime_, WindowBase &window_);
+  virtual void loop(float deltatime_, GameWindow &window_);
   const FVector3 &getPositionWs() const { return positionWs; }
   void setPositionWs(const FVector3 &posWs_);
   void addPositionOffsetWs(const FVector3 &offset) {
@@ -145,7 +144,7 @@ public:
   static void loopAllActorsActive(std::vector<GActor *> allActorsActive_,
                                   float deltatime_,
                                   class GCameraComponent *camera_,
-                                  WindowBase &window_) {
+                                  GameWindow &window_) {
     for (GActor *actor : allActorsActive_) {
       actor->loop(deltatime_, window_);
     }
@@ -163,23 +162,23 @@ private:
             0};
   }
   void renderFix() { positionForRender = getPositionWs(); }
-  void drawSpr(GRenderObjComponent *spr_, WindowBase &window_);
+  void drawSpr(GRenderObjComponent *spr_, GameWindow &window_);
   std::vector<sf::Vertex> points;
-  WindowBase*window=nullptr;
+  GameWindow *window = nullptr;
 
 public:
-  void setWindow(WindowBase*window_){window=window_;}
-  WindowBase* getWindow(){return window;}
+  void setWindow(GameWindow *window_) { window = window_; }
+  GameWindow *getWindow() { return window; }
   void setPixSize(float pSize_) { pixSize = pSize_; }
   float getPixSize() { return pixSize; }
-  FVector3 winToWs(const IVector2 &posWin_, WindowBase &window_) {
+  FVector3 winToWs(const IVector2 &posWin_, GameWindow &window_) {
     return {(posWin_.x - window_.getDefaultView().getSize().x / 2) * pixSize +
                 getPositionWs().x,
             (posWin_.y - window_.getDefaultView().getSize().y / 2) * pixSize +
                 getPositionWs().y,
             0};
   }
-  FVector3 getMousePositionWs(WindowBase &window_) {
+  FVector3 getMousePositionWs(GameWindow &window_) {
     const IVector2 &posWin = sf::Mouse::getPosition(window_);
     IVector2 posfix = {(int)(posWin.x * window_.getDefaultView().getSize().x /
                              window_.getSize().x),
@@ -190,7 +189,7 @@ public:
   };
 
   void drawLineWs(const std::vector<FVector3> &pointsVector_,
-                  WindowBase &window_, ColorBase color = ColorBase::Red) {
+                  GameWindow &window_, ColorBase color = ColorBase::Red) {
     points.resize(0);
     int n = 0;
     int winW = window_.getDefaultView().getSize().x;
@@ -208,7 +207,7 @@ public:
   // 统一渲染时相机位置
 
   void drawAllRenDerObj(std::vector<GRenderObjComponent *> rObjs,
-                        WindowBase &window_);
+                        GameWindow &window_);
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
 class GCamera : public GActor {
@@ -250,7 +249,7 @@ public:
     target = target_;
     isAutoMove = true;
   }
-  void loop(WindowBase &window_, float deltaTime_) override {
+  void loop(GameWindow &window_, float deltaTime_) override {
     if (isAutoMove) {
       autoMove(deltaTime_);
     } else {
@@ -296,20 +295,20 @@ public:
 class GameMode : public GObject {
 public:
   GPlayer *player = nullptr;
+  class GGame *gameIns = nullptr;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
 class GWorld : public GObject {
 private:
   GSource *source = nullptr;
-  GameMode gm;
 
   struct ActorsType {};
   // std::vector<GActor *> allActorsActive;
   GridMap<GActor> gridMap;
   friend void GActor::setPositionWs(const FVector3 &posWs_);
   std::vector<GRenderObjComponent *> allRenderObj;
-  GCamera cameraDefault;
-  GCameraComponent *cameraActive = nullptr;
+  GCamera *cameraDefaultPtr;
+  // GCameraComponent *cameraActive = nullptr;
   TimeManager timeManager;
   GController controllerDefault;
   GController *controllerActive = nullptr;
@@ -318,19 +317,16 @@ private:
   void bindDefaultCameraController();
 
 public:
+  GameMode gm;
   GSource *getSource() { return source; };
-  template <class playerClass> GameMode &setGameMode() {
-    // 如果gm.player不为空，应先释放
-    gm.player = createActor<playerClass>();
-    cameraActive = (gm.player->cameraComp);
-    controllerActive = &(gm.player->controller);
-    return gm;
-  }
+  // 该函数要访问gameIns，但是gameIns不是在构造函数设置的，如果在构造函数使用此函数，会出错
+  template <class playerClass> GameMode &setGameMode();
   void setCameraActive(GCameraComponent *camera_);
   template <class T> T *createActor(const FVector3 &position = {0, 0, 0}) {
     T *actor = new T();
     // 特别注意，init是在构造函数之后执行的，子类要慎重写构造函数，推荐beginPlay()
     actor->actorBaseInit(this);
+    // 1.先设置默认nodeId 2.设置新位置 3. 更新位置（此处是有意设计，不要修改）
     int nodeId = gridMap.addActor(actor);
     actor->nodeId = nodeId;
     actor->setPositionWs(position);
@@ -340,22 +336,24 @@ public:
   std::vector<GRenderObjComponent *> &getRenderObjComps() {
     return allRenderObj;
   }
-  GCameraComponent *getCameraActive() { return cameraActive; }
+  GCameraComponent *getCameraActive();
   GController *getControllerActive() { return controllerActive; }
   TimeManager &getTimeManager() { return timeManager; }
   void loadBaseActors(const std::string &jsonPath_);
-  void showGridMap(WindowBase &window_);
+  void showGridMap(GameWindow &window_);
   GWorld() {
-    source = new GSource();
-    bindDefaultCameraController();
-    gridMap.init({-100, -100}, 50, 50, 10, 10);
 
+    source = new GSource();
+    gridMap.init({-100, -100}, 50, 50, 10, 10);
     // test
   }
+  void Construct() { bindDefaultCameraController(); }
   virtual void tick();
-  virtual void beginPlay() {}
-  void pollActorsActive(WindowBase &window_);
-  void loop(WindowBase &window_, EventBase &event_);
+  virtual void beginPlay() {
+    setGameMode<GPlayer>().player->moveComp->speed = 1;
+  }
+  void pollActorsActive(GameWindow &window_);
+  void loop(GameWindow &window_, EventBase &event_);
   ~GWorld() { delete source; }
 };
 class LevelManager : public GObject {};
@@ -366,10 +364,12 @@ private:
   sf::Event event;
 
 public:
-  WindowBase window;
+  GameWindow window;
   template <class T> GWorld *createWorld() {
     delete curWorld;
     curWorld = new T;
+    curWorld->gm.gameIns = this;
+    curWorld->Construct();
     curWorld->beginPlay();
     return curWorld;
   }
@@ -395,4 +395,18 @@ public:
   }
 };
 
+template <class playerClass> inline GameMode &GWorld::setGameMode() {
+  // 如果gm.player不为空，应先释放
+  delete gm.player;
+  gm.player = createActor<playerClass>();
+  if (gm.gameIns) {
+    gm.gameIns->window.setCameraActive(gm.player->cameraComp);
+  } else {
+    printf("WARNING:setGameMode()cannot be used in construct\n");
+  }
+
+  controllerActive = &(gm.player->controller);
+
+  return gm;
+}
 #endif // FRAMEWORK_H

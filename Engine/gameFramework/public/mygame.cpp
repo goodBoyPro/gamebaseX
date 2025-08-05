@@ -18,7 +18,7 @@ class MyPlayer : public GPlayer {
 public:
   void beginPlay() override {
     GPlayer::beginPlay();
-    setPositionWs({-79, -79, 0});
+    setPositionWs({0,0, 0});
   }
   void tick() override {
     PRINTDEBUG(L"node:%d", nodeId);
@@ -32,12 +32,14 @@ class MyWorld : public GWorld {
 public:
   MyWorld() {
     loadBaseActors("res/myWorld.json");
-    setGameMode<MyPlayer>().player->moveComp->speed = 1;
   }
+  void beginPlay() override{}
   void tick() override { GWorld::tick(); }
 };
 int main() {
   GGame *gameins = GGame::getGameIns();
-  gameins->createWorld<MyWorld>();
+  GWorld *world = gameins->createWorld<MyWorld>();
+  world->setGameMode<GPlayer>().player->moveComp->speed = 1;
+  
   gameins->loop();
 };

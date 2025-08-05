@@ -1,6 +1,6 @@
 #include <framework.h>
 
-void GActor::loop(float deltatime, WindowBase &window_) {
+void GActor::loop(float deltatime, GameWindow &window_) {
   for (GComponent *comp : __allComponents) {
     comp->loop(window_, deltatime);
   }
@@ -27,7 +27,7 @@ void GSceneComponent::setPositionWs(const FVector3 &posWs_) {
   setPositionRelative(posWs_-owner->getPositionWs());
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
-void GRenderObjComponent::loop(WindowBase &window_, float deltaTime_) {
+void GRenderObjComponent::loop(GameWindow &window_, float deltaTime_) {
   owner->getWorld()->getRenderObjComps().push_back(this);
   sprite->posWs = getPositionWs();
 }
@@ -106,8 +106,8 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
     actor->sprComp->setSizeWs(sizeWs);
   }
 }
-void GWorld::pollActorsActive(WindowBase &window_) {
-  int centerId = gridMap.getPositionIndex(cameraActive->getPositionWs());
+void GWorld::pollActorsActive(GameWindow &window_) {
+  int centerId = gridMap.getPositionIndex(window_.getCameraActve()->getPositionWs());
   gridMap.setActorsAlive(centerId);
   for (GActor *actor : gridMap.actorsAlive) {
     actor->loop(deltaTime, window_);
@@ -117,11 +117,13 @@ void GWorld::pollActorsActive(WindowBase &window_) {
             [](GRenderObjComponent *a, GRenderObjComponent *b) {
               return a->getPositionWs().y < b->getPositionWs().y;
             });
-  cameraActive->drawAllRenDerObj(allRenderObj, window_);
+  window_.getCameraActve()->drawAllRenDerObj(allRenderObj, window_);
   allRenderObj.resize(0);
 }
 void GWorld::bindDefaultCameraController() {
-  cameraActive = (cameraDefault.cameraComp);
+  cameraDefaultPtr = createActor<GCamera>();
+  GCamera&cameraDefault=*cameraDefaultPtr;
+  gm.gameIns->window.setCameraActive(cameraDefault.cameraComp) ;
   controllerActive = &controllerDefault;
   controllerDefault.bind(GController::w, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
@@ -140,7 +142,7 @@ void GWorld::bindDefaultCameraController() {
                                 FVector3(0.1, 0, 0));
   });
 }
-void GWorld::loop(WindowBase &window_, EventBase &event_) {
+void GWorld::loop(GameWindow &window_, EventBase &event_) {
   deltaTime = clock.restart().asSeconds();
   controllerActive->loop(window_, event_);
 
@@ -161,7 +163,7 @@ void GWorld::loop(WindowBase &window_, EventBase &event_) {
   PRINTDEBUG(L"Actors:%d", gridMap.getActorsNumber());
   window_.display();
 }
-void GCameraComponent::drawSpr(GRenderObjComponent *spr_, WindowBase &window_) {
+void GCameraComponent::drawSpr(GRenderObjComponent *spr_, GameWindow &window_) {
   int winW = window_.getDefaultView().getSize().x;
   int winH = window_.getDefaultView().getSize().y;
   const FVector3 &posWin = wsToWin(spr_->getPositionWs(), winW, winH);
@@ -171,7 +173,7 @@ void GCameraComponent::drawSpr(GRenderObjComponent *spr_, WindowBase &window_) {
   spr_->getRenderSpr()->drawWin(window_);
 }
 void GCameraComponent::drawAllRenDerObj(
-    std::vector<GRenderObjComponent *> rObjs, WindowBase &window_) {
+    std::vector<GRenderObjComponent *> rObjs, GameWindow &window_) {
   renderFix();
   for (GRenderObjComponent *rObj : rObjs) {
     drawSpr(rObj, window_);
@@ -180,9 +182,9 @@ void GCameraComponent::drawAllRenDerObj(
 void GWorld::tick() {
 
 };
-void GWorld::showGridMap(WindowBase &window_) {
+void GWorld::showGridMap(GameWindow &window_) {
   #ifdef EDITOR
-  FVector2 p = gridMap.allNode[gm.player->nodeId].point;
+  FVector2 p = gridMap.allNode[gridMap.getPositionIndex(gm.gameIns->window.getCameraActve()->getPositionWs())].point;
   FVector3 p1={p.x,p.y,0};
   FVector3 p2={p.x+gridmapNode<GActor>::gridmapNodeWidth,p.y,0};
   FVector3 p3={p.x+gridmapNode<GActor>::gridmapNodeWidth,p.y+gridmapNode<GActor>::gridmapNodeHeight,0};
@@ -193,11 +195,12 @@ void GWorld::showGridMap(WindowBase &window_) {
   points.push_back(p3);
   points.push_back(p4);
   points.push_back(p1);
-  cameraActive->drawLineWs(points, window_);
+  window_.getCameraActve()->drawLineWs(points, window_);
   #endif
 }
 
 void GWorld::setCameraActive(GCameraComponent *camera_) {
-  cameraActive = camera_;
-  cameraActive->setWindow(&(GGame::getGameIns()->window));
+  gm.gameIns->window.setCameraActive(camera_);
+  
 }
+GCameraComponent *GWorld::getCameraActive() { return gm.gameIns->window.getCameraActve(); }
