@@ -169,9 +169,10 @@ public:
   }
   FVector3 getMousePositionWs(WindowBase &window_) {
     const IVector2 &posWin = sf::Mouse::getPosition(window_);
-    IVector2 posfix = {
-        (int)(posWin.x * window_.getDefaultView().getSize().x / window_.getSize().x),
-        (int)(posWin.y * window_.getDefaultView().getSize().y / window_.getSize().y)};
+    IVector2 posfix = {(int)(posWin.x * window_.getDefaultView().getSize().x /
+                             window_.getSize().x),
+                       (int)(posWin.y * window_.getDefaultView().getSize().y /
+                             window_.getSize().y)};
 
     return winToWs(posfix, window_);
   };
@@ -365,7 +366,7 @@ public:
     return &game;
   }
   GGame() {
-    window.create(sf::VideoMode(1600,900), "Game");
+    window.create(sf::VideoMode(1600, 900), "Game");
     window.setFramerateLimit(60);
     sf::Image icon;
     icon.loadFromFile("res/a.png");
