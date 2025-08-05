@@ -48,7 +48,16 @@ public:
   void setSizeWs(const FVector3 &sizeWs_) { sizeWs = sizeWs_; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
-class GPriimitiveComponent : public GSceneComponent {};
+class GPrimitiveComponent : public GSceneComponent {
+public:
+  GSprite xSpr;
+  GTexture xTex;
+  GPrimitiveComponent() {
+    xTex.init(1, 1, 0.5, 1, "system/texture/x.png");
+    xSpr.init(xTex);
+  }
+  
+};
 ///////////////////////////////////////////////////////////////////////////////////////////
 class GRenderObjComponent : public GSceneComponent {
 private:
@@ -156,8 +165,11 @@ private:
   void renderFix() { positionForRender = getPositionWs(); }
   void drawSpr(GRenderObjComponent *spr_, WindowBase &window_);
   std::vector<sf::Vertex> points;
+  WindowBase*window=nullptr;
 
 public:
+  void setWindow(WindowBase*window_){window=window_;}
+  WindowBase* getWindow(){return window;}
   void setPixSize(float pSize_) { pixSize = pSize_; }
   float getPixSize() { return pixSize; }
   FVector3 winToWs(const IVector2 &posWin_, WindowBase &window_) {
@@ -314,6 +326,7 @@ public:
     controllerActive = &(gm.player->controller);
     return gm;
   }
+  void setCameraActive(GCameraComponent *camera_);
   template <class T> T *createActor(const FVector3 &position = {0, 0, 0}) {
     T *actor = new T();
     // 特别注意，init是在构造函数之后执行的，子类要慎重写构造函数，推荐beginPlay()

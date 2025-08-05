@@ -197,3 +197,7 @@ void GWorld::showGridMap(WindowBase &window_) {
   #endif
 }
 
+void GWorld::setCameraActive(GCameraComponent *camera_) {
+  cameraActive = camera_;
+  cameraActive->setWindow(&(GGame::getGameIns()->window));
+}
