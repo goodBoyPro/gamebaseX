@@ -53,13 +53,12 @@ class Pad(TkPad):
         self.setComponentBeDropFile(self,lambda event:self.importPngPad(event.data))
         self.title("资源导入器")
         self.geometry("800x800")
-        self.createMenuCommand(self.file_menu,"文件",lambda:print("test"))
+        self.createMenuCommand(self.file_menu,"文件",lambda:print("文件"))
+        self.createMenuCommand(self.file_menu,"导入",lambda:print("导入"))
         self.createMenuCommand(self.edit_menu,"撤销",lambda:print("撤销"))
-        self.btn=tk.Button(self.main_frame,text="test")
-        self.btn.grid(row=1,column=1)
         
 
-        self.input1=LabelInput(self,'test')
+        
     def importPngPad(self,path):
         self.childPad=ChildPadPng(self,path)
         
