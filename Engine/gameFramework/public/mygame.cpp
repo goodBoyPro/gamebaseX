@@ -15,31 +15,38 @@ public:
   }
 };
 class MyPlayer : public GPlayer {
+  GPrimitiveComponent *primComp = nullptr;
+
 public:
   void beginPlay() override {
     GPlayer::beginPlay();
-    setPositionWs({0,0, 0});
+    setPositionWs({0, 0, 0});
+    primComp = createComponent<GPrimitiveComponent>();
   }
   void tick() override {
     PRINTDEBUG(L"node:%d", nodeId);
     PRINTDEBUG(L"window:%d,%d", GGame::getGameIns()->window.getSize().x,
                GGame::getGameIns()->window.getSize().y)
-    PRINTDEBUG(L"windowDV:%f,%f", GGame::getGameIns()->window.getDefaultView().getSize().x,
+    PRINTDEBUG(L"windowDV:%f,%f",
+               GGame::getGameIns()->window.getDefaultView().getSize().x,
                GGame::getGameIns()->window.getDefaultView().getSize().y)
   }
 };
 class MyWorld : public GWorld {
 public:
-  MyWorld() {
-    loadBaseActors("res/myWorld.json");
+  MyWorld() { loadBaseActors("res/myWorld.json"); }
+  void beginPlay() override {}
+  void tick() override {
+    GWorld::tick();
+    const FVector3& pos=gm.gameIns->window.getCameraActve()->getMousePositionWs(gm.gameIns->window);
+    PRINTDEBUG(L"mousePos:%f,%f",pos.x,pos.y)
   }
-  void beginPlay() override{}
-  void tick() override { GWorld::tick(); }
 };
 int main() {
   GGame *gameins = GGame::getGameIns();
   GWorld *world = gameins->createWorld<MyWorld>();
-  world->setGameMode<GPlayer>().player->moveComp->speed = 1;
-  
+  world->setGameMode<MyPlayer>().player->moveComp->speed = 1;
+  world->gm.player->setPositionWs({-79,-79,0});
+
   gameins->loop();
 };

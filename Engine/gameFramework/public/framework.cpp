@@ -59,11 +59,12 @@ GPlayer::GPlayer() {
     moveComp->setTarget(target);
   });
   controller.bind(GController::kup, [this]() {
-    cameraComp->setPixSize(cameraComp->getPixSize() + 0.001);
+    if(cameraComp->getPixSize()<0.0001)return;
+    cameraComp->setPixSize(cameraComp->getPixSize() - 0.0001);
   });
   controller.bind(GController::kdown, [this]() {
-    if(cameraComp->getPixSize()<0.0001)return;
-    cameraComp->setPixSize(cameraComp->getPixSize() -0.001);
+    
+    cameraComp->setPixSize(cameraComp->getPixSize() + 0.0001);
   });
 }
 
@@ -204,3 +205,16 @@ void GWorld::setCameraActive(GCameraComponent *camera_) {
   
 }
 GCameraComponent *GWorld::getCameraActive() { return gm.gameIns->window.getCameraActve(); }
+void GPrimitiveComponent::draw(GameWindow &window_) {
+  const FVector3&pos=window_.getCameraActve()->wsToWin(getPositionWs(), window_.getDefaultView().getSize().x, window_.getDefaultView().getSize().y);
+  xSpr.setPositionWin(pos.x,pos.y);
+  ySpr.setPositionWin(pos.x,pos.y);
+  zSpr.setPositionWin(pos.x,pos.y);
+  cSpr.setPositionWin(pos.x,pos.y);
+  
+  cSpr.drawWin(window_);
+  xSpr.drawWin(window_);
+  ySpr.drawWin(window_);
+  zSpr.drawWin(window_);
+  
+}

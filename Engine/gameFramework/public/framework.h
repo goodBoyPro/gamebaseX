@@ -17,6 +17,8 @@ public:
   virtual ~GObject() {};
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////
 class GComponent : public GObject {
 protected:
   class GActor *owner = nullptr;
@@ -50,13 +52,45 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////
 class GPrimitiveComponent : public GSceneComponent {
 public:
-  GSprite xSpr;
-  GTexture xTex;
-  GPrimitiveComponent() {
+  inline static GSprite xSpr;
+  inline static GTexture xTex;
+  inline static GSprite ySpr;
+  inline static GTexture yTex;
+  inline static GSprite zSpr;
+  inline static GTexture zTex;
+  inline static GSprite cSpr;
+  inline static GTexture cTex;
+   GPrimitiveComponent() {
+    static bool temp=createAxis();
+  }
+  bool createAxis(){
     xTex.init(1, 1, 0.5, 1, "system/texture/x.png");
     xSpr.init(xTex);
+    yTex.init(1, 1, 0.5, 1, "system/texture/y.png");
+    ySpr.init(yTex);
+    zTex.init(1, 1, 0.5, 1, "system/texture/z.png");
+    zSpr.init(zTex);
+    cTex.init(1, 1, 0.5, 1, "system/texture/c.png");
+    cSpr.init(cTex);
+    xSpr.setSizeWin(10, 100);
+    xSpr.setCenter(0.5, 1.3);
+    xSpr.setRotation(90);
+    ySpr.setSizeWin(10, 100);
+    ySpr.setCenter(0.5, 1.3);
+    zSpr.setSizeWin(10, 100);
+    zSpr.setCenter(0.5, 1.4246);
+    zSpr.setRotation(45);
+    cSpr.setSizeWin(30, 30);
+    cSpr.setCenter(0.1, 0.9);
+    
+    return true;
   }
+  virtual void loop(GameWindow &window_, float deltaTime_) override{
+    draw(window_);
+  }
+  void draw(GameWindow &window_);
 };
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 class GRenderObjComponent : public GSceneComponent {
 private:
@@ -155,18 +189,19 @@ class GCameraComponent : public GSceneComponent {
 private:
   float pixSize = 0.01;
   FVector3 positionForRender;
-  FVector3 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
-    return {((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f),
-            ((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
-             (PositionInWS.z / pixSize)),
-            0};
-  }
+ 
   void renderFix() { positionForRender = getPositionWs(); }
   void drawSpr(GRenderObjComponent *spr_, GameWindow &window_);
   std::vector<sf::Vertex> points;
   GameWindow *window = nullptr;
 
 public:
+ FVector3 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
+    return {((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f),
+            ((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
+             (PositionInWS.z / pixSize)),
+            0};
+  }
   void setWindow(GameWindow *window_) { window = window_; }
   GameWindow *getWindow() { return window; }
   void setPixSize(float pSize_) { pixSize = pSize_; }

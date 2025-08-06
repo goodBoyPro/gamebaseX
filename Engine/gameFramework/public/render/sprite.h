@@ -71,6 +71,7 @@ class GSprite {
       sprite.setScale(x / sizeTexUnit.x, y / sizeTexUnit.y);
     }
     void setPositionWin(float x, float y) { sprite.setPosition(x, y); }
+    void setRotation(float angle_){sprite.setRotation(angle_);}
     void setCenter(float x, float y) { sprite.setOrigin(x * sizeTexUnit.x, y * sizeTexUnit.y); }
     void drawWin(GameWindow &window_) { window_.draw(sprite); }
 };
