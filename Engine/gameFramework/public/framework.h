@@ -60,10 +60,8 @@ public:
   inline static GTexture zTex;
   inline static GSprite cSpr;
   inline static GTexture cTex;
-   GPrimitiveComponent() {
-    static bool temp=createAxis();
-  }
-  bool createAxis(){
+  GPrimitiveComponent() { static bool temp = createAxis(); }
+  bool createAxis() {
     xTex.init(1, 1, 0.5, 1, "system/texture/x.png");
     xSpr.init(xTex);
     yTex.init(1, 1, 0.5, 1, "system/texture/y.png");
@@ -82,10 +80,10 @@ public:
     zSpr.setRotation(45);
     cSpr.setSizeWin(30, 30);
     cSpr.setCenter(0.1, 0.9);
-    
+
     return true;
   }
-  virtual void loop(GameWindow &window_, float deltaTime_) override{
+  virtual void loop(GameWindow &window_, float deltaTime_) override {
     draw(window_);
   }
   void draw(GameWindow &window_);
@@ -145,7 +143,7 @@ public:
   int nodeId;
   virtual void beginPlay() {}
   virtual void tick() {}
-  GActor() {};
+  GActor();
   void actorBaseInit(GWorld *worldPtr_) { worldPtr = worldPtr_; }
   GWorld *getWorld() { return worldPtr; }
   virtual void loop(float deltatime_, GameWindow &window_);
@@ -189,14 +187,14 @@ class GCameraComponent : public GSceneComponent {
 private:
   float pixSize = 0.01;
   FVector3 positionForRender;
- 
+
   void renderFix() { positionForRender = getPositionWs(); }
   void drawSpr(GRenderObjComponent *spr_, GameWindow &window_);
   std::vector<sf::Vertex> points;
   GameWindow *window = nullptr;
 
 public:
- FVector3 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
+  FVector3 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
     return {((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f),
             ((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
              (PositionInWS.z / pixSize)),
@@ -350,20 +348,25 @@ private:
   float deltaTime = 0.1;
   sf::Clock clock;
   void bindDefaultCameraController();
+  struct ActorContext {
+    GWorld *______worldParamForCreate;
+  };
+  inline static ActorContext actorContext;
 
 public:
+  friend class GActor;
+  void setActorContext() { actorContext.______worldParamForCreate = this; }
+
   GameMode gm;
   GSource *getSource() { return source; };
   // 该函数要访问gameIns，但是gameIns不是在构造函数设置的，如果在构造函数使用此函数，会出错
   template <class playerClass> GameMode &setGameMode();
   void setCameraActive(GCameraComponent *camera_);
   template <class T> T *createActor(const FVector3 &position = {0, 0, 0}) {
+    setActorContext();
     T *actor = new T();
-    // 特别注意，init是在构造函数之后执行的，子类要慎重写构造函数，推荐beginPlay()
-    actor->actorBaseInit(this);
     // 1.先设置默认nodeId 2.设置新位置 3. 更新位置（此处是有意设计，不要修改）
-    int nodeId = gridMap.addActor(actor);
-    actor->nodeId = nodeId;
+    actor->nodeId = gridMap.addActor(actor);
     actor->setPositionWs(position);
     actor->beginPlay();
     return actor;

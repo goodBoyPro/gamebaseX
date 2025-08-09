@@ -37,15 +37,8 @@
 
 //     return 0;
 // }
-#include "base/gJson.h"
+
 int main() {
-  Gjson gs("res\\jsonTest.json");
-  gs["a"] = 21;
-  gs["b"] = 22;
-  gs["c"] = nlohmann::json();
-  gs["c"].push_back(1);
-  gs["c"].push_back(11);
-  gs["c"].push_back(23);
-  gs.save();
+
   
   return 0;}

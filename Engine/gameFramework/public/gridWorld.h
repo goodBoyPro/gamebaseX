@@ -109,8 +109,8 @@ public:
     height = height_;
     width = width_;
 
-    gridmapNode<T >::gridmapNodeWidth = width_;
-    gridmapNode<T >::gridmapNodeHeight = height_;
+    gridmapNode<T>::gridmapNodeWidth = width_;
+    gridmapNode<T>::gridmapNodeHeight = height_;
     edgeUp = beginPoint.y + height;
     edgeDown = beginPoint.y + height * (row - 1);
     edgeLeft = beginPoint.x + width;
@@ -124,7 +124,7 @@ public:
       int y = i % column;
       an.point = {beginPoint.x + y * gridmapNode<T>::gridmapNodeWidth,
                   beginPoint.y + x * gridmapNode<T>::gridmapNodeHeight};
-      
+
       if (x == 0 || y == 0 || y == column - 1 || x == row - 1) {
         continue;
       }
@@ -197,7 +197,10 @@ public:
     }
   }
   void changeActorNode(T *ptr, int idNew, int idOld) {
-    allNode[idOld].actors.remove(ptr);
+    if (idOld) {
+      allNode[idOld].actors.remove(ptr);
+    }
+
     allNode[idNew].actors.addActor(ptr);
   }
   int getActorsNumber() {

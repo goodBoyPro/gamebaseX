@@ -8,8 +8,13 @@ void GActor::loop(float deltatime, GameWindow &window_) {
 void GActor::setActive() { isActive = true; };
 void GActor::disableActive() { isActive = false; };
 void GActor::setPositionWs(const FVector3 &posWs_) {
+  if (!nodeId) {
+    positionWs = posWs_;
+    return;
+  }
   int nodeIdTemp = getWorld()->gridMap.getPositionIndex(posWs_);
-  if(!nodeIdTemp)return;
+  if (!nodeIdTemp)
+    return;
   if (nodeIdTemp != nodeId) {
     getWorld()->gridMap.changeActorNode(this, nodeIdTemp, nodeId);
     nodeId = nodeIdTemp;
@@ -24,7 +29,7 @@ FVector3 GSceneComponent::getPositionWs() {
   return owner->getPositionWs() + positionRelative;
 }
 void GSceneComponent::setPositionWs(const FVector3 &posWs_) {
-  setPositionRelative(posWs_-owner->getPositionWs());
+  setPositionRelative(posWs_ - owner->getPositionWs());
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 void GRenderObjComponent::loop(GameWindow &window_, float deltaTime_) {
@@ -59,11 +64,11 @@ GPlayer::GPlayer() {
     moveComp->setTarget(target);
   });
   controller.bind(GController::kup, [this]() {
-    if(cameraComp->getPixSize()<0.0001)return;
+    if (cameraComp->getPixSize() < 0.0001)
+      return;
     cameraComp->setPixSize(cameraComp->getPixSize() - 0.0001);
   });
   controller.bind(GController::kdown, [this]() {
-    
     cameraComp->setPixSize(cameraComp->getPixSize() + 0.0001);
   });
 }
@@ -108,7 +113,8 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
   }
 }
 void GWorld::pollActorsActive(GameWindow &window_) {
-  int centerId = gridMap.getPositionIndex(window_.getCameraActve()->getPositionWs());
+  int centerId =
+      gridMap.getPositionIndex(window_.getCameraActve()->getPositionWs());
   gridMap.setActorsAlive(centerId);
   for (GActor *actor : gridMap.actorsAlive) {
     actor->loop(deltaTime, window_);
@@ -123,8 +129,8 @@ void GWorld::pollActorsActive(GameWindow &window_) {
 }
 void GWorld::bindDefaultCameraController() {
   cameraDefaultPtr = createActor<GCamera>();
-  GCamera&cameraDefault=*cameraDefaultPtr;
-  gm.gameIns->window.setCameraActive(cameraDefault.cameraComp) ;
+  GCamera &cameraDefault = *cameraDefaultPtr;
+  gm.gameIns->window.setCameraActive(cameraDefault.cameraComp);
   controllerActive = &controllerDefault;
   controllerDefault.bind(GController::w, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
@@ -184,12 +190,16 @@ void GWorld::tick() {
 
 };
 void GWorld::showGridMap(GameWindow &window_) {
-  #ifdef EDITOR
-  FVector2 p = gridMap.allNode[gridMap.getPositionIndex(gm.gameIns->window.getCameraActve()->getPositionWs())].point;
-  FVector3 p1={p.x,p.y,0};
-  FVector3 p2={p.x+gridmapNode<GActor>::gridmapNodeWidth,p.y,0};
-  FVector3 p3={p.x+gridmapNode<GActor>::gridmapNodeWidth,p.y+gridmapNode<GActor>::gridmapNodeHeight,0};
-  FVector3 p4={p.x,p.y+gridmapNode<GActor>::gridmapNodeHeight,0};
+#ifdef EDITOR
+  FVector2 p = gridMap
+                   .allNode[gridMap.getPositionIndex(
+                       gm.gameIns->window.getCameraActve()->getPositionWs())]
+                   .point;
+  FVector3 p1 = {p.x, p.y, 0};
+  FVector3 p2 = {p.x + gridmapNode<GActor>::gridmapNodeWidth, p.y, 0};
+  FVector3 p3 = {p.x + gridmapNode<GActor>::gridmapNodeWidth,
+                 p.y + gridmapNode<GActor>::gridmapNodeHeight, 0};
+  FVector3 p4 = {p.x, p.y + gridmapNode<GActor>::gridmapNodeHeight, 0};
   std::vector<FVector3> points;
   points.push_back(p1);
   points.push_back(p2);
@@ -197,24 +207,30 @@ void GWorld::showGridMap(GameWindow &window_) {
   points.push_back(p4);
   points.push_back(p1);
   window_.getCameraActve()->drawLineWs(points, window_);
-  #endif
+#endif
 }
 
 void GWorld::setCameraActive(GCameraComponent *camera_) {
   gm.gameIns->window.setCameraActive(camera_);
-  
 }
-GCameraComponent *GWorld::getCameraActive() { return gm.gameIns->window.getCameraActve(); }
+GCameraComponent *GWorld::getCameraActive() {
+  return gm.gameIns->window.getCameraActve();
+}
 void GPrimitiveComponent::draw(GameWindow &window_) {
-  const FVector3&pos=window_.getCameraActve()->wsToWin(getPositionWs(), window_.getDefaultView().getSize().x, window_.getDefaultView().getSize().y);
-  xSpr.setPositionWin(pos.x,pos.y);
-  ySpr.setPositionWin(pos.x,pos.y);
-  zSpr.setPositionWin(pos.x,pos.y);
-  cSpr.setPositionWin(pos.x,pos.y);
-  
+  const FVector3 &pos = window_.getCameraActve()->wsToWin(
+      getPositionWs(), window_.getDefaultView().getSize().x,
+      window_.getDefaultView().getSize().y);
+  xSpr.setPositionWin(pos.x, pos.y);
+  ySpr.setPositionWin(pos.x, pos.y);
+  zSpr.setPositionWin(pos.x, pos.y);
+  cSpr.setPositionWin(pos.x, pos.y);
+
   cSpr.drawWin(window_);
   xSpr.drawWin(window_);
   ySpr.drawWin(window_);
   zSpr.drawWin(window_);
-  
 }
+GActor::GActor() {
+  worldPtr = GWorld::actorContext.______worldParamForCreate;
+  nodeId = 0;
+};
