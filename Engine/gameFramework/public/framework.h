@@ -8,8 +8,10 @@
 #include "render/sprite.h"
 #include <GDebug.h>
 #include <fstream>
+#include <gameLog.h>
 #include <nlohmann_json/json.hpp>
 #include <timeManager.h>
+
 
 // 反射
 #define REGISTER_CLASS(className)                                              \
@@ -32,7 +34,7 @@ public:
     if (getClassRegInfo().find(className_) != getClassRegInfo().end()) {
       throw std::overflow_error(className_ + ":class redefined\n");
     }
-
+    GAMELOG(std::string("register class:").append(className_));
     getClassRegInfo()[className_].className = className_;
     getClassRegInfo()[className_].constructCbk = []() -> GObject * {
       return new T; // 释放流程待添加
