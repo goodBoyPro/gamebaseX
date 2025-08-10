@@ -11,15 +11,61 @@
 #include <nlohmann_json/json.hpp>
 #include <timeManager.h>
 
+// 反射
+#define REGISTER_CLASS(className)                                              \
+  class className;                                                             \
+  inline struct AutoRegister##className {                                      \
+    AutoRegister##className() { GClass::regClass<className>(#className); }     \
+  } autoRegister##className;
+
+class GClass {
+public:
+  static std::unordered_map<std::string, GClass> &getClassRegInfo() {
+    static std::unordered_map<std::string, GClass> inst;
+    return inst;
+  }
+
+  friend class GObject;
+  std::function<class GObject *()> constructCbk;
+  std::string className;
+  template <class T> static void regClass(const std::string &className_) {
+    if (getClassRegInfo().find(className_) != getClassRegInfo().end()) {
+      throw std::overflow_error(className_ + ":class redefined\n");
+    }
+
+    getClassRegInfo()[className_].className = className_;
+    getClassRegInfo()[className_].constructCbk = []() -> GObject * {
+      return new T; // 释放流程待添加
+    };
+  }
+};
+#define REGISTER_BODY(className)                                               \
+public:                                                                        \
+  virtual GClass &getGClass() { return GClass::getClassRegInfo()[#className]; }
+
+///////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GObject)
 class GObject {
+  REGISTER_BODY(GObject)
+private:
 public:
   bool isValid = true;
   virtual ~GObject() {};
+  static GObject *constructObject(const std::string &className_) {
+    if (GClass::getClassRegInfo().find(className_) ==
+        GClass::getClassRegInfo().end()) {
+      throw std::overflow_error(
+          className_ + ":constructObject use unRegistered className\n");
+    }
+    return GClass::getClassRegInfo()[className_].constructCbk();
+  }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GComponent)
 class GComponent : public GObject {
+  REGISTER_BODY(GComponent)
 protected:
   class GActor *owner = nullptr;
 
@@ -31,7 +77,9 @@ public:
   virtual void loop(GameWindow &window_, float deltaTime_) {}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GSceneComponent)
 class GSceneComponent : public GComponent {
+  REGISTER_BODY(GSceneComponent)
 private:
   std::vector<GSceneComponent *> __childs;
   FVector3 positionRelative = {0, 0, 0};

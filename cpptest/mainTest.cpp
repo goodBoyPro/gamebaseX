@@ -37,8 +37,18 @@
 
 //     return 0;
 // }
+#include <framework.h>
+REGISTER_CLASS(TestClass)
+class TestClass : public GObject {
+  REGISTER_BODY(TestClass)
+public:
+  TestClass() {
+   
+  }
+};
 
 int main() {
-
-  
+  GObject *x = GObject::constructObject("TestClass");
+  std::string str = x->getGClass().className;
+  printf("%s",str.c_str());
   return 0;}
