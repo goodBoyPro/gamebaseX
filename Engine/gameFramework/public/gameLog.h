@@ -73,7 +73,7 @@ public:
 
     char buffer[40];
     std::snprintf(buffer, sizeof(buffer),
-                  "%04d%02d%02d:%02d:%02d:%02d",
+                  "%04d%02d%02d_%02d:%02d:%02d",
                   local_tm->tm_year + 1900, // 年份从1900开始计算
                   local_tm->tm_mon + 1,     // 月份0-11需+1
                   local_tm->tm_mday,        //

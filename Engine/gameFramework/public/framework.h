@@ -100,7 +100,9 @@ public:
   void setSizeWs(const FVector3 &sizeWs_) { sizeWs = sizeWs_; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GPrimitiveComponent)
 class GPrimitiveComponent : public GSceneComponent {
+  REGISTER_BODY(GPrimitiveComponent)
 public:
   inline static GSprite xSpr;
   inline static GTexture xTex;
@@ -140,7 +142,9 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GRenderObjComponent)
 class GRenderObjComponent : public GSceneComponent {
+  REGISTER_BODY(GRenderObjComponent)
 private:
   GSprite *sprite = nullptr;
 
@@ -153,9 +157,11 @@ public:
   virtual void loop(GameWindow &window_, float deltaTime_) override;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GStaticSpriteComponent)
 class GStaticSpriteComponent : public GRenderObjComponent {
+  
   GSprite spr;
-
+REGISTER_BODY(GStaticSpriteComponent)
 public:
   GStaticSpriteComponent() { setRenderSpr(&spr); }
   void setTex(const GTexture &tex) { spr.init(tex); }
@@ -163,7 +169,9 @@ public:
   GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GSympleAnimationComponent)
 class GSympleAnimationComponent : public GRenderObjComponent {
+  REGISTER_BODY(GSympleAnimationComponent)
 public:
   GAnimation anim;
   GSympleAnimationComponent() {
@@ -180,7 +188,9 @@ public:
   }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GActor)
 class GActor : public GObject {
+  REGISTER_BODY(GActor)
 private:
 private:
   std::vector<GComponent *> __allComponents;
@@ -233,7 +243,9 @@ public:
   }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GCameraComponent)
 class GCameraComponent : public GSceneComponent {
+  REGISTER_BODY(GCameraComponent)
 private:
   float pixSize = 0.01;
   FVector3 positionForRender;
@@ -293,8 +305,9 @@ public:
                         GameWindow &window_);
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GCamera)
 class GCamera : public GActor {
-
+REGISTER_BODY(GCamera)
 public:
   GCameraComponent *cameraComp = nullptr;
   GCamera() { cameraComp = createComponent<GCameraComponent>(); }
@@ -341,9 +354,14 @@ public:
   }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
-class GAnimationSystemComponent : public GRenderObjComponent {};
+REGISTER_CLASS(GAnimationSystemComponent)
+class GAnimationSystemComponent : public GRenderObjComponent {
+  REGISTER_BODY(GAnimationSystemComponent)
+};
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GPlayer)
 class GPlayer : public GActor {
+  REGISTER_BODY(GPlayer)
 public:
   GCameraComponent *cameraComp = nullptr;
   GStaticSpriteComponent *sprComp = nullptr;
@@ -353,7 +371,9 @@ public:
   GPlayer();
   void beginPlay() override;
 };
+REGISTER_CLASS(GAnimActor)
 class GAnimActor : public GActor {
+  REGISTER_BODY(GAnimActor)
 public:
   GSympleAnimationComponent *sprComp = nullptr;
   GAnimActor() {}
@@ -365,7 +385,9 @@ public:
   }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GStaticActor)
 class GStaticActor : public GActor {
+  REGISTER_BODY(GStaticActor)
 public:
   GStaticSpriteComponent *sprComp = nullptr;
   GStaticActor() {}
@@ -375,13 +397,17 @@ public:
     sprComp->getSprite().setId(id_);
   }
 };
+REGISTER_CLASS(GameMode)
 class GameMode : public GObject {
+  REGISTER_BODY(GameMode)
 public:
   GPlayer *player = nullptr;
   class GGame *gameIns = nullptr;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+REGISTER_CLASS(GWorld)
 class GWorld : public GObject {
+  REGISTER_BODY(GWorld)
 private:
   GSource *source = nullptr;
 
@@ -421,6 +447,15 @@ public:
     actor->beginPlay();
     return actor;
   }
+  GActor*createActorByClassName(const std::string&className_,const FVector3&position={0,0,0}){
+    setActorContext();
+    GActor*rtn=(GActor*)GObject::constructObject(className_);
+    rtn->nodeId = gridMap.addActor(rtn);
+    rtn->setPositionWs(position);
+    rtn->beginPlay();
+    return rtn;
+
+  }
   std::vector<GRenderObjComponent *> &getRenderObjComps() {
     return allRenderObj;
   }
@@ -444,8 +479,13 @@ public:
   void loop(GameWindow &window_, EventBase &event_);
   ~GWorld() { delete source; }
 };
-class LevelManager : public GObject {};
-class GGame : GObject {
+REGISTER_CLASS(LevelManager)
+class LevelManager : public GObject {
+  REGISTER_BODY(LevelManager)
+};
+REGISTER_CLASS(GGame)
+class GGame :public GObject {
+  REGISTER_BODY(GGame)
 private:
   GWorld *curWorld = nullptr;
 
