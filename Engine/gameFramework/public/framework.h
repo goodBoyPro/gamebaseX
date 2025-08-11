@@ -3,15 +3,12 @@
 #include "GComman.h"
 #include "controllerX.h"
 #include "gridWorld.h"
-#include "heads.h"
 #include "render/gsource.h"
 #include "render/sprite.h"
 #include <GDebug.h>
-#include <fstream>
 #include <gameLog.h>
 #include <nlohmann_json/json.hpp>
 #include <timeManager.h>
-
 
 // 反射
 #define REGISTER_CLASS(className)                                              \
@@ -43,12 +40,17 @@ public:
 };
 #define REGISTER_BODY(className)                                               \
 public:                                                                        \
-  virtual GClass &getGClass() { return GClass::getClassRegInfo()[#className]; }
+  virtual GClass &getGClass() override {                                       \
+    return GClass::getClassRegInfo()[#className];                              \
+  }
 
 ///////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GObject)
 class GObject {
-  REGISTER_BODY(GObject)
+  // 反射主体
+public:
+  virtual GClass &getGClass() { return GClass::getClassRegInfo()["GObject"]; }
+
 private:
 public:
   bool isValid = true;
@@ -159,9 +161,9 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GStaticSpriteComponent)
 class GStaticSpriteComponent : public GRenderObjComponent {
-  
+
   GSprite spr;
-REGISTER_BODY(GStaticSpriteComponent)
+  REGISTER_BODY(GStaticSpriteComponent)
 public:
   GStaticSpriteComponent() { setRenderSpr(&spr); }
   void setTex(const GTexture &tex) { spr.init(tex); }
@@ -307,7 +309,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GCamera)
 class GCamera : public GActor {
-REGISTER_BODY(GCamera)
+  REGISTER_BODY(GCamera)
 public:
   GCameraComponent *cameraComp = nullptr;
   GCamera() { cameraComp = createComponent<GCameraComponent>(); }
@@ -447,14 +449,14 @@ public:
     actor->beginPlay();
     return actor;
   }
-  GActor*createActorByClassName(const std::string&className_,const FVector3&position={0,0,0}){
+  GActor *createActorByClassName(const std::string &className_,
+                                 const FVector3 &position = {0, 0, 0}) {
     setActorContext();
-    GActor*rtn=(GActor*)GObject::constructObject(className_);
+    GActor *rtn = (GActor *)GObject::constructObject(className_);
     rtn->nodeId = gridMap.addActor(rtn);
     rtn->setPositionWs(position);
     rtn->beginPlay();
     return rtn;
-
   }
   std::vector<GRenderObjComponent *> &getRenderObjComps() {
     return allRenderObj;
@@ -484,7 +486,7 @@ class LevelManager : public GObject {
   REGISTER_BODY(LevelManager)
 };
 REGISTER_CLASS(GGame)
-class GGame :public GObject {
+class GGame : public GObject {
   REGISTER_BODY(GGame)
 private:
   GWorld *curWorld = nullptr;
