@@ -45,14 +45,15 @@ template <class T> struct gridmapNode {
   inline static float gridmapNodeWidth;
   inline static float gridmapNodeHeight;
   enum nodeName {
-    left = 0,
-    leftup,
     up,
-    rightup,
+    rightUp,
     right,
-    rightdown,
+    rightDown,
     down,
-    leftdown
+    leftDown,
+    left,
+    leftUp,
+    count
   };
   gridmapNode *nodeNear[8] = {nullptr};
   ListSafe<T> actors;
@@ -97,68 +98,66 @@ public:
 
 public:
   GridMap() {}
-  GridMap(FVector2 beginPoint_, int row_, int column_, float height_,
-          float width_) {
-    init(beginPoint_, row_, column_, height_, width_);
+  GridMap(int row_, int column_, float height_, float width_) {
+    init(row_, column_, height_, width_);
   }
-  void init(FVector2 beginPoint_, int row_, int column_, float height_,
-            float width_) {
-    beginPoint = beginPoint_;
+  void init(int row_, int column_, float height_, float width_) {
+
     row = row_;
-    column = column_;
+    column = nextPowerOfTwo(column_);
     height = height_;
     width = width_;
+    beginPoint = {-row / 2.f * height, -column / 2.f * width};
+    printf("beginPoint:%f,%f\n", beginPoint.x, beginPoint.y);
 
     gridmapNode<T>::gridmapNodeWidth = width_;
     gridmapNode<T>::gridmapNodeHeight = height_;
-    edgeUp = beginPoint.y + height;
-    edgeDown = beginPoint.y + height * (row - 1);
-    edgeLeft = beginPoint.x + width;
-    edgeRight = beginPoint.x + width * (column - 1);
+    edgeUp = beginPoint.y;
+    edgeDown = beginPoint.y + height * (row);
+    edgeLeft = beginPoint.x;
+    edgeRight = beginPoint.x + width * (column);
+    setNodes();
+  }
+  void setNodes() {
     int num = row * column;
     allNode = new gridmapNode<T>[num];
+    int dr[] = {-1, -1, 0, 1, 1, 1, 0, -1};
+    int dc[] = {0, 1, 1, 1, 0, -1, -1, -1};
     for (int i = 0; i < num; i++) {
       gridmapNode<T> &an = allNode[i];
 
-      int x = i / column;
-      int y = i % column;
-      an.point = {beginPoint.x + y * gridmapNode<T>::gridmapNodeWidth,
-                  beginPoint.y + x * gridmapNode<T>::gridmapNodeHeight};
-
-      if (x == 0 || y == 0 || y == column - 1 || x == row - 1) {
-        continue;
+      int qRow = i / column;
+      int qColumn = i % column;
+      an.point = {beginPoint.x + qColumn * gridmapNode<T>::gridmapNodeWidth,
+                  beginPoint.y + qRow * gridmapNode<T>::gridmapNodeHeight};
+      for (int j = 0; j < gridmapNode<T>::count; j++) {
+        int r = qRow + dr[j];
+        int c = qColumn + dc[j];
+        if (r < 0 || r >= row || c < 0 || c >= column) {
+          allNode[i].nodeNear[j] = nullptr;
+        } else {
+          allNode[i].nodeNear[j] = &(allNode[r * column + c]);
+        }
       }
-
-      an.nodeNear[gridmapNode<T>::down] =
-          i + column < num - row ? &allNode[i + column] : nullptr; // ok
-      an.nodeNear[gridmapNode<T>::left] =
-          (i - 1) % column != 0 ? &allNode[i - 1] : nullptr; // ok
-      an.nodeNear[gridmapNode<T>::leftdown] =
-          i + column - 1 < num - row && (i + column - 1) % column != 0
-              ? &allNode[i + column - 1]
-              : nullptr;
-      an.nodeNear[gridmapNode<T>::leftup] =
-          i - column - 1 > column - 1 && (i - column - 1) % column != 0
-              ? &allNode[i - column - 1]
-              : nullptr;
-      an.nodeNear[gridmapNode<T>::right] =
-          (i + 1) % column != column - 1 ? &allNode[i + 1] : nullptr; // ok
-      an.nodeNear[gridmapNode<T>::rightdown] =
-          i + column + 1 < num - row && (i + column + 1) % column != column - 1
-              ? &allNode[i + column + 1]
-              : nullptr;
-      an.nodeNear[gridmapNode<T>::rightup] =
-          i - column + 1 > column - 1 && (i - column + 1) % column != column - 1
-              ? &allNode[i - column + 1]
-              : nullptr;
-      an.nodeNear[gridmapNode<T>::up] =
-          i - column > column - 1 ? &allNode[i - column] : nullptr; // ok
     }
+  }
+  int nextPowerOfTwo(int n) {
+    if (n <= 0)
+      return 1; // 处理非正输入
+    if ((n & (n - 1)) == 0)
+      return n; // 如果已经是2的幂，直接返回
+
+    // 找到最高位并左移一位
+    int highestBit = 1;
+    while (highestBit <= n) {
+      highestBit <<= 1;
+    }
+    return highestBit;
   }
   int getPositionIndex(const FVector3 &pos) {
     if (pos.x < edgeLeft || pos.x >= edgeRight //
         || pos.y < edgeUp || pos.y >= edgeDown) {
-      return 0;
+      return -1;
     }
     int column_ = (pos.x - beginPoint.x) / width;
     int row_ = (pos.y - beginPoint.y) / height;
@@ -167,13 +166,13 @@ public:
   std::vector<T *> badActors;
   int addActor(T *a) {
     int id = getPositionIndex(a->getPositionWs());
-    if (id) {
+    if (id != -1) {
       allNode[id].actors.addActor(a);
       return id;
     } else {
-      printf("actor is out edge,been deleted");
+      printf("%s is out edge,been deleted\n", a->getGClass().className.c_str());
       badActors.push_back(a);
-      return 0;
+      return -1;
     }
   }
   bool areFloatsEqual(const float a, const float b, float epsilon = 1e-5f) {
@@ -197,9 +196,10 @@ public:
     }
   }
   void changeActorNode(T *ptr, int idNew, int idOld) {
-    if (idOld) {
-      allNode[idOld].actors.remove(ptr);
-    }
+    if (idOld == -1)
+      return;
+
+    allNode[idOld].actors.remove(ptr);
 
     allNode[idNew].actors.addActor(ptr);
   }

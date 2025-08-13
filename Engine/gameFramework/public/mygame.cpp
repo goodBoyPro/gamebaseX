@@ -14,13 +14,14 @@ public:
     });
   }
 };
+REGISTER_CLASS(MyPlayer)
 class MyPlayer : public GPlayer {
   GPrimitiveComponent *primComp = nullptr;
-
+REGISTER_BODY(MyPlayer)
 public:
   void beginPlay() override {
     GPlayer::beginPlay();
-    setPositionWs({0, 0, 0});
+    setPositionWs({-120,-155,0});
     primComp = createComponent<GPrimitiveComponent>();
   }
   void tick() override {
@@ -45,8 +46,8 @@ public:
 int main() {
   GGame *gameins = GGame::getGameIns();
   GWorld *world = gameins->createWorld<MyWorld>();
-  world->setGameMode<MyPlayer>().player->moveComp->speed = 1;
-  world->gm.player->setPositionWs({-79,-79,0});
+  world->setGameMode("MyPlayer").player->moveComp->speed = 1;
+  
 
   gameins->loop();
 };

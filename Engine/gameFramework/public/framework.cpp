@@ -8,12 +8,12 @@ void GActor::loop(float deltatime, GameWindow &window_) {
 void GActor::setActive() { isActive = true; };
 void GActor::disableActive() { isActive = false; };
 void GActor::setPositionWs(const FVector3 &posWs_) {
-  if (!nodeId) {
+  if (nodeId == -1) {
     positionWs = posWs_;
     return;
   }
   int nodeIdTemp = getWorld()->gridMap.getPositionIndex(posWs_);
-  if (!nodeIdTemp)
+  if (nodeIdTemp == -1)
     return;
   if (nodeIdTemp != nodeId) {
     getWorld()->gridMap.changeActorNode(this, nodeIdTemp, nodeId);

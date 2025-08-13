@@ -15,8 +15,8 @@
   class className;                                                             \
   inline struct AutoRegister##className {                                      \
     AutoRegister##className() { GClass::regClass<className>(#className); }     \
-  } autoRegister##className;
-
+  } autoRegister##className;                                                   \
+// REGISTER_CLASS(className)
 class GClass {
 public:
   static std::unordered_map<std::string, GClass> &getClassRegInfo() {
@@ -42,7 +42,9 @@ public:
 public:                                                                        \
   virtual GClass &getGClass() override {                                       \
     return GClass::getClassRegInfo()[#className];                              \
-  }
+  }                                                                            \
+private:                                                                       \
+// REGISTER_BODY(className)
 
 ///////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GObject)
@@ -202,7 +204,7 @@ private:
   class GWorld *worldPtr = nullptr;
 
 public:
-  int nodeId;
+  int nodeId = -1;
   virtual void beginPlay() {}
   virtual void tick() {}
   GActor();
@@ -438,7 +440,7 @@ public:
   GameMode gm;
   GSource *getSource() { return source; };
   // 该函数要访问gameIns，但是gameIns不是在构造函数设置的，如果在构造函数使用此函数，会出错
-  template <class playerClass> GameMode &setGameMode();
+  GameMode &setGameMode(const std::string &playerClass_);
   void setCameraActive(GCameraComponent *camera_);
   template <class T> T *createActor(const FVector3 &position = {0, 0, 0}) {
     setActorContext();
@@ -469,13 +471,13 @@ public:
   GWorld() {
 
     source = new GSource();
-    gridMap.init({-100, -100}, 50, 50, 10, 10);
+    gridMap.init(50, 50, 5, 5);
     // test
   }
   void Construct() { bindDefaultCameraController(); }
   virtual void tick();
   virtual void beginPlay() {
-    setGameMode<GPlayer>().player->moveComp->speed = 1;
+    setGameMode("GPlayer").player->moveComp->speed = 1;
   }
   void pollActorsActive(GameWindow &window_);
   void loop(GameWindow &window_, EventBase &event_);
@@ -525,10 +527,10 @@ public:
   }
 };
 
-template <class playerClass> inline GameMode &GWorld::setGameMode() {
+inline GameMode &GWorld::setGameMode(const std::string &playerClass_) {
   // 如果gm.player不为空，应先释放
   delete gm.player;
-  gm.player = createActor<playerClass>();
+  gm.player = (GPlayer *)createActorByClassName(playerClass_);
   if (gm.gameIns) {
     gm.gameIns->window.setCameraActive(gm.player->cameraComp);
   } else {
