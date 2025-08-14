@@ -14,7 +14,21 @@ class GController {
     };
 
   public:
-    enum Input { a, w, s, d, q,kup,kdown,kleft,kright,mleft,mright, count };
+    enum Input {
+      a,
+      w,
+      s,
+      d,
+      q,
+      kup,
+      kdown,
+      kleft,
+      kright,
+      mleft,
+      mright,
+      count
+    };
+    
     std::vector<std::vector<Cbk>> cbks;
     GController() {
         for (int i = 0; i < (int)count; i++) {

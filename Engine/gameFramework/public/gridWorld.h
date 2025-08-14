@@ -125,7 +125,6 @@ public:
     int dc[] = {0, 1, 1, 1, 0, -1, -1, -1};
     for (int i = 0; i < num; i++) {
       gridmapNode<T> &an = allNode[i];
-
       int qRow = i / column;
       int qColumn = i % column;
       an.point = {beginPoint.x + qColumn * gridmapNode<T>::gridmapNodeWidth,
