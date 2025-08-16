@@ -477,10 +477,10 @@ public:
   void Construct() { bindDefaultCameraController(); }
   virtual void tick();
   virtual void beginPlay() {
-    setGameMode("GPlayer").player->moveComp->speed = 1;
+    
   }
   void pollActorsActive(GameWindow &window_);
-  void loop(GameWindow &window_, EventBase &event_);
+  virtual void loop(GameWindow &window_, EventBase &event_);
   ~GWorld() { delete source; }
 };
 REGISTER_CLASS(LevelManager)
@@ -490,7 +490,7 @@ class LevelManager : public GObject {
 REGISTER_CLASS(GGame)
 class GGame : public GObject {
   REGISTER_BODY(GGame)
-private:
+protected:
   GWorld *curWorld = nullptr;
 
   sf::Event event;

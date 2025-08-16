@@ -55,6 +55,7 @@ target_compile_definitions(${exeName} PRIVATE -DEDITOR)
 set(exeName GameEditor)
 file(GLOB_RECURSE src 
     ${ABS_DIR}/Engine/editor/*.cpp
+    ${ABS_DIR}/Engine/gameFramework/*.cpp
     version.rc)
 add_executable(${exeName}  ${src})
 set_target_properties(${exeName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ABS_DIR}/output/bin)

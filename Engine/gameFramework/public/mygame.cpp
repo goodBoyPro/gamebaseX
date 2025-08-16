@@ -43,11 +43,11 @@ public:
     PRINTDEBUG(L"mousePos:%f,%f",pos.x,pos.y)
   }
 };
-int main() {
-  GGame *gameins = GGame::getGameIns();
-  GWorld *world = gameins->createWorld<MyWorld>();
-  world->setGameMode("MyPlayer").player->moveComp->speed = 1;
+// int gameSimulate() {
+//   GGame *gameins = GGame::getGameIns();
+//   GWorld *world = gameins->createWorld<MyWorld>();
+//   world->setGameMode("MyPlayer").player->moveComp->speed = 1;
   
 
-  gameins->loop();
-};
+//   gameins->loop();
+// };

@@ -39,9 +39,10 @@ class GSprite {
     // 用户不要引用
     float sortFlag = 0;
     FVector3 posWs = {0, 0, 0};
-   
+
 
   public:
+    bool isContainPos(float x,float y){return sprite.getGlobalBounds().contains(x,y);}
     GSprite() = default;
     void setSortFlag(float value_) { sortFlag = value_; }
     void init(const GTexture &textureArray) {

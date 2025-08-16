@@ -1,10 +1,9 @@
 #ifndef MYEDITOR_H
 #define MYEDITOR_H
-#include "editorFrame.h"
+#include "worldEditor.h"
 int main() {
-  GEditor editor;
-  editor.construct(200,100,"main");
-  editor.mainloop();
+  WorldEditorWindow window;
+  window.loop();
   
   return 0;}
 #endif// MYEDITOR_H
