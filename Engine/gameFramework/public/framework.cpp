@@ -3,6 +3,7 @@
 void GActor::loop(float deltatime, GameWindow &window_) {
   for (GComponent *comp : __allComponents) {
     comp->loop(window_, deltatime);
+    comp->tick();
   }
 }
 void GActor::setActive() { isActive = true; };
@@ -147,6 +148,12 @@ void GWorld::bindDefaultCameraController() {
   controllerDefault.bind(GController::d, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
                                 FVector3(0.1, 0, 0));
+  });
+  controllerDefault.bind(GController::kup, [&]() {
+    cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()-0.0005);
+  });
+  controllerDefault.bind(GController::kdown, [&]() {
+    cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()+0.0005);
   });
 }
 void GWorld::loop(GameWindow &window_, EventBase &event_) {

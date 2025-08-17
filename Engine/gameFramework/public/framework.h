@@ -81,6 +81,7 @@ public:
   virtual void init(GActor *owner_) { owner = owner_; }
 
   virtual void loop(GameWindow &window_, float deltaTime_) {}
+  virtual void tick(){}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GSceneComponent)
@@ -435,6 +436,7 @@ private:
 
 public:
   friend class GActor;
+  GridMap<GActor>&getGridMap(){return gridMap;} 
   void setActorContext() { actorContext.______worldParamForCreate = this; }
 
   GameMode gm;
@@ -490,7 +492,7 @@ class LevelManager : public GObject {
 REGISTER_CLASS(GGame)
 class GGame : public GObject {
   REGISTER_BODY(GGame)
-protected:
+public:
   GWorld *curWorld = nullptr;
 
   sf::Event event;

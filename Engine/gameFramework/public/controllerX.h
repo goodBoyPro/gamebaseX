@@ -15,7 +15,7 @@ private:
   };
 
 public:
-  enum Input { a, w, s, d, q, kup, kdown, kleft, kright, mleft, mright, count };
+  enum Input { a, w, s, d, q, kup, kdown, kleft, kright, mleft, mright, custom,count };
   std::map<int, int> inputLinearMap = {
       {a, sf::Keyboard::A}, //
       {w, sf::Keyboard::W},          {s, sf::Keyboard::S},
@@ -83,6 +83,9 @@ public:
             cbk.function();
           }
         }
+      }
+      for (Cbk &cbk : cbks[custom]) {
+        cbk.function();
       }
     }
   }

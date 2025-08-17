@@ -1,7 +1,8 @@
 #include "GDebug.h"
 #include <framework.h>
-
+REGISTER_CLASS(MyActor)
 class MyActor : public GStaticActor {
+  REGISTER_BODY(MyActor)
 public:
   FVector3 direction;
   float speed = 0.8;
@@ -43,11 +44,11 @@ public:
     PRINTDEBUG(L"mousePos:%f,%f",pos.x,pos.y)
   }
 };
-// int gameSimulate() {
-//   GGame *gameins = GGame::getGameIns();
-//   GWorld *world = gameins->createWorld<MyWorld>();
-//   world->setGameMode("MyPlayer").player->moveComp->speed = 1;
+int main() {
+  GGame *gameins = GGame::getGameIns();
+  GWorld *world = gameins->createWorld<MyWorld>();
+  world->setGameMode("MyPlayer").player->moveComp->speed = 1;
   
 
-//   gameins->loop();
-// };
+  gameins->loop();
+};
