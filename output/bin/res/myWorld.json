@@ -1,4 +1,10 @@
-{
+{   
+    "mapInfo":{
+        "row":50,
+        "column":50,
+        "width":3,
+        "height":3
+    },
     "staticActors": [
         {
             "texId": 110110,

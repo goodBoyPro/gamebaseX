@@ -16,7 +16,9 @@ public:
   void setCameraActive(GCameraComponent *cameraComp_) {
     cameraActive = cameraComp_;
   }
-  GCameraComponent*getCameraActve(){return cameraActive;}
+  GCameraComponent *getCameraActve() { return cameraActive; }
+  IVector2 wsToWin(const FVector3 &posWs_);
+  FVector3 winToWs(FVector2 posWin_);
 };
 
 #endif // BASE_H

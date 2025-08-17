@@ -23,7 +23,7 @@ public:
   void beginPlay() override {
     GPlayer::beginPlay();
     setPositionWs({-120,-155,0});
-    primComp = createComponent<GPrimitiveComponent>();
+    
   }
   void tick() override {
     PRINTDEBUG(L"node:%d", nodeId);
@@ -36,7 +36,7 @@ public:
 };
 class MyWorld : public GWorld {
 public:
-  MyWorld() { loadBaseActors("res/myWorld.json"); }
+  MyWorld() {  }
   void beginPlay() override {}
   void tick() override {
     GWorld::tick();
@@ -46,7 +46,7 @@ public:
 };
 int main() {
   GGame *gameins = GGame::getGameIns();
-  GWorld *world = gameins->createWorld<MyWorld>();
+  GWorld *world = gameins->createWorld<MyWorld>("res/myWorld.json");
   world->setGameMode("MyPlayer").player->moveComp->speed = 1;
   
 

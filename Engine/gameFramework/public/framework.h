@@ -43,6 +43,7 @@ public:                                                                        \
   virtual GClass &getGClass() override {                                       \
     return GClass::getClassRegInfo()[#className];                              \
   }                                                                            \
+                                                                               \
 private:                                                                       \
 // REGISTER_BODY(className)
 
@@ -78,10 +79,11 @@ protected:
 private:
 public:
   GComponent() {}
-  virtual void init(GActor *owner_) { owner = owner_; }
+  virtual void construct(GActor *owner_) { owner = owner_; }
 
   virtual void loop(GameWindow &window_, float deltaTime_) {}
-  virtual void tick(){}
+  virtual void tick() {}
+  virtual void beginPlay(){}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GSceneComponent)
@@ -109,41 +111,13 @@ REGISTER_CLASS(GPrimitiveComponent)
 class GPrimitiveComponent : public GSceneComponent {
   REGISTER_BODY(GPrimitiveComponent)
 public:
-  inline static GSprite xSpr;
-  inline static GTexture xTex;
-  inline static GSprite ySpr;
-  inline static GTexture yTex;
-  inline static GSprite zSpr;
-  inline static GTexture zTex;
-  inline static GSprite cSpr;
-  inline static GTexture cTex;
-  GPrimitiveComponent() { static bool temp = createAxis(); }
-  bool createAxis() {
-    xTex.init(1, 1, 0.5, 1, "system/texture/x.png");
-    xSpr.init(xTex);
-    yTex.init(1, 1, 0.5, 1, "system/texture/y.png");
-    ySpr.init(yTex);
-    zTex.init(1, 1, 0.5, 1, "system/texture/z.png");
-    zSpr.init(zTex);
-    cTex.init(1, 1, 0.5, 1, "system/texture/c.png");
-    cSpr.init(cTex);
-    xSpr.setSizeWin(10, 100);
-    xSpr.setCenter(0.5, 1.3);
-    xSpr.setRotation(90);
-    ySpr.setSizeWin(10, 100);
-    ySpr.setCenter(0.5, 1.3);
-    zSpr.setSizeWin(10, 100);
-    zSpr.setCenter(0.5, 1.4246);
-    zSpr.setRotation(45);
-    cSpr.setSizeWin(30, 30);
-    cSpr.setCenter(0.1, 0.9);
-
-    return true;
-  }
+  
+  GPrimitiveComponent() { }
+ 
   virtual void loop(GameWindow &window_, float deltaTime_) override {
-    draw(window_);
+    
   }
-  void draw(GameWindow &window_);
+  
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -205,6 +179,9 @@ private:
   class GWorld *worldPtr = nullptr;
 
 public:
+#ifdef EDITOR
+  bool isEditorObj = false;
+#endif
   int nodeId = -1;
   virtual void beginPlay() {}
   virtual void tick() {}
@@ -218,14 +195,15 @@ public:
     setPositionWs(positionWs + offset);
   }
   template <class T> T *createComponent() {
-    T *comp = new T();
-    comp->init(this);
+    GComponent *comp = new T();
+    comp->construct(this);
+    comp->beginPlay();
     __allComponents.push_back(comp);
-    return comp;
+    return (T*)comp;
   }
   void setRootComponent(GSceneComponent *comp_) {
     rootComponent = comp_;
-    comp_->init(this);
+    comp_->construct(this);
   }
   bool isActive = false;
   void setActive();
@@ -261,17 +239,16 @@ private:
   GameWindow *window = nullptr;
 
 public:
-  FVector3 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
-    return {((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f),
-            ((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
-             (PositionInWS.z / pixSize)),
-            0};
+  IVector2 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
+    return {(int)((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f),
+            (int)((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
+                  (PositionInWS.z / pixSize))};
   }
   void setWindow(GameWindow *window_) { window = window_; }
   GameWindow *getWindow() { return window; }
   void setPixSize(float pSize_) { pixSize = pSize_; }
   float getPixSize() { return pixSize; }
-  FVector3 winToWs(const IVector2 &posWin_, GameWindow &window_) {
+  FVector3 winToWs(const FVector2 &posWin_, GameWindow &window_) {
     return {(posWin_.x - window_.getDefaultView().getSize().x / 2) * pixSize +
                 getPositionWs().x,
             (posWin_.y - window_.getDefaultView().getSize().y / 2) * pixSize +
@@ -280,10 +257,10 @@ public:
   }
   FVector3 getMousePositionWs(GameWindow &window_) {
     const IVector2 &posWin = sf::Mouse::getPosition(window_);
-    IVector2 posfix = {(int)(posWin.x * window_.getDefaultView().getSize().x /
-                             window_.getSize().x),
-                       (int)(posWin.y * window_.getDefaultView().getSize().y /
-                             window_.getSize().y)};
+    FVector2 posfix = {
+        (posWin.x * window_.getDefaultView().getSize().x / window_.getSize().x),
+        (posWin.y * window_.getDefaultView().getSize().y /
+         window_.getSize().y)};
 
     return winToWs(posfix, window_);
   };
@@ -295,10 +272,12 @@ public:
     int winW = window_.getDefaultView().getSize().x;
     int winH = window_.getDefaultView().getSize().y;
     for (const FVector3 &pos : pointsVector_) {
-      const FVector3 &poswin = wsToWin(pos, winW, winH);
-      points.emplace_back(sf::Vertex({poswin.x, poswin.y}, color));
+      const IVector2 &poswin = wsToWin(pos, winW, winH);
+      points.emplace_back(
+          sf::Vertex({(float)poswin.x, (float)poswin.y}, color));
       if (n)
-        points.emplace_back(sf::Vertex({poswin.x, poswin.y}, color));
+        points.emplace_back(
+            sf::Vertex({(float)poswin.x, (float)poswin.y}, color));
       n++;
     }
 
@@ -315,7 +294,12 @@ class GCamera : public GActor {
   REGISTER_BODY(GCamera)
 public:
   GCameraComponent *cameraComp = nullptr;
-  GCamera() { cameraComp = createComponent<GCameraComponent>(); }
+  GCamera() {
+#ifdef EDITOR
+    isEditorObj = true;
+#endif
+    cameraComp = createComponent<GCameraComponent>();
+  }
 };
 class GMoveComponent : public GComponent {
   FVector3 moveVector = {0, 0, 0};
@@ -436,7 +420,7 @@ private:
 
 public:
   friend class GActor;
-  GridMap<GActor>&getGridMap(){return gridMap;} 
+  GridMap<GActor> &getGridMap() { return gridMap; }
   void setActorContext() { actorContext.______worldParamForCreate = this; }
 
   GameMode gm;
@@ -473,14 +457,12 @@ public:
   GWorld() {
 
     source = new GSource();
-    gridMap.init(50, 50, 5, 5);
+    
     // test
   }
   void Construct() { bindDefaultCameraController(); }
   virtual void tick();
-  virtual void beginPlay() {
-    
-  }
+  virtual void beginPlay() {}
   void pollActorsActive(GameWindow &window_);
   virtual void loop(GameWindow &window_, EventBase &event_);
   ~GWorld() { delete source; }
@@ -499,11 +481,12 @@ public:
 
 public:
   GameWindow window;
-  template <class T> GWorld *createWorld() {
+  template <class T> GWorld *createWorld(const std::string &jsonPath_) {
     delete curWorld;
     curWorld = new T;
     curWorld->gm.gameIns = this;
     curWorld->Construct();
+    curWorld->loadBaseActors(jsonPath_);
     curWorld->beginPlay();
     return curWorld;
   }
@@ -512,6 +495,7 @@ public:
     static GGame game;
     return &game;
   }
+
   GGame() {
     window.create(sf::VideoMode(1600, 900), "Game");
     window.setFramerateLimit(60);

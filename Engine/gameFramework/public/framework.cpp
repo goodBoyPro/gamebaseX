@@ -85,6 +85,7 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
   std::ifstream ifile(jsonPath_);
   ifile >> jsobj;
   ifile.close();
+  gridMap.init(jsobj["mapInfo"]["row"],jsobj["mapInfo"]["column"],jsobj["mapInfo"]["width"],jsobj["mapInfo"]["height"]);
   // staticActor
   for (auto info : jsobj["staticActors"]) {
     int texId = info["texId"];
@@ -180,7 +181,7 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
 void GCameraComponent::drawSpr(GRenderObjComponent *spr_, GameWindow &window_) {
   int winW = window_.getDefaultView().getSize().x;
   int winH = window_.getDefaultView().getSize().y;
-  const FVector3 &posWin = wsToWin(spr_->getPositionWs(), winW, winH);
+  const IVector2 &posWin = wsToWin(spr_->getPositionWs(), winW, winH);
   spr_->getRenderSpr()->setPositionWin(posWin.x, posWin.y);
   const FVector3 &sizeWin = spr_->getSizeWs() / pixSize;
   spr_->getRenderSpr()->setSizeWin(sizeWin.x, sizeWin.y);
@@ -222,20 +223,6 @@ void GWorld::setCameraActive(GCameraComponent *camera_) {
 }
 GCameraComponent *GWorld::getCameraActive() {
   return gm.gameIns->window.getCameraActve();
-}
-void GPrimitiveComponent::draw(GameWindow &window_) {
-  const FVector3 &pos = window_.getCameraActve()->wsToWin(
-      getPositionWs(), window_.getDefaultView().getSize().x,
-      window_.getDefaultView().getSize().y);
-  xSpr.setPositionWin(pos.x, pos.y);
-  ySpr.setPositionWin(pos.x, pos.y);
-  zSpr.setPositionWin(pos.x, pos.y);
-  cSpr.setPositionWin(pos.x, pos.y);
-
-  cSpr.drawWin(window_);
-  xSpr.drawWin(window_);
-  ySpr.drawWin(window_);
-  zSpr.drawWin(window_);
 }
 GActor::GActor() {
   worldPtr = GWorld::actorContext.______worldParamForCreate;
