@@ -1,3 +1,0 @@
-20250810:22:04:32:register class:GObject
-20250810:22:04:32:register class:GComponent
-20250810:22:04:32:register class:GSceneComponent
