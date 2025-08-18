@@ -394,6 +394,8 @@ public:
   class GGame *gameIns = nullptr;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GWorld)
 class GWorld : public GObject {
   REGISTER_BODY(GWorld)
@@ -424,6 +426,7 @@ public:
   void setActorContext() { actorContext.______worldParamForCreate = this; }
 
   GameMode gm;
+  
   GSource *getSource() { return source; };
   // 该函数要访问gameIns，但是gameIns不是在构造函数设置的，如果在构造函数使用此函数，会出错
   GameMode &setGameMode(const std::string &playerClass_);

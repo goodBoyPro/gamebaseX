@@ -1,3 +1,7 @@
+
+#ifndef WORLDEDITOR_H
+#define WORLDEDITOR_H
+
 #include "framework.h"
 #include "render/sprite.h"
 
@@ -294,3 +298,4 @@ public:
     }
   }
 };
+#endif// WORLDEDITOR_H

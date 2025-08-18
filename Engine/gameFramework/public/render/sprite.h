@@ -28,7 +28,7 @@ class GTexture : public GSourceObj {
 };
 // 图片资源大小应为2的幂
 class GSprite {
-  private:
+  protected:
     SpriteBase sprite;
     IVector2 sizeTexUnit;
     int rows;
@@ -42,7 +42,10 @@ class GSprite {
 
 
   public:
-    bool isContainPos(float x,float y){return sprite.getGlobalBounds().contains(x,y);}
+    bool isContainPos(float x, float y) {
+      return sprite.getGlobalBounds().contains(x, y);
+    }
+    SpriteBase&getSpriteBase(){return sprite;}
     GSprite() = default;
     void setSortFlag(float value_) { sortFlag = value_; }
     void init(const GTexture &textureArray) {
@@ -74,7 +77,7 @@ class GSprite {
     void setPositionWin(float x, float y) { sprite.setPosition(x, y); }
     void setRotation(float angle_){sprite.setRotation(angle_);}
     void setCenter(float x, float y) { sprite.setOrigin(x * sizeTexUnit.x, y * sizeTexUnit.y); }
-    void drawWin(GameWindow &window_) { window_.draw(sprite); }
+    virtual void drawWin(GameWindow &window_) { window_.draw(sprite); }
 };
 class GAnimation : public GSprite {
   private:

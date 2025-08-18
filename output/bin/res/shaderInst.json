@@ -1,0 +1,13 @@
+{
+    "fragPath":"shader.frag",
+    "properties":{
+        "waveStrength":0,
+        "time":1,
+        "scale":3,
+        "alpha":1
+    },
+    "textures":{
+        "texture":110110,
+        "texture2":110111
+    }
+}

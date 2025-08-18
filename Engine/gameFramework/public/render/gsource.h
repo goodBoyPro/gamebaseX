@@ -77,6 +77,10 @@ class GSource : public GSourceIF {
   GTexture defaultTex;
 
 public:
+  static GSource &getSource() {
+    static GSource sr;
+    return sr;
+  }
   GSource() {
     std::vector<std::vector<std::string>> vec = collectFiles("res", ".png");
     for (std::vector<std::string> &cvec : vec) {

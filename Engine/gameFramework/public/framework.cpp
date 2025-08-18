@@ -85,7 +85,9 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
   std::ifstream ifile(jsonPath_);
   ifile >> jsobj;
   ifile.close();
-  gridMap.init(jsobj["mapInfo"]["row"],jsobj["mapInfo"]["column"],jsobj["mapInfo"]["width"],jsobj["mapInfo"]["height"]);
+  gridMap.init(jsobj["mapInfo"]["row"], jsobj["mapInfo"]["column"],
+               jsobj["mapInfo"]["width"], jsobj["mapInfo"]["height"]);
+  
   // staticActor
   for (auto info : jsobj["staticActors"]) {
     int texId = info["texId"];
@@ -165,6 +167,8 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
   timeManager.loop();
   // 渲染
   window_.clear(sf::Color::Black);
+  // 渲染地图
+ 
   // actor逻辑
   pollActorsActive(window_);
   // 世界tick

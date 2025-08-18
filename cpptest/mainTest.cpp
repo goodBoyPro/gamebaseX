@@ -37,22 +37,20 @@
 
 //     return 0;
 // }
-#include"SFML/Graphics.hpp"
+#include "SFML/Graphics.hpp"
+#include"base/base.h"
+#include"render/spriteUseShader.h"
 int main(){
-  sf::RenderWindow window(sf::VideoMode(500,500),"test");
+  GameWindow window;
+  window.create(sf::VideoMode(500,500),"test");
   sf::Event event;
+GameShader shader;
 
 
-  sf::Shader shader;
-  shader.loadFromFile("shader.frag", sf::Shader::Fragment);
 
-  sf::Texture tex;
-  tex.loadFromFile("res/test.png");
-  tex.setRepeated(true);
-  sf::Texture tex2;
-  tex2.loadFromFile("res/grass.png");
-  tex2.setRepeated(true);
-  sf::Sprite spr(tex);
+sf::Texture tex;
+tex.loadFromFile("res/test.png");
+sf::Sprite spr(tex);
 
 
 
@@ -65,14 +63,9 @@ sf::Clock clock;
       if(event.type==sf::Event::Closed)
       window.close();
     }
-    shader.setUniform("time", clock.getElapsedTime().asSeconds());
-    shader.setUniform("waveStrength", 0.02f);
-    shader.setUniform("scale",5.f);
-    shader.setUniform("texture", tex);
-    shader.setUniform("texture2",tex2);
-    shader.setUniform("alpha",0.2f);
+    
     window.clear();
-    window.draw(spr,&shader);
+    window.draw(spr,&(shader.shader));
     window.display();
   }
 
