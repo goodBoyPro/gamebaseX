@@ -484,9 +484,9 @@ public:
   template <class T> GWorld *createWorld(const std::string &jsonPath_) {
     delete curWorld;
     curWorld = new T;
-    curWorld->gm.gameIns = this;
-    curWorld->Construct();
+    curWorld->gm.gameIns = this;    
     curWorld->loadBaseActors(jsonPath_);
+    curWorld->Construct();
     curWorld->beginPlay();
     return curWorld;
   }

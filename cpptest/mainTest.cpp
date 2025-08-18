@@ -37,18 +37,44 @@
 
 //     return 0;
 // }
-#include <framework.h>
-REGISTER_CLASS(TestClass)
-class TestClass : public GObject {
-  REGISTER_BODY(TestClass)
-public:
-  TestClass() {
-   
-  }
-};
+#include"SFML/Graphics.hpp"
+int main(){
+  sf::RenderWindow window(sf::VideoMode(500,500),"test");
+  sf::Event event;
 
-int main() {
-  GObject *x = GObject::constructObject("TestClass");
-  std::string str = x->getGClass().className;
-  printf("%s",str.c_str());
-  return 0;}
+
+  sf::Shader shader;
+  shader.loadFromFile("shader.frag", sf::Shader::Fragment);
+
+  sf::Texture tex;
+  tex.loadFromFile("res/test.png");
+  tex.setRepeated(true);
+  sf::Texture tex2;
+  tex2.loadFromFile("res/grass.png");
+  tex2.setRepeated(true);
+  sf::Sprite spr(tex);
+
+
+
+
+
+
+sf::Clock clock;
+  while(window.isOpen()){
+    while(window.pollEvent(event)){
+      if(event.type==sf::Event::Closed)
+      window.close();
+    }
+    shader.setUniform("time", clock.getElapsedTime().asSeconds());
+    shader.setUniform("waveStrength", 0.02f);
+    shader.setUniform("scale",5.f);
+    shader.setUniform("texture", tex);
+    shader.setUniform("texture2",tex2);
+    shader.setUniform("alpha",0.2f);
+    window.clear();
+    window.draw(spr,&shader);
+    window.display();
+  }
+
+  return 0;
+}
