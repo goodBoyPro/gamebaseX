@@ -40,6 +40,6 @@
 #include "gstring.h"
 #include "stdio.h"
 int main() {
-  Gstring str = "xiaoming";
-  printf("%u",(int)str.hash);
+  Gstring str = "xiaohong";
+  printf("%u",(int)str.get_hash());
   return 0;}

@@ -4,7 +4,9 @@
 #include "cmath"
 #include "string"
 class GSourceObj {
-  public:
+  size_t hash=0;
+
+public:
     virtual ~GSourceObj() {}
 };
 class GTexture : public GSourceObj {

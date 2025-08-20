@@ -90,7 +90,8 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
   
   // staticActor
   for (auto info : jsobj["staticActors"]) {
-    int texId = info["texId"];
+    // int texId = info["texId"];
+    size_t texId = Gstring::calculateHash(info["path"].get<std::string>());
     int index = info["index"];
     const std::vector<float> &pos = info["position"].get<std::vector<float>>();
     FVector3 position = {pos[0], pos[1], pos[2]};
@@ -102,7 +103,8 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
   }
   // animActor
   for (auto info : jsobj["animActors"]) {
-    int texId = info["texId"];
+    // int texId = info["texId"];
+    size_t texId = Gstring::calculateHash(info["path"].get<std::string>());
     int beginIndex = info["beginIndex"];
     int endIndex = info["endIndex"];
     int frameSpeed = info["frameSpeed"];

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include"gstring.h"
 
 class GSourceIF {
 public:
@@ -44,7 +45,7 @@ public:
             if (ext == extension) {
               std::vector<std::string> &&strPieces =
                   splitString(entry.path().filename().string());
-              strPieces.push_back(entry.path().string());
+              strPieces.push_back(entry.path().generic_string());
               fileStringTree.push_back(strPieces);
             }
           }
@@ -73,7 +74,7 @@ class GSource : public GSourceIF {
     epath,
     count
   };
-  std::map<int, GTexture> allTexture;
+  std::map<size_t, GTexture> allTexture;
   GTexture defaultTex;
 
 public:
@@ -86,12 +87,14 @@ public:
     for (std::vector<std::string> &cvec : vec) {
       if(cvec.size()<count)continue;
       try {
-        int id = std::stoi(cvec[eid]);
+        // int id = std::stoi(cvec[eid]);
         int row = std::stoi(cvec[erow]);
         int column = std::stoi(cvec[ecolumn]);
         float centerX = std::stof(cvec[ecenterX]);
         float centerY = std::stof(cvec[ecenterY]);
         std::string path = cvec[epath];
+        size_t id = Gstring::calculateHash(path);
+        
         allTexture[id].init(row, column, centerX, centerY, path);
        
         
@@ -101,8 +104,13 @@ public:
       }
     }
   }
-  GTexture &getTexture(int id) {
+  GTexture &getTexture(size_t id) {
     auto it=allTexture.find(id);
+    if(it==allTexture.end())return defaultTex;
+    return it->second;
+  }
+  GTexture &getTexture(const Gstring &str) {
+    auto it=allTexture.find(str.get_hash());
     if(it==allTexture.end())return defaultTex;
     return it->second;
   }
