@@ -37,37 +37,9 @@
 
 //     return 0;
 // }
-#include "SFML/Graphics.hpp"
-#include"base/base.h"
-#include"render/spriteUseShader.h"
-int main(){
-  GameWindow window;
-  window.create(sf::VideoMode(500,500),"test");
-  sf::Event event;
-GameShader shader;
-
-
-
-sf::Texture tex;
-tex.loadFromFile("res/test.png");
-sf::Sprite spr(tex);
-
-
-
-
-
-
-sf::Clock clock;
-  while(window.isOpen()){
-    while(window.pollEvent(event)){
-      if(event.type==sf::Event::Closed)
-      window.close();
-    }
-    
-    window.clear();
-    window.draw(spr,&(shader.shader));
-    window.display();
-  }
-
-  return 0;
-}
+#include "gstring.h"
+#include "stdio.h"
+int main() {
+  Gstring str = "xiaoming";
+  printf("%u",(int)str.hash);
+  return 0;}

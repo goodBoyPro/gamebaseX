@@ -9,6 +9,7 @@ typedef sf::Event EventBase;
 typedef sf::Sprite SpriteBase;
 typedef sf::Texture TextureBase;
 typedef sf::Color ColorBase;
+typedef sf::Clock GameClock;
 class GameWindow : public WindowBase {
   class GCameraComponent *cameraActive = nullptr;
 
