@@ -4,7 +4,6 @@
 #include "cmath"
 #include "string"
 class GSourceObj {
-
 public:
     virtual ~GSourceObj() {}
 };

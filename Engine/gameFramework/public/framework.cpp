@@ -75,7 +75,7 @@ GPlayer::GPlayer() {
 }
 
 void GPlayer::beginPlay() {
-  sprComp->setTex(getWorld()->getSource()->getTexture("res/arr_110110_c_5_5_0.5_1_tree.png"));
+  sprComp->setTex(getWorld()->getSource()->getObject("res/arr_110110_c_5_5_0.5_1_tree.png"));
   sprComp->getSprite().setId(10);
   sprComp->setSizeWs({2, 2, 0});
 }
@@ -98,7 +98,7 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
     const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
     FVector3 sizeWs = {size[0], size[1], size[2]};
     auto actor = createActor<GStaticActor>(position);
-    actor->construct(getSource()->getTexture(texId), index);
+    actor->construct(getSource()->getObject(texId), index);
     actor->sprComp->setSizeWs(sizeWs);
   }
   // animActor
@@ -113,7 +113,7 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
     const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
     FVector3 sizeWs = {size[0], size[1], size[2]};
     auto actor = createActor<GAnimActor>(position);
-    actor->construct(getSource()->getTexture(texId), beginIndex, endIndex,
+    actor->construct(getSource()->getObject(texId), beginIndex, endIndex,
                      frameSpeed);
     actor->sprComp->setSizeWs(sizeWs);
   }

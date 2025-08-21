@@ -8,7 +8,7 @@
     "staticActors": [
         {
             "texId": 110110,
-            "path":"res/arr_110110_c_5_5_0.5_1_tree.png",
+            "path":"res/a.png",
             "index":11,
             "position":[3,-3,0],
             "sizeWs":[2,2,0]
