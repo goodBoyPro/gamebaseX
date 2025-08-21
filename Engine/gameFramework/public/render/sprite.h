@@ -4,7 +4,6 @@
 #include "cmath"
 #include "string"
 class GSourceObj {
-  size_t hash=0;
 
 public:
     virtual ~GSourceObj() {}

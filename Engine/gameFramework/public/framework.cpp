@@ -75,7 +75,7 @@ GPlayer::GPlayer() {
 }
 
 void GPlayer::beginPlay() {
-  sprComp->setTex(getWorld()->getSource()->getTexture(110110));
+  sprComp->setTex(getWorld()->getSource()->getTexture("res/arr_110110_c_5_5_0.5_1_tree.png"));
   sprComp->getSprite().setId(10);
   sprComp->setSizeWs({2, 2, 0});
 }
