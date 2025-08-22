@@ -28,7 +28,7 @@ public:
     auto it = data.find(id);
     if (it == data.end())
       return defaultObj;
-    ;
+    
     return it->second;
   }
   T &getObject(const Gstring &str) {
@@ -39,7 +39,7 @@ public:
   }
   T& emplace(const std::string &path_) {
     size_t id=Gstring::calculateHash(path_);
-    auto pair = data.emplace(id, T());
+    const auto &pair = data.emplace(std::piecewise_construct,std::forward_as_tuple(id),std::forward_as_tuple());
     if (!pair.second) {
       throw std::overflow_error("Resource error: hash confilcted--"+path_);
     }
@@ -72,7 +72,7 @@ public:
   GSource() {
     std::vector<std::vector<std::string>> vec = collectFiles("res", ".png");
     for (std::vector<std::string> &cvec : vec) {
-      std::string path = cvec[0];
+      const std::string& path = cvec[0];
       GTexture&gtex=emplace(path);
       if (cvec.size() != count) {
         gtex.init(1, 1, 0, 0, path);
@@ -81,8 +81,7 @@ public:
         int row = std::stoi(cvec[erow]);
         int column = std::stoi(cvec[ecolumn]);
         float centerX = std::stof(cvec[ecenterX]);
-        float centerY = std::stof(cvec[ecenterY]);
-        
+        float centerY = std::stof(cvec[ecenterY]);    
        
         
         gtex.init(row, column, centerX, centerY, path);

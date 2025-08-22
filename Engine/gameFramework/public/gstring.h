@@ -22,5 +22,15 @@ public:
   }
 
   const std::string &getStringStd() const { return str; }
+
+public:
+  void operator=(const std::string &strStd) {
+    str = strStd;
+    hash = std::hash<std::string>{}(strStd);
+  }
+  void operator=(const Gstring& gstr_){
+    str=gstr_.str;
+    hash=gstr_.hash;
+  }
 };
 #endif // GSTRING_H

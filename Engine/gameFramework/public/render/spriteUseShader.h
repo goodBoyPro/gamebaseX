@@ -12,6 +12,7 @@ public:
   std::map<std::string, float> properties;
   std::map<std::string, int> textures;
   GameShader() { init("res/shaderInst.json"); }
+  GameShader(const std::string &shaderInstJson_){init(shaderInstJson_);}
   virtual ~GameShader() {}
   virtual void init(const std::string &shaderInstJson_) {
     nlohmann::json jsObj;
@@ -31,7 +32,7 @@ public:
       shader.setUniform(p.first, p.second);
     }
     for (auto &t : textures) {
-      sf::Texture &tex = GSource::getSource().getTexture(t.second).texture;
+      sf::Texture &tex = GSource::getSource().getObject(t.second).texture;
       tex.setRepeated(true);
       shader.setUniform(t.first, tex);
     }
