@@ -41,6 +41,7 @@ class GameShaderInst {
 public:
   sf::Shader *shader = nullptr;
   std::map<std::string, float> properties;
+  std::map<std::string, std::vector<float>> vec4Properties;
   std::map<std::string, std::string> textures;
   GameShaderInst() {}
   GameShaderInst(const std::string &shaderInstJson_) { init(shaderInstJson_); }
@@ -57,6 +58,10 @@ public:
     for (auto &property : jsObj["properties"].items()) {
       properties[property.key()] = property.value().get<float>();
     }
+    for (auto &property : jsObj["vec4Properties"].items()) {
+      vec4Properties[property.key()] =
+          property.value().get<std::vector<float>>();
+    }
     for (auto &texture : jsObj["textures"].items()) {
       textures[texture.key()] = texture.value().get<std::string>();
     }
@@ -66,6 +71,13 @@ public:
     for (auto &p : properties) {
       shader->setUniform(p.first, p.second);
     }
+    for (auto &p : vec4Properties) {
+      if (p.second.size() != 4) {
+        printf("shader:%s is error type\n", p.first.c_str());
+      }
+      setValueVectorByname(
+          p.first, {p.second[0], p.second[1], p.second[2], p.second[3]});
+    }
     for (auto &t : textures) {
       sf::Texture &tex = GSource::getSource().getObject(t.second).texture;
       tex.setRepeated(true);
@@ -73,7 +85,8 @@ public:
     }
   }
   void draw(GSprite &spr_, GameWindow &window_) {
-    shader->setUniform("time", GameStatics::getGameClcok().getElapsedTime().asSeconds());
+    shader->setUniform(
+        "time", GameStatics::getGameClcok().getElapsedTime().asSeconds());
     window_.draw(spr_.getSpriteBase(), shader);
     sf::RectangleShape shape;
     window_.draw(shape, shader);
@@ -81,7 +94,7 @@ public:
   void setValueScalarByname(const std::string &name_, float value_) {
     shader->setUniform(name_, value_);
   }
-  void setValueVectorBynaem(const std::string &name_, const FVector4 &vec4_) {
+  void setValueVectorByname(const std::string &name_, const FVector4 &vec4_) {
     shader->setUniform(name_, vec4_);
   }
 };

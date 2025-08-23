@@ -11,6 +11,9 @@
         "normal_scale":80,
         "normalInt":0.8
     },
+    "vec4Properties":{
+        "light":[-0.5,-0.5,-0.5,0]
+    },
     "textures":{
         "tex_grass":"res/grass.png",
         "tex_blocks":"res/test.png",

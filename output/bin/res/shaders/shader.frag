@@ -6,7 +6,7 @@ uniform sampler2D tex_noise;
 uniform sampler2D tex_normal;
 
 uniform float time;
-
+uniform vec4 light;
 uniform float blocks_scale;
 uniform float grass_scale;
 uniform float water_scale;
@@ -40,7 +40,7 @@ float map_range(float x, float a, float b){
     
 void main() {
     vec2 coord = gl_TexCoord[0].xy;
-    vec3 lightVector=normalize(vec3(0.5, 0.5, 0.5));
+    vec3 lightVector=normalize(light.xyz);
     vec2 maskUV=coord;
     vec2 noiseUV=coord*noise_scale;
     vec2 blocksUV=coord*blocks_scale;

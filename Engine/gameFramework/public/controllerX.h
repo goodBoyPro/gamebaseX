@@ -15,7 +15,21 @@ private:
   };
 
 public:
-  enum Input { a, w, s, d, q, kup, kdown, kleft, kright, mleft, mright, custom,count };
+  enum Input {
+    a,
+    w,
+    s,
+    d,
+    q,
+    kup,
+    kdown,
+    kleft,
+    kright,
+    mleft,
+    mright,
+    custom,
+    count
+  };
   std::map<int, int> inputLinearMap = {
       {a, sf::Keyboard::A}, //
       {w, sf::Keyboard::W},          {s, sf::Keyboard::S},
@@ -25,9 +39,9 @@ public:
   std::vector<int> inputLinearV;
   std::vector<int> inputLinearK;
   void setInputLinear() {
-    for (auto& in : inputLinearMap) {
+    for (auto &in : inputLinearMap) {
       inputLinearK.push_back(in.first);
-      inputLinearV.push_back(in.second);      
+      inputLinearV.push_back(in.second);
     }
   }
   std::map<int, int> inputClick = {};
@@ -57,22 +71,20 @@ public:
       cbk.function();
     }
   }
-  bool isFocused=false;
+  bool isFocused =true;
   void loop(sf::RenderWindow &window, sf::Event &event) {
-    if(event.type==sf::Event::LostFocus){isFocused=false;}
-    if (event.type == sf::Event::GainedFocus) {
-      isFocused = true;
-    }
-    if(!isFocused){return;}
-    int i=0;
-    for (int in : inputLinearV) {
-      if (sf::Keyboard::isKeyPressed((sf::Keyboard::Key)in)) {
-        executeCbk((Input)inputLinearK[i]);
-      }
-      i++;
-    }
+
     // 点击时
     while (window.pollEvent(event)) {
+      if (event.type == sf::Event::LostFocus) {
+        isFocused = false;
+      }
+      if (event.type == sf::Event::GainedFocus) {
+        isFocused = true;
+      }
+      if (!isFocused) {
+        return;
+      }
       // 关闭窗口事件
       if (event.type == sf::Event::Closed)
         window.close();
@@ -93,6 +105,14 @@ public:
       for (Cbk &cbk : cbks[custom]) {
         cbk.function();
       }
+    }
+    //线性按键
+    int i = 0;
+    for (int in : inputLinearV) {
+      if (sf::Keyboard::isKeyPressed((sf::Keyboard::Key)in)) {
+        executeCbk((Input)inputLinearK[i]);
+      }
+      i++;
     }
   }
 };
