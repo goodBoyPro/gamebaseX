@@ -209,11 +209,11 @@ public:
           state = nothing;
         }
       } else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        IVector2 posMouse = sf::Mouse::getPosition(gm.gameIns->window);
+        IVector2 posMouse =(IVector2)(gm.gameIns->window.getMousePositionWin());;
         if (actorsSelected.empty()) {
           if (state != selecting) {
             rectForMouseSelect.posInWin =
-                sf::Mouse::getPosition(gm.gameIns->window);
+            (IVector2)(gm.gameIns->window.getMousePositionWin());
           }
           state = selecting;
           rectForMouseSelect.size =
@@ -249,10 +249,9 @@ public:
     axis.posInWin = {(float)postemp.x, (float)postemp.y};
   }
   void selectActors(RectForEditor &rect) {
-    const FVector2 &windowSize = gm.gameIns->window.getDefaultView().getSize();
     for (auto actor : getGridMap().actorsAlive) {
-      const IVector2 posTemp = getCameraActive()->wsToWin(
-          actor->getPositionWs(), windowSize.x, windowSize.y);
+      const IVector2 posTemp =gm.gameIns->window.wsToWin(actor->getPositionWs());
+          
       if (rect.containPos(IVector2(posTemp.x, posTemp.y)) &&
           !(actor->isEditorObj)) {
         actorsSelected.insert(actor);

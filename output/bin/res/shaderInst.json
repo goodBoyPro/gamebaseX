@@ -9,7 +9,7 @@
         "water_scale":80,
         "noise_scale":10,
         "normal_scale":80,
-        "normalInt":0.8
+        "normalInt":1
     },
     "vec4Properties":{
         "light":[-0.5,-0.5,-0.5,0]

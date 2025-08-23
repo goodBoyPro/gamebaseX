@@ -241,9 +241,9 @@ private:
 
 public:
   IVector2 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
-    return {(int)((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f),
-            (int)((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
-                  (PositionInWS.z / pixSize))};
+    return {(int)(((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f)),
+            (int)(((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
+                  (PositionInWS.z / pixSize)))};
   }
   void setWindow(GameWindow *window_) { window = window_; }
   GameWindow *getWindow() { return window; }
