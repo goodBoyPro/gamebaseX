@@ -10,10 +10,10 @@ public:
 class GTexture : public GSourceObj {
   public:
     TextureBase texture;
-    int column;
-    int row;
-    float centerX;
-    float centerY;
+    int column=1;
+    int row=1;
+    float centerX=0;
+    float centerY=0;
     IVector2 sizeTexUnit;
     GTexture(){};
     void init(int row_, int column_, float centerX_, float centerY_, const std::string &path) {
@@ -30,9 +30,10 @@ class GTexture : public GSourceObj {
 class GSprite {
   protected:
     SpriteBase sprite;
-    IVector2 sizeTexUnit;
-    int rows;
-    int columns;
+    //序列图每一个单元格的尺寸
+    IVector2 sizeTexUnit={1,1};
+    int rows=1;
+    int columns=1;
     int curId = 0;
 
   public:
@@ -49,6 +50,7 @@ class GSprite {
     GSprite() = default;
     void setSortFlag(float value_) { sortFlag = value_; }
     void init(const GTexture &textureArray) {
+       
         rows = textureArray.row;
         columns = textureArray.column;
         sizeTexUnit = textureArray.sizeTexUnit;

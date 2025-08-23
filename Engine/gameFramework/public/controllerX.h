@@ -57,7 +57,13 @@ public:
       cbk.function();
     }
   }
+  bool isFocused=false;
   void loop(sf::RenderWindow &window, sf::Event &event) {
+    if(event.type==sf::Event::LostFocus){isFocused=false;}
+    if (event.type == sf::Event::GainedFocus) {
+      isFocused = true;
+    }
+    if(!isFocused){return;}
     int i=0;
     for (int in : inputLinearV) {
       if (sf::Keyboard::isKeyPressed((sf::Keyboard::Key)in)) {

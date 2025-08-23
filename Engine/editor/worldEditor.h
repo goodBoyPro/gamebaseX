@@ -276,6 +276,7 @@ public:
     getControllerActive()->loop(window_, event_);
     window_.clear();
     tick();
+    landScape.draw(window_);
     pollActorsActive(window_);
     showGridMap(window_);
     if (axis.selected) {

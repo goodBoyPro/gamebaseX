@@ -2,6 +2,7 @@
 #define BASE_H
 #include <SFML/Graphics.hpp>
 typedef sf::Vector3f FVector3;
+typedef sf::Glsl::Vec4 FVector4 ;
 typedef sf::Vector2f FVector2;
 typedef sf::Vector2i IVector2;
 typedef sf::RenderWindow WindowBase;

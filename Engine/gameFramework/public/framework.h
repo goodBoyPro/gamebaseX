@@ -9,6 +9,7 @@
 #include <gameLog.h>
 #include <nlohmann_json/json.hpp>
 #include <timeManager.h>
+#include"render/gameShader.h"
 
 // 反射
 #define REGISTER_CLASS(className)                                              \
@@ -394,7 +395,32 @@ public:
   class GGame *gameIns = nullptr;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
-
+class GLandScape:public GSprite {
+  float beginX;
+  float beginY;
+  float widhtTotal;
+  float heightTotal;
+  GameShaderInst gameShader;
+public:
+  GSprite spr;
+  void init(float beginX_,float beginY_,float widthTotal_,float heightTotal_,const std::string &shaderInstPath_) {
+    beginX = beginX_;
+    beginY = beginY_;
+    widhtTotal = widthTotal_;
+    heightTotal=heightTotal_;    
+    spr.init(GSource::getSource().getObject("res/base/texture/pix1.png"));
+    gameShader.init(shaderInstPath_);
+  }
+  
+  void draw(GameWindow &window_) {
+    float pixSize = window_.getCameraActve()->getPixSize();
+    const IVector2 &winpos = window_.wsToWin({beginX, beginY, 0});
+    spr.setPositionWin(winpos.x, winpos.y);
+    spr.setSizeWin(widhtTotal / pixSize, heightTotal / pixSize);
+    gameShader.draw(spr, window_);
+    
+  }
+};
 ////////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GWorld)
 class GWorld : public GObject {
@@ -403,12 +429,11 @@ private:
   GSource *source = nullptr;
 
   struct ActorsType {};
-  // std::vector<GActor *> allActorsActive;
+  
   GridMap<GActor> gridMap;
   friend void GActor::setPositionWs(const FVector3 &posWs_);
   std::vector<GRenderObjComponent *> allRenderObj;
   GCamera *cameraDefaultPtr;
-  // GCameraComponent *cameraActive = nullptr;
   TimeManager timeManager;
   GController controllerDefault;
   GController *controllerActive = nullptr;
@@ -426,7 +451,7 @@ public:
   void setActorContext() { actorContext.______worldParamForCreate = this; }
 
   GameMode gm;
-  
+  GLandScape landScape;
   GSource *getSource() { return source; };
   // 该函数要访问gameIns，但是gameIns不是在构造函数设置的，如果在构造函数使用此函数，会出错
   GameMode &setGameMode(const std::string &playerClass_);

@@ -117,6 +117,9 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
                      frameSpeed);
     actor->sprComp->setSizeWs(sizeWs);
   }
+  // landscape
+  const std::string shaderInstPath=jsobj["landScapeShader"].get<std::string>();
+  landScape.init(gridMap.beginPoint.x, gridMap.beginPoint.y, gridMap.width*gridMap.column, gridMap.height*gridMap.row, "res/shaderInst.json");
 }
 void GWorld::pollActorsActive(GameWindow &window_) {
   int centerId =
@@ -158,11 +161,12 @@ void GWorld::bindDefaultCameraController() {
     cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()-0.0005);
   });
   controllerDefault.bind(GController::kdown, [&]() {
-    cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()+0.0005);
+    cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()+0.01);
   });
 }
 void GWorld::loop(GameWindow &window_, EventBase &event_) {
   deltaTime = clock.restart().asSeconds();
+  
   controllerActive->loop(window_, event_);
 
   //  计时器任务
@@ -170,7 +174,7 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
   // 渲染
   window_.clear(sf::Color::Black);
   // 渲染地图
- 
+ landScape.draw(window_);
   // actor逻辑
   pollActorsActive(window_);
   // 世界tick
