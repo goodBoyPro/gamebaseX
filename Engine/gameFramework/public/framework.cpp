@@ -161,7 +161,7 @@ void GWorld::bindDefaultCameraController() {
     cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()-0.0005);
   });
   controllerDefault.bind(GController::kdown, [&]() {
-    cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()+0.01);
+    cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()+0.0005);
   });
 }
 void GWorld::loop(GameWindow &window_, EventBase &event_) {

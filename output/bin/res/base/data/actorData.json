@@ -1,0 +1,20 @@
+{
+    "staticActors":{
+        "name":{
+            "name":"",
+            "id":1,
+            "texId":1,
+            "texPath":"",
+            "texIndex":1
+        }
+    },
+    "animActors":{
+        "name":1,
+        "texId":1,
+        "texPath":"",
+        "beginIndex": 1,
+        "endIndex":1,
+        "frameSpeed":1
+
+    }
+}

@@ -42,17 +42,18 @@ public:
   MovableAxis() {
 
     tex[0].init(1, 1, 0.5, 1.3, "system/texture/x.png");
-    tex[1].init(1, 1, 0.5, 1.3, "system/texture/y.png");
-    tex[2].init(1, 1, 0.5, 1.4246, "system/texture/z.png");
+    tex[1].init(1, 1, 0.5, 1, "system/texture/y.png");
+    tex[2].init(1, 1, 0.5, 1.3, "system/texture/z.png");
     tex[3].init(1, 1, 0.1, 0.9, "system/texture/c.png");
     axisX.init(tex[0]);
     axisX.spr.setSizeWin(10, 100);
     axisX.spr.setRotation(90);
     axisY.init(tex[1]);
-    axisY.spr.setSizeWin(10, 100);
+    axisY.spr.setSizeWin(10, 50);
+    axisY.spr.setRotation(180);
     axisZ.init(tex[2]);
     axisZ.spr.setSizeWin(10, 100);
-    axisZ.spr.setRotation(45);
+    // axisZ.spr.setRotation(180);
     center.init(tex[3]);
     center.spr.setSizeWin(30, 30);
     axisX.cbk = [this](GameWindow &window_) {
@@ -114,7 +115,7 @@ public:
       posInWinLast = posInWin;
       activeMO->cbk(window_);
       const FVector2 &xyPos = posInWin - posInWinLast;
-      deltaMove = {xyPos.x, xyPos.y, deltaMouseMoveZ};
+      deltaMove = {xyPos.x, xyPos.y, -deltaMouseMoveZ};
     }
   }
 };
@@ -378,9 +379,9 @@ public:
         sf::sleep(sf::milliseconds(15));
         window_.display();
       }
-      
+
       if (GSource::getSource().isloadComplete) {
-       
+
         return;
       }
     }
@@ -397,7 +398,6 @@ public:
     setUI();
     pageWait.loop(window, event);
     createWorld<WorldForEditor>("res/myWorld.json");
-    
   }
   void setUI() {
     win1 = guiFromImgui::getUi().createWindow<UiWindow>(
