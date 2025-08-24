@@ -3,7 +3,7 @@
 	"{ \"BasedOnStyle\": \"Google\",  \"BreakBeforeBraces\": \"Attach\",\"IndentWidth\":4,\"SortIncludes\": false,\"ColumnLimit\": 100}",
     "C_Cpp.clang_format_sortIncludes": false,
     "C_Cpp.intelliSenseEngine": "disabled",
-	"editor.fontSize": 18,
+	"editor.fontSize": 15,
 	"C_Cpp.default.compileCommands": "${workspaceFolder}\\.vscode\\compile_commands.json",
 	"editor.inlayHints.enabled": "offUnlessPressed", 
     "clangd.arguments": [

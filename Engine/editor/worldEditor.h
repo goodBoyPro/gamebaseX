@@ -365,11 +365,15 @@ public:
 };
 class WorldEditorWindow : public GGame {
 public:
-  WorldEditorWindow() { createWorld<WorldForEditor>("res/myWorld.json"); }
-guiFromImgui uiWindow;
+  WorldEditorWindow() {
+    createWorld<WorldForEditor>("res/myWorld.json");
+  guiFromImgui::getUi().createWindow<UiWindow>("uitest");  }
+
   void loop() {
     while (window.isOpen()) {
       curWorld->loop(window, event);
+      guiFromImgui::getUi().mainLoop();
+      guiFromImgui::getUi().followOtherWindow(window.getSystemHandle());
     }
   }
 };
