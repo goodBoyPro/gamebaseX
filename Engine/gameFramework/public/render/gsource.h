@@ -43,6 +43,7 @@ public:
     if (!pair.second) {
       throw std::overflow_error("Resource error: hash confilcted--"+path_);
     }
+    pair.first->second.idAndPath=path_;
     return pair.first->second;
   }
   

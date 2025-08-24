@@ -1,75 +1,75 @@
 {
+    "animActors": [
+        {
+            "beginIndex": 0,
+            "endIndex": 29,
+            "frameSpeed": 29,
+            "path": "res/ani_110111_c_20_20_0.5_1_tree.png",
+            "position": [
+                1.0900002717971802,
+                5.280000686645508,
+                0.0
+            ],
+            "sizeWs": [
+                3.0,
+                3.0,
+                0.0
+            ],
+            "texId": 5360758450764459103
+        }
+    ],
+    "landScapeShader": "res/shaders/shader.frag",
     "mapInfo": {
+        "column": 64,
+        "height": 3.0,
         "row": 50,
-        "column": 50,
-        "width": 3,
-        "height": 3
+        "width": 3.0
     },
     "staticActors": [
         {
-            "texId": 110110,
-            "path": "res/arr_110110_c_5_5_0.5_1_tree.png",
-            "index": 11,
-            "position": [
-                3.11,
-                3.4,
-                0
-            ],
-            "sizeWs": [
-                2,
-                2,
-                0
-            ]
-        },
-        {
-            "texId": 110110,
-            "path": "res/arr_110110_c_5_5_0.5_1_tree.png",
             "index": 20,
+            "path": "res/arr_110110_c_5_5_0.5_1_tree.png",
             "position": [
-                4.2,
-                2.7,
-                0
+                2.500000238418579,
+                4.430002212524414,
+                0.0
             ],
             "sizeWs": [
-                2,
-                2,
-                0
-            ]
+                2.0,
+                2.0,
+                0.0
+            ],
+            "texId": 2125843542878897406
         },
         {
-            "texId": 110110,
+            "index": 11,
             "path": "res/arr_110110_c_5_5_0.5_1_tree.png",
-            "index": 15,
             "position": [
-                3.5,
-                0.8,
-                0
+                5.279998779296875,
+                4.619999885559082,
+                0.0
             ],
             "sizeWs": [
-                2,
-                2,
-                0
-            ]
-        }
-    ],
-    "animActors": [
+                2.0,
+                2.0,
+                0.0
+            ],
+            "texId": 2125843542878897406
+        },
         {
-            "texId": 110111,
-            "path": "res/ani_110111_c_20_20_0.5_1_tree.png",
-            "beginIndex": 0,
-            "endIndex": 29,
-            "frameSpeed": 30,
+            "index": 15,
+            "path": "res/arr_110110_c_5_5_0.5_1_tree.png",
             "position": [
-                1,
-                0,
-                0
+                4.170002460479736,
+                4.169999599456787,
+                0.0
             ],
             "sizeWs": [
-                3,
-                3,
-                0
-            ]
+                2.0,
+                2.0,
+                0.0
+            ],
+            "texId": 2125843542878897406
         }
-    ],
-    "landScapeShader": "res/shaderInst.json"
+    ]
 }

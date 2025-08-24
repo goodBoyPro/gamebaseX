@@ -211,6 +211,16 @@ public:
 
     return a;
   }
+  std::vector<T*> getAllActors() {
+    std::vector<T*>all;
+    int num = row * column;
+    for (int i = 0; i < num; i++) {
+      for (auto a : allNode[i].actors) {
+        all.push_back(a);
+      };
+    }
+    return all;
+  }
   ~GridMap() {
     delete[] allNode;
     for (auto elem : badActors)

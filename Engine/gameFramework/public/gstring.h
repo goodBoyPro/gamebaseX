@@ -15,6 +15,7 @@ public:
   Gstring(T &&arg) : str(std::forward<T>(arg)) {
     hash = std::hash<std::string>{}(str);
   }
+  Gstring(){}
   size_t get_hash() const { return hash; }
 
   static size_t calculateHash(const std::string &str) {

@@ -4,7 +4,7 @@
 
 #include "framework.h"
 #include "render/sprite.h"
-
+#include"gui/imgui/guiFromImgui.h"
 class MovableObj {
 public:
   GSprite spr;
@@ -16,7 +16,7 @@ public:
     spr.drawWin(window_);
   }
   bool isContainMouse(GameWindow &window_) {
-    const IVector2 &pos = sf::Mouse::getPosition(window_);
+    const IVector2 &pos = (IVector2)window_.getMousePositionWin();
     return spr.isContainPos(pos.x, pos.y);
   }
   std::function<void(GameWindow &window_)> cbk;
@@ -55,15 +55,13 @@ public:
     center.init(tex[3]);
     center.spr.setSizeWin(30, 30);
     axisX.cbk = [this](GameWindow &window_) {
-      posInWin.x =
-          sf::Mouse::getPosition(window_).x - axisX.posPressedRelative.x;
+      posInWin.x = window_.getMousePositionWin().x - axisX.posPressedRelative.x;
     };
     axisY.cbk = [this](GameWindow &window_) {
-      posInWin.y =
-          sf::Mouse::getPosition(window_).y - axisY.posPressedRelative.y;
+      posInWin.y = window_.getMousePositionWin().y - axisY.posPressedRelative.y;
     };
     axisZ.cbk = [this](GameWindow &window_) {
-      float currentMousePos = sf::Mouse::getPosition(window_).y;
+      float currentMousePos = window_.getMousePositionWin().y;
       if (zPosLastTime == -1) {
         zPosLastTime = currentMousePos;
         return;
@@ -74,7 +72,7 @@ public:
     };
     center.cbk = [this](GameWindow &window_) {
       posInWin =
-          (FVector2)sf::Mouse::getPosition(window_) - center.posPressedRelative;
+          (FVector2)window_.getMousePositionWin() - center.posPressedRelative;
     };
   }
   void loop(GameWindow &window_, EventBase &event_) {
@@ -88,7 +86,7 @@ public:
   void listenEvent(GameWindow &window_, EventBase &event_) {
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
       const FVector2 &posRelative =
-          (FVector2)sf::Mouse::getPosition(window_) - posInWin;
+          (FVector2)window_.getMousePositionWin() - posInWin;
       if (activeMO == nullptr) {
         if (axisX.isContainMouse(window_)) {
           activeMO = &axisX;
@@ -108,7 +106,7 @@ public:
     } else {
       activeMO = nullptr;
       zPosLastTime = -1;
-      deltaMouseMoveZ=0;
+      deltaMouseMoveZ = 0;
     }
 
     if (activeMO) {
@@ -194,6 +192,7 @@ public:
   enum { nothing, selected, selecting } state = nothing;
   WorldForEditor() {}
   void beginPlay() override {
+    getControllerActive()->bind(GController::q, [this]() { saveWorldData(); });
     getControllerActive()->bind(GController::custom, [this]() {
       if (state == selected) {
         axis.selected = true;
@@ -209,11 +208,13 @@ public:
           state = nothing;
         }
       } else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        IVector2 posMouse =(IVector2)(gm.gameIns->window.getMousePositionWin());;
+        IVector2 posMouse =
+            (IVector2)(gm.gameIns->window.getMousePositionWin());
+        ;
         if (actorsSelected.empty()) {
           if (state != selecting) {
             rectForMouseSelect.posInWin =
-            (IVector2)(gm.gameIns->window.getMousePositionWin());
+                (IVector2)(gm.gameIns->window.getMousePositionWin());
           }
           state = selecting;
           rectForMouseSelect.size =
@@ -250,8 +251,9 @@ public:
   }
   void selectActors(RectForEditor &rect) {
     for (auto actor : getGridMap().actorsAlive) {
-      const IVector2 posTemp =gm.gameIns->window.wsToWin(actor->getPositionWs());
-          
+      const IVector2 posTemp =
+          gm.gameIns->window.wsToWin(actor->getPositionWs());
+
       if (rect.containPos(IVector2(posTemp.x, posTemp.y)) &&
           !(actor->isEditorObj)) {
         actorsSelected.insert(actor);
@@ -288,14 +290,87 @@ public:
 
     window_.display();
   }
+  void saveWorldData() {
+    std::ofstream ofile;
+    ofile.open("res/myWorld.json");
+    nlohmann::json jsonObj;
+    const std::vector<GActor *> &all = getGridMap().getAllActors();
+
+    jsonObj["mapInfo"]["row"] = getGridMap().row;
+    jsonObj["mapInfo"]["column"] = getGridMap().column;
+    jsonObj["mapInfo"]["width"] = getGridMap().width;
+    jsonObj["mapInfo"]["height"] = getGridMap().height;
+    for (GActor *actor : all) {
+      std::string className;
+      try {
+        className = actor->getGClass().className;
+      } catch (const std::exception &e) {
+        continue;
+      }
+      if (className == "GStaticActor") {
+        size_t texId = ((GStaticActor *)actor)
+                           ->sprComp->getSprite()
+                           .getTexturePtr()
+                           ->idAndPath.get_hash();
+        std::string path = ((GStaticActor *)actor)
+                               ->sprComp->getSprite()
+                               .getTexturePtr()
+                               ->idAndPath.getStringStd();
+        int index = ((GStaticActor *)actor)->sprComp->getSprite().getCurId();
+        const FVector3 &pos = actor->getPositionWs();
+
+        const FVector3 &size = ((GStaticActor *)actor)->sprComp->getSizeWs();
+        nlohmann::json j;
+        j["texId"] = texId;
+        j["path"] = path;
+        j["index"] = index;
+        j["position"] = {pos.x, pos.y, pos.z};
+        j["sizeWs"] = {size.x, size.y, size.z};
+        jsonObj["staticActors"].push_back(j);
+      }
+      if (className == "GAnimActor") {
+        size_t texId = ((GAnimActor *)actor)
+                           ->sprComp->getRenderSpr()
+                           ->getTexturePtr()
+                           ->idAndPath.get_hash();
+        std::string path = ((GAnimActor *)actor)
+                               ->sprComp->getRenderSpr()
+                               ->getTexturePtr()
+                               ->idAndPath.getStringStd();
+        int beginIndex = ((GAnimActor *)actor)
+        ->sprComp->getAnimation().getIdBegin();
+        int endIndex=((GAnimActor *)actor)
+        ->sprComp->getAnimation().getIdEnd();
+        int frameSpeed=((GAnimActor *)actor)
+        ->sprComp->getAnimation().getFramePerS();
+        const FVector3 &pos = actor->getPositionWs();
+
+        const FVector3 &size = ((GAnimActor *)actor)->sprComp->getSizeWs();
+        nlohmann::json j;
+        j["texId"] = texId;
+        j["path"] = path;
+        j["beginIndex"] = beginIndex;
+        j["endIndex"] = endIndex;
+        j["frameSpeed"] = frameSpeed;
+        j["position"] = {pos.x, pos.y, pos.z};
+        j["sizeWs"] = {size.x, size.y, size.z};
+        jsonObj["animActors"].push_back(j);
+      }
+    }
+    std::string landScapeShaderPath =
+        landScape.getShader().shader->idAndPath.getStringStd();
+    jsonObj["landScapeShader"]=landScapeShaderPath;
+    ofile << jsonObj.dump(4);
+  }
 };
 class WorldEditorWindow : public GGame {
 public:
   WorldEditorWindow() { createWorld<WorldForEditor>("res/myWorld.json"); }
+guiFromImgui uiWindow;
   void loop() {
     while (window.isOpen()) {
       curWorld->loop(window, event);
     }
   }
 };
-#endif// WORLDEDITOR_H
+#endif // WORLDEDITOR_H

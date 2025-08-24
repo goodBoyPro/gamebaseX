@@ -39,7 +39,7 @@ public:
 inline sf::Texture tesTest;
 class GameShaderInst {
 public:
-  sf::Shader *shader = nullptr;
+  ShaderFrag *shader = nullptr;
   std::map<std::string, float> properties;
   std::map<std::string, std::vector<float>> vec4Properties;
   std::map<std::string, std::string> textures;
@@ -47,7 +47,7 @@ public:
   GameShaderInst(const std::string &shaderInstJson_) { init(shaderInstJson_); }
   virtual ~GameShaderInst() {}
   virtual void init(const std::string &shaderInstJson_) {
-    shader = &(GResourceShader::defaultShader);
+    // shader = &(GResourceShader::defaultShader);///////////////////////////////////////////////需修复
     nlohmann::json jsObj;
     std::ifstream ifile;
     ifile.open(shaderInstJson_);
@@ -67,9 +67,9 @@ public:
     }
     ////////////////////////////////////////////////////////////设置
     shader =
-        (GResourceShader::getResourceShaders().getObject(fragPath).getShader());
+        &(GResourceShader::getResourceShaders().getObject(fragPath));
     for (auto &p : properties) {
-      shader->setUniform(p.first, p.second);
+      shader->getShader()->setUniform(p.first, p.second);
     }
     for (auto &p : vec4Properties) {
       if (p.second.size() != 4) {
@@ -81,21 +81,21 @@ public:
     for (auto &t : textures) {
       sf::Texture &tex = GSource::getSource().getObject(t.second).texture;
       tex.setRepeated(true);
-      shader->setUniform(t.first, tex);
+      shader->getShader()->setUniform(t.first, tex);
     }
   }
   void draw(GSprite &spr_, GameWindow &window_) {
-    shader->setUniform(
+    shader->getShader()->setUniform(
         "time", GameStatics::getGameClcok().getElapsedTime().asSeconds());
-    window_.draw(spr_.getSpriteBase(), shader);
+    window_.draw(spr_.getSpriteBase(), shader->getShader());
     sf::RectangleShape shape;
-    window_.draw(shape, shader);
+    window_.draw(shape, shader->getShader());
   }
   void setValueScalarByname(const std::string &name_, float value_) {
-    shader->setUniform(name_, value_);
+    shader->getShader()->setUniform(name_, value_);
   }
   void setValueVectorByname(const std::string &name_, const FVector4 &vec4_) {
-    shader->setUniform(name_, vec4_);
+    shader->getShader()->setUniform(name_, vec4_);
   }
 };
 ///////////////////////////////////////////////////////////////////////////

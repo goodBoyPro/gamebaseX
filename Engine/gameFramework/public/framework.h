@@ -144,7 +144,7 @@ class GStaticSpriteComponent : public GRenderObjComponent {
   REGISTER_BODY(GStaticSpriteComponent)
 public:
   GStaticSpriteComponent() { setRenderSpr(&spr); }
-  void setTex(const GTexture &tex) { spr.init(tex); }
+  void setTex(GTexture &tex) { spr.init(tex); }
   GSprite &getSprite() { return spr; }
   GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
 };
@@ -176,6 +176,7 @@ private:
   std::vector<GComponent *> __allComponents;
   GSceneComponent *rootComponent = nullptr;
   FVector3 positionWs = {0, 0, 0};
+  
 
   class GWorld *worldPtr = nullptr;
 
@@ -187,6 +188,7 @@ public:
   virtual void beginPlay() {}
   virtual void tick() {}
   GActor();
+ 
   void actorBaseInit(GWorld *worldPtr_) { worldPtr = worldPtr_; }
   GWorld *getWorld() { return worldPtr; }
   virtual void loop(float deltatime_, GameWindow &window_);
@@ -240,6 +242,7 @@ private:
   GameWindow *window = nullptr;
 
 public:
+  //用户最好不要调用，请使用GameWindow中提供的方法
   IVector2 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
     return {(int)(((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f)),
             (int)(((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
@@ -249,6 +252,7 @@ public:
   GameWindow *getWindow() { return window; }
   void setPixSize(float pSize_) { pixSize = pSize_; }
   float getPixSize() { return pixSize; }
+  //用户最好不要调用，请使用GameWindow中提供的方法
   FVector3 winToWs(const FVector2 &posWin_, GameWindow &window_) {
     return {(posWin_.x - window_.getDefaultView().getSize().x / 2) * pixSize +
                 getPositionWs().x,
@@ -256,6 +260,7 @@ public:
                 getPositionWs().y,
             0};
   }
+  //用户最好不要调用，请使用GameWindow中提供的方法
   FVector3 getMousePositionWs(GameWindow &window_) {
     const IVector2 &posWin = sf::Mouse::getPosition(window_);
     FVector2 posfix = {
@@ -386,7 +391,9 @@ public:
     sprComp->getSprite().init(tex_);
     sprComp->getSprite().setId(id_);
   }
+  
 };
+//////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GameMode)
 class GameMode : public GObject {
   REGISTER_BODY(GameMode)
@@ -403,6 +410,7 @@ class GLandScape:public GSprite {
   GameShaderInst gameShader;
 public:
   GSprite spr;
+  GameShaderInst&getShader(){return gameShader;}
   void init(float beginX_,float beginY_,float widthTotal_,float heightTotal_,const std::string &shaderInstPath_) {
     beginX = beginX_;
     beginY = beginY_;
