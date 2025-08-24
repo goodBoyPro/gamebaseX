@@ -563,4 +563,4 @@ inline GameMode &GWorld::setGameMode(const std::string &playerClass_) {
 
   return gm;
 }
-#endif // FRAMEWORK_H
+#endif // FRAMEWORK_Hvoid WorldEditorWindow::setWin1(){};void WorldEditorWindow::setMenus(){};

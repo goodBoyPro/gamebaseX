@@ -39,7 +39,14 @@
 // }
 #include "gstring.h"
 #include "stdio.h"
+class actor {
+  struct Data{int a;int b;}data;
+
+public:
+  Data&getData(){return data;}
+  actor(){}};
 int main() {
-  Gstring str = "xiaohong";
-  printf("%u",(int)str.get_hash());
+  actor a;
+  auto &x = a.getData();
+  printf("%d",x.a);
   return 0;}

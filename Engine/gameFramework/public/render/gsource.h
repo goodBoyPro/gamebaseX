@@ -7,7 +7,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
-
+#include<thread>
 class GSourceIF {
 public:
   std::vector<std::string> splitString(const std::string &filename);
@@ -24,6 +24,7 @@ protected:
   T defaultObj;
 
 public:
+  std::atomic<bool> isloadComplete=false;
   T &getObject(size_t id) {
     auto it = data.find(id);
     if (it == data.end())
@@ -70,7 +71,7 @@ public:
     static GSource sr;
     return sr;
   }
-  GSource() {
+  void loadResource() {
     std::vector<std::vector<std::string>> vec = collectFiles("res", ".png");
     for (std::vector<std::string> &cvec : vec) {
       const std::string& path = cvec[0];
@@ -93,6 +94,14 @@ public:
         continue;
       }
     }
+    isloadComplete=true;
   }
+  std::thread *th;
+  GSource() {
+     th=new std::thread(&GSource::loadResource, this);
+    
+    th->join();
+  }
+  ~GSource(){delete th;}
 };
 #endif // GSOURCE_H

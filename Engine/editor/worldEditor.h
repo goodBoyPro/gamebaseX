@@ -3,8 +3,9 @@
 #define WORLDEDITOR_H
 
 #include "framework.h"
+#include "gui/imgui/guiFromImgui.h"
 #include "render/sprite.h"
-#include"gui/imgui/guiFromImgui.h"
+
 class MovableObj {
 public:
   GSprite spr;
@@ -337,12 +338,12 @@ public:
                                ->sprComp->getRenderSpr()
                                ->getTexturePtr()
                                ->idAndPath.getStringStd();
-        int beginIndex = ((GAnimActor *)actor)
-        ->sprComp->getAnimation().getIdBegin();
-        int endIndex=((GAnimActor *)actor)
-        ->sprComp->getAnimation().getIdEnd();
-        int frameSpeed=((GAnimActor *)actor)
-        ->sprComp->getAnimation().getFramePerS();
+        int beginIndex =
+            ((GAnimActor *)actor)->sprComp->getAnimation().getIdBegin();
+        int endIndex =
+            ((GAnimActor *)actor)->sprComp->getAnimation().getIdEnd();
+        int frameSpeed =
+            ((GAnimActor *)actor)->sprComp->getAnimation().getFramePerS();
         const FVector3 &pos = actor->getPositionWs();
 
         const FVector3 &size = ((GAnimActor *)actor)->sprComp->getSizeWs();
@@ -359,17 +360,57 @@ public:
     }
     std::string landScapeShaderPath =
         landScape.getShader().shader->idAndPath.getStringStd();
-    jsonObj["landScapeShader"]=landScapeShaderPath;
+    jsonObj["landScapeShader"] = landScapeShaderPath;
     ofile << jsonObj.dump(4);
   }
 };
+class PageWaitSourceLoad {
+public:
+  void loop(GameWindow &window_, EventBase &event_) {
+    while (window_.isOpen()) {
+      guiFromImgui::getUi().mainLoop();
+      guiFromImgui::getUi().followOtherWindow(window_.getSystemHandle());
+      while (window_.pollEvent(event_)) {
+        if (event_.type == sf::Event::Closed) {
+          window_.close();
+        }
+        window_.clear();
+        sf::sleep(sf::milliseconds(15));
+        window_.display();
+      }
+      
+      if (GSource::getSource().isloadComplete) {
+       
+        return;
+      }
+    }
+  }
+};
 class WorldEditorWindow : public GGame {
+  UiWindow *win1;
+  UiWindow *menus;
+  PageWaitSourceLoad pageWait;
+
 public:
   WorldEditorWindow() {
+    guiFromImgui::getUi().setFollowOtherWindow(window.getSystemHandle());
+    setUI();
+    pageWait.loop(window, event);
     createWorld<WorldForEditor>("res/myWorld.json");
-  guiFromImgui::getUi().createWindow<UiWindow>("uitest");  }
-
+    
+  }
+  void setUI() {
+    win1 = guiFromImgui::getUi().createWindow<UiWindow>(
+        "uitest", ImGuiWindowFlags_NoResize);
+    win1->disableClose();
+    menus = (guiFromImgui::getUi().createWindow<Menus>(
+        "menus", ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize));
+    setMenus();
+  }
+  void setMenus();
+  void setWin1();
   void loop() {
+
     while (window.isOpen()) {
       curWorld->loop(window, event);
       guiFromImgui::getUi().mainLoop();
@@ -377,4 +418,5 @@ public:
     }
   }
 };
+
 #endif // WORLDEDITOR_H
