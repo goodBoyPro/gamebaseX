@@ -239,8 +239,6 @@ public:
         actorsSelected.clear();
       }
     });
-
-    loadBaseActors("res/myWorld.json");
   }
   void axisAttachActor() {
     if (actorsSelected.empty()) {
@@ -365,34 +363,11 @@ public:
     ofile << jsonObj.dump(4);
   }
 };
-class PageWaitSourceLoad {
-public:
-  void loop(GameWindow &window_, EventBase &event_) {
-    while (window_.isOpen()) {
-      guiFromImgui::getUi().mainLoop();
-      guiFromImgui::getUi().followOtherWindow(window_.getSystemHandle());
 
-      GSource::getSource();
-      while (window_.pollEvent(event_)) {
-        if (event_.type == sf::Event::Closed) {
-          window_.close();
-        }
-        window_.clear();
-        printText(window_,L"加载中");
-        window_.display();
-      }
-
-      if (GSource::getSource().isloadComplete.load()) {
-
-        break;
-      }
-    }
-  }
-};
 class WorldEditorWindow : public GGame {
   UiWindow *win1;
   UiWindow *menus;
-  PageWaitSourceLoad pageWait;
+ 
 
 public:
   WorldEditorWindow() {
@@ -401,7 +376,6 @@ public:
   void init(){
     guiFromImgui::getUi().setFollowOtherWindow(window.getSystemHandle());
     setUI();
-    pageWait.loop(window, event);
     createWorld<WorldForEditor>("res/myWorld.json");
   }
   void setUI() {

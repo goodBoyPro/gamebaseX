@@ -75,20 +75,26 @@ GPlayer::GPlayer() {
 }
 
 void GPlayer::beginPlay() {
-  sprComp->setTex(GSource::getSource().getObject("res/arr_110110_c_5_5_0.5_1_tree.png"));
+  sprComp->setTex(
+      GSource::getSource().getObject("res/arr_110110_c_5_5_0.5_1_tree.png"));
   sprComp->getSprite().setId(10);
   sprComp->setSizeWs({2, 2, 0});
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 void GWorld::loadBaseActors(const std::string &jsonPath_) {
-  pageWait.loop(gm.gameIns->window,gm.gameIns->event);
+  std::thread th([&]() { asyncLoad(jsonPath_); });
+  th.detach();
+
+  pageWait.loop(gm.gameIns->window, gm.gameIns->event, isDataLoadComplete);
+}
+void GWorld::asyncLoad(const std::string &jsonPath_) {
   nlohmann::json jsobj;
   std::ifstream ifile(jsonPath_);
   ifile >> jsobj;
   ifile.close();
   gridMap.init(jsobj["mapInfo"]["row"], jsobj["mapInfo"]["column"],
                jsobj["mapInfo"]["width"], jsobj["mapInfo"]["height"]);
-  
+
   // staticActor
   for (auto info : jsobj["staticActors"]) {
     // int texId = info["texId"];
@@ -99,7 +105,7 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
     const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
     FVector3 sizeWs = {size[0], size[1], size[2]};
     auto actor = createActor<GStaticActor>(position);
-    actor->construct(GSource::getSource().getObject(texId), index);
+    actor->construct(GSource::getSource().getObject(info["path"].get<std::string>()), index);
     actor->sprComp->setSizeWs(sizeWs);
   }
   // animActor
@@ -114,13 +120,17 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
     const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
     FVector3 sizeWs = {size[0], size[1], size[2]};
     auto actor = createActor<GAnimActor>(position);
-    actor->construct(GSource::getSource().getObject(texId), beginIndex, endIndex,
-                     frameSpeed);
+    actor->construct(GSource::getSource().getObject(texId), beginIndex,
+                     endIndex, frameSpeed);
     actor->sprComp->setSizeWs(sizeWs);
   }
   // landscape
-  const std::string shaderInstPath=jsobj["landScapeShader"].get<std::string>();
-  landScape.init(gridMap.beginPoint.x, gridMap.beginPoint.y, gridMap.width*gridMap.column, gridMap.height*gridMap.row, "res/shaderInst.json");
+  const std::string shaderInstPath =
+      jsobj["landScapeShader"].get<std::string>();
+  landScape.init(gridMap.beginPoint.x, gridMap.beginPoint.y,
+                 gridMap.width * gridMap.column, gridMap.height * gridMap.row,
+                 "res/shaderInst.json");
+  isDataLoadComplete = true;
 }
 void GWorld::pollActorsActive(GameWindow &window_) {
   int centerId =
@@ -159,15 +169,19 @@ void GWorld::bindDefaultCameraController() {
                                 FVector3(0.1, 0, 0));
   });
   controllerDefault.bind(GController::kup, [&]() {
-    cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()-0.0005);
+    float x = cameraDefault.cameraComp->getPixSize() - 0.0005;
+    if (x > 0) {
+      cameraDefault.cameraComp->setPixSize(x);
+    }
   });
   controllerDefault.bind(GController::kdown, [&]() {
-    cameraDefault.cameraComp->setPixSize(cameraDefault.cameraComp->getPixSize()+0.0005);
+    cameraDefault.cameraComp->setPixSize(
+        cameraDefault.cameraComp->getPixSize() + 0.0005);
   });
 }
 void GWorld::loop(GameWindow &window_, EventBase &event_) {
   deltaTime = clock.restart().asSeconds();
-  
+
   controllerActive->loop(window_, event_);
 
   //  计时器任务
@@ -175,7 +189,7 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
   // 渲染
   window_.clear(sf::Color::Black);
   // 渲染地图
- landScape.draw(window_);
+  landScape.draw(window_);
   // actor逻辑
   pollActorsActive(window_);
   // 世界tick

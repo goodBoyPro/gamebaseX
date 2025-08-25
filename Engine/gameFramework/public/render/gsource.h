@@ -25,7 +25,6 @@ protected:
   T defaultObj;
 
 public:
-  std::atomic<bool> isloadComplete = false;
   T &getObject(size_t id) {
     auto it = data.find(id);
     if (it == data.end())
@@ -35,9 +34,13 @@ public:
   }
   T &getObject(const Gstring &str) {
     auto it = data.find(str.get_hash());
-    if (it == data.end())
-      return defaultObj;
+    if (it == data.end()) {
+      T&s=loadFromPath(str);
+      return s;}
     return it->second;
+  }
+  virtual T &loadFromPath(const Gstring &path_) {
+    printf("error");
   }
   T &emplace(const std::string &path_) {
     size_t id = Gstring::calculateHash(path_);
@@ -97,14 +100,39 @@ public:
         continue;
       }
     }
-    isloadComplete = true;
-  }
-  std::thread *th;
-  GSource() {
-    th = new std::thread(&GSource::loadResource, this);
     
-    th->detach();
   }
-  ~GSource() { delete th; }
+  GTexture &loadFromPath(const Gstring &path_) {
+    
+    const std::vector<std::string> &strs = splitString(
+        std::filesystem::path(path_.getStringStd()).filename().string());
+        const std::string &path = path_.getStringStd();
+        GTexture &gtex = emplace(path);
+        if (strs.size() != count-1) {
+          gtex.init(1, 1, 0, 0, path);
+          return gtex;
+        }
+        try {
+          int row = std::stoi(strs[erow-1]);
+          int column = std::stoi(strs[ecolumn-1]);
+          float centerX = std::stof(strs[ecenterX-1]);
+          float centerY = std::stof(strs[ecenterY-1]);
+
+          gtex.init(row, column, centerX, centerY, path);
+          return gtex;
+  
+        } catch (const std::exception &e) {
+          std::cerr << "invalid file! " << e.what() << std::endl;
+          gtex.init(1, 1, 0, 0, path);
+          return gtex;
+        }
+        printf("%s loaded\n",path.c_str());
+  }
+  GSource() {
+    
+    // loadResource();
+   
+  }
+  ~GSource() {  }
 };
 #endif // GSOURCE_H

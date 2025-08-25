@@ -17,7 +17,7 @@ void WorldEditorWindow::setMenus() {
       }
       if (ImGui::BeginMenu("运行")) {
         if (ImGui::MenuItem("启动")) {
-            
+            system("game.exe");
           }
         ImGui::EndMenu();
       }

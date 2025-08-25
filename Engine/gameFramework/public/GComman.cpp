@@ -1,11 +1,19 @@
 #include "GComman.h"
 sf::Font &getFont(int id) {
     static sf::Font font[5];
-    static bool f1 = font[0].loadFromFile("res/font/heiti.ttf");
-    static bool f2 = font[1].loadFromFile("res/font/kaiti.ttf");
-    static bool f3 = font[2].loadFromFile("res/font/zhunyuan.ttf");
+    static volatile bool f = []() {
+      font[0].loadFromFile("res/font/heiti.ttf");
+      font[1].loadFromFile("res/font/kaiti.ttf");
+      font[2].loadFromFile("res/font/zhunyuan.ttf");
+      return true;
+    }();
+    (void)f;
     return font[id];
+    
 }
+struct __useGetFontAutoBeforMain {
+  __useGetFontAutoBeforMain(){getFont(0);};
+}__useGetFontinst;
 void printText(GameWindow &window_, const std::wstring &str, int x, int y, int size, ColorBase color, int fontId) {
     static sf::Text text;
     text.setFont(getFont(fontId));

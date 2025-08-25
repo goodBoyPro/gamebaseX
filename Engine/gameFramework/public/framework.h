@@ -432,7 +432,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////
 class PageGameWaitSourceLoad {
 public:
-  void loop(GameWindow &window_, EventBase &event_) {
+  void loop(GameWindow &window_, EventBase &event_,std::atomic<bool>&isloaded) {
     while (window_.isOpen()) {
 
       GSource::getSource();
@@ -445,7 +445,7 @@ public:
         window_.display();
       }
 
-      if (GSource::getSource().isloadComplete.load()) {
+      if (isloaded.load()) {
 
         break;
       }
@@ -457,8 +457,8 @@ REGISTER_CLASS(GWorld)
 class GWorld : public GObject {
   REGISTER_BODY(GWorld)
 private:
-  
-
+void asyncLoad(const std::string &jsonPath_);
+  std::atomic<bool>isDataLoadComplete=false;
   struct ActorsType {};
   
   GridMap<GActor> gridMap;
@@ -544,7 +544,7 @@ public:
   template <class T> GWorld *createWorld(const std::string &jsonPath_) {
     delete curWorld;
     curWorld = new T;
-    curWorld->gm.gameIns = this;    
+    curWorld->gm.gameIns = this;
     curWorld->loadBaseActors(jsonPath_);
     curWorld->Construct();
     curWorld->beginPlay();
