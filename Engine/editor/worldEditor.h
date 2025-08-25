@@ -371,18 +371,20 @@ public:
     while (window_.isOpen()) {
       guiFromImgui::getUi().mainLoop();
       guiFromImgui::getUi().followOtherWindow(window_.getSystemHandle());
+
+      GSource::getSource();
       while (window_.pollEvent(event_)) {
         if (event_.type == sf::Event::Closed) {
           window_.close();
         }
         window_.clear();
-        sf::sleep(sf::milliseconds(15));
+        printText(window_,L"加载中");
         window_.display();
       }
 
-      if (GSource::getSource().isloadComplete) {
+      if (GSource::getSource().isloadComplete.load()) {
 
-        return;
+        break;
       }
     }
   }
@@ -394,6 +396,9 @@ class WorldEditorWindow : public GGame {
 
 public:
   WorldEditorWindow() {
+    init();
+  }
+  void init(){
     guiFromImgui::getUi().setFollowOtherWindow(window.getSystemHandle());
     setUI();
     pageWait.loop(window, event);

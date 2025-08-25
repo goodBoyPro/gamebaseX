@@ -430,11 +430,34 @@ public:
   }
 };
 ////////////////////////////////////////////////////////////////////////////////////////////
+class PageGameWaitSourceLoad {
+public:
+  void loop(GameWindow &window_, EventBase &event_) {
+    while (window_.isOpen()) {
+
+      GSource::getSource();
+      while (window_.pollEvent(event_)) {
+        if (event_.type == sf::Event::Closed) {
+          window_.close();
+        }
+        window_.clear();
+        printText(window_,L"加载中");
+        window_.display();
+      }
+
+      if (GSource::getSource().isloadComplete.load()) {
+
+        break;
+      }
+    }
+  }
+};
+///////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GWorld)
 class GWorld : public GObject {
   REGISTER_BODY(GWorld)
 private:
-  GSource *source = nullptr;
+  
 
   struct ActorsType {};
   
@@ -454,13 +477,14 @@ private:
   inline static ActorContext actorContext;
 
 public:
+  PageGameWaitSourceLoad pageWait;
   friend class GActor;
   GridMap<GActor> &getGridMap() { return gridMap; }
   void setActorContext() { actorContext.______worldParamForCreate = this; }
 
   GameMode gm;
   GLandScape landScape;
-  GSource *getSource() { return source; };
+  
   // 该函数要访问gameIns，但是gameIns不是在构造函数设置的，如果在构造函数使用此函数，会出错
   GameMode &setGameMode(const std::string &playerClass_);
   void setCameraActive(GCameraComponent *camera_);
@@ -492,7 +516,7 @@ public:
   void showGridMap(GameWindow &window_);
   GWorld() {
 
-    source = new GSource();
+    
     
     // test
   }
@@ -501,7 +525,7 @@ public:
   virtual void beginPlay() {}
   void pollActorsActive(GameWindow &window_);
   virtual void loop(GameWindow &window_, EventBase &event_);
-  ~GWorld() { delete source; }
+  ~GWorld() { }
 };
 REGISTER_CLASS(LevelManager)
 class LevelManager : public GObject {
