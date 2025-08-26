@@ -7,6 +7,9 @@ void WorldEditorWindow::setMenus() {
         if (ImGui::MenuItem("打开","ctrl+o")) {
           printf("open\n");
         }
+        if (ImGui::MenuItem("保存","ctrl+s")) {
+          printf("open\n");
+        }
         ImGui::EndMenu();
       }
       if (ImGui::BeginMenu("编辑")) {
