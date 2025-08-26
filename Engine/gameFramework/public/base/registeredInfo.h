@@ -3,10 +3,10 @@
 #include "framework.h"
 class ClassInfo {
 private:
-//   inline static ClassInfo a;
+  static ClassInfo a;
 
 public:
-  inline static std::map<std::string, GStaticActor::Info> staticiActors;
+  std::map<std::string, GStaticActor::Info> staticiActors;
   ClassInfo() {
     std::ifstream ifile;
     ifile.open("res/base/data/actorData.json");
@@ -19,7 +19,9 @@ public:
       size_t texId = info["texId"];
       const std::string &texPath = info["texPath"];
       int texIndex = info["texIndex"];
-      auto it = staticiActors.emplace(name,GStaticActor::Info());
+      auto it = staticiActors.emplace(std::piecewise_construct,
+                                      std::forward_as_tuple(name),
+                                      std::forward_as_tuple());
       if (!it.second) {
         throw std::runtime_error(name + ":staticActorNameRedefined\n");
       }
@@ -29,7 +31,17 @@ public:
       it.first->second.texIndex = texIndex;
       it.first->second.texPath = texPath;
     }
-    printf("%s", staticiActors["adfsa"].texPath.c_str());
+  }
+
+public:
+  static GStaticActor::Info &getStaticActorInfo(const std::string &name) {
+    auto it = a.staticiActors.find(name);
+    if (it == a.staticiActors.end()) {
+      printf("%s:no such staticActor\n", name.c_str());
+      throw(std::runtime_error(""));
+    }
+    return it->second;
   }
 };
+inline ClassInfo ClassInfo::a;
 #endif // REGISTEREDINFO_H

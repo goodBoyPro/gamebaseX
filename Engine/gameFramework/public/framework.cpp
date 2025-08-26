@@ -1,5 +1,5 @@
 #include <framework.h>
-
+#include"base/registeredInfo.h"
 void GActor::loop(float deltatime, GameWindow &window_) {
   for (GComponent *comp : __allComponents) {
     comp->loop(window_, deltatime);
@@ -97,15 +97,15 @@ void GWorld::asyncLoad(const std::string &jsonPath_) {
 
   // staticActor
   for (auto info : jsobj["staticActors"]) {
-    // int texId = info["texId"];
-    size_t texId = Gstring::calculateHash(info["path"].get<std::string>());
-    int index = info["index"];
+    
+    const std::string&name=info["name"];
     const std::vector<float> &pos = info["position"].get<std::vector<float>>();
     FVector3 position = {pos[0], pos[1], pos[2]};
     const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
     FVector3 sizeWs = {size[0], size[1], size[2]};
     auto actor = createActor<GStaticActor>(position);
-    actor->construct(GSource::getSource().getObject(info["path"].get<std::string>()), index);
+    GStaticActor::Info&staticActorInfo=ClassInfo::getStaticActorInfo(name);
+    actor->construct(GSource::getSource().getObject(staticActorInfo.texPath), staticActorInfo.texIndex);
     actor->sprComp->setSizeWs(sizeWs);
   }
   // animActor

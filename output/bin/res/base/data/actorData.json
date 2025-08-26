@@ -1,11 +1,18 @@
 {
     "staticActors":[
         {
-            "name":"adfsa",
+            "name":"tree1",
             "id":1,
-            "texId":1,
-            "texPath":"xxxx",
-            "texIndex":1
+            "texId":2125843542878897406,
+            "texPath":"res/arr_110110_c_5_5_0.5_1_tree.png",
+            "texIndex":11
+        },
+        {
+            "name":"tree2",
+            "id":15,
+            "texId":2125843542878897406,
+            "texPath":"res/arr_110110_c_5_5_0.5_1_tree.png",
+            "texIndex":11
         }
     ],
     "animActors":{
