@@ -125,9 +125,8 @@ public:
           std::cerr << "invalid file! " << e.what() << std::endl;
           gtex.init(1, 1, 0, 0, path);
           return gtex;
-        }
-        printf("%s loaded\n",path.c_str());
-  }
+        }   
+  };
   GSource() {
     
     // loadResource();

@@ -1,13 +1,13 @@
 {
-    "staticActors":{
-        "name":{
-            "name":"",
+    "staticActors":[
+        {
+            "name":"adfsa",
             "id":1,
             "texId":1,
-            "texPath":"",
+            "texPath":"xxxx",
             "texIndex":1
         }
-    },
+    ],
     "animActors":{
         "name":1,
         "texId":1,
