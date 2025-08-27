@@ -373,7 +373,7 @@ class WorldEditorWindow : public GGame {
   void testInit() {
     wintest.create(sf::VideoMode(400, 400), "test");
     ui=ImguiManager::getUI().createBigWindow(L"win1", window.getSystemHandle());
-    uitest=ImguiManager::getUI().createBigWindow(L"win2", wintest.getSystemHandle());
+    // uitest=ImguiManager::getUI().createBigWindow(L"win2", wintest.getSystemHandle());
     }
   void testLoop() {
     if (wintest.isOpen()) {
