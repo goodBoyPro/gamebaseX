@@ -55,6 +55,7 @@ void guiFromImgui::mainLoop() {
     }
 
     // Start the Dear ImGui frame
+    ImGui::SetCurrentContext(windowContex);
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
@@ -189,9 +190,10 @@ void guiFromImgui::createIfNoDir() {
   std::filesystem::create_directory(settingsDir);
 }
 void guiFromImgui::init(const wchar_t *windowName) {
-   // Setup Dear ImGui context
+  
    IMGUI_CHECKVERSION();
-   ImGui::CreateContext();
+   windowContex = ImGui::CreateContext();
+  
    ImGuiIO &io = ImGui::GetIO();
    (void)io;
    io.ConfigFlags |=
@@ -204,6 +206,7 @@ void guiFromImgui::init(const wchar_t *windowName) {
    IM_ASSERT(font);
    // ImGui::StyleColorsDark();
    ImGui::StyleColorsLight();
+    // Setup Dear ImGui context
 
   // 建立配置文件所在文件夹
   createIfNoDir();
@@ -240,4 +243,18 @@ void guiFromImgui::init(const wchar_t *windowName) {
   // Setup Platform/Renderer backends
   ImGui_ImplWin32_Init(hwnd);
   ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+}
+guiFromImgui *ImguiManager::createBigWindow(const wchar_t *windowName,HWND parent_) {
+  guiFromImgui *obj = new guiFromImgui();
+  obj->init(windowName);
+  allBigWindow.push_back(obj);
+  obj->setFollowOtherWindow(parent_);
+  obj->parent = parent_;
+  return obj;
+}
+void ImguiManager::mainLoop() {
+  for (guiFromImgui *g : allBigWindow) {
+    g->mainLoop();
+    g->followOtherWindow(g->parent);
+  }
 }

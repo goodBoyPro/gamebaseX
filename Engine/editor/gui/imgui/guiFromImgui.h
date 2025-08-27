@@ -18,9 +18,31 @@
 #include "imguiLib/imgui.h"
 #include "imguiLib/imgui_impl_dx11.h"
 #include "imguiLib/imgui_impl_win32.h"
+
+class ImguiManager {
+  std::vector<class guiFromImgui *> allBigWindow;
+  ImguiManager() {
+  
+  }
+
+public:
+  inline static ImguiManager &getUI() {
+    static ImguiManager ret;
+    return ret;
+  }
+  guiFromImgui *createBigWindow(const wchar_t *windowName,HWND parent_);
+  ~ImguiManager() {
+    for (guiFromImgui *g : allBigWindow) {
+      delete g;
+    }
+  }
+  void mainLoop();
+};
 class guiFromImgui {
 public:
   struct DoOnce;
+  HWND parent;
+  ImGuiContext *windowContex;
   // static guiFromImgui &getUi();
   void init(const wchar_t *windowName=L"window");
   void close() { bOpen = false; };
