@@ -367,22 +367,36 @@ public:
 class WorldEditorWindow : public GGame {
   UiWindow *win1;
   UiWindow *menus;
- 
-
+  guiFromImgui ui;
+  WindowBase wintest;
+  guiFromImgui uitest;
+  void testInit() {
+    wintest.create(sf::VideoMode(400, 400), "test");
+   
+  }
+  void testLoop() {
+    if (wintest.isOpen()) {
+      wintest.display();
+      wintest.clear();
+     
+    }
+  }
 public:
   WorldEditorWindow() {
     init();
   }
-  void init(){
-    guiFromImgui::getUi().setFollowOtherWindow(window.getSystemHandle());
+  void init() {
+    ui.init();
+    ui.setFollowOtherWindow(window.getSystemHandle());
     setUI();
     createWorld<WorldForEditor>("res/myWorld.json");
+    testInit();
   }
   void setUI() {
-    win1 = guiFromImgui::getUi().createWindow<UiWindow>(
+    win1 = ui.createWindow<UiWindow>(
         "uitest", ImGuiWindowFlags_NoResize);
     win1->disableClose();
-    menus = (guiFromImgui::getUi().createWindow<Menus>(
+    menus = (ui.createWindow<Menus>(
         "menus", ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize));
     setMenus();
   }
@@ -392,8 +406,9 @@ public:
 
     while (window.isOpen()) {
       curWorld->loop(window, event);
-      guiFromImgui::getUi().mainLoop();
-      guiFromImgui::getUi().followOtherWindow(window.getSystemHandle());
+      ui.mainLoop();
+      ui.followOtherWindow(window.getSystemHandle());
+      testLoop();
     }
   }
 };

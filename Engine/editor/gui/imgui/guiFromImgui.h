@@ -21,7 +21,8 @@
 class guiFromImgui {
 public:
   struct DoOnce;
-  static guiFromImgui &getUi();
+  // static guiFromImgui &getUi();
+  void init(const wchar_t *windowName=L"window");
   void close() { bOpen = false; };
   bool isOpen() { return bOpen; }
   // 在应用的主循环中调用这个方法
@@ -32,6 +33,7 @@ public:
   UiWindow *createWindow(const std::string &id, int state = 0);
 
   ~guiFromImgui();
+  guiFromImgui();
   void setFollowOtherWindow(HWND hwnd_) {
     SetLayeredWindowAttributes(hwnd,
                                ImColor(clear_color_with_alpha[0] * 255,
@@ -76,7 +78,7 @@ private:
                     nullptr};
 
 private:
-  guiFromImgui(const wchar_t *windowName = L"window");
+  
   bool CreateDeviceD3D(HWND hWnd);
   void CleanupDeviceD3D();
   void CreateRenderTarget();
