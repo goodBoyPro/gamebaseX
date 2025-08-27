@@ -58,7 +58,9 @@
     static guiFromImgui ui;
     return ui;
   }
-  
+  static struct autoSetGui{
+    autoSetGui(){guiFromImgui::getUi();}
+ }a; 
  guiFromImgui::~guiFromImgui() {
     // Cleanup
     ImGui_ImplDX11_Shutdown();
