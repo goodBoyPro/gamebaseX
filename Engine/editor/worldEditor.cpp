@@ -3,7 +3,7 @@ void WorldEditorWindow::setUI() {
   MiniWindow *menu = UI->createWindow<WindowMenu>(
       "menus", ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar |
                    ImGuiWindowFlags_NoResize);
-  menu->setWindowUi([]() {
+  menu->setWindowUi([&]() {
     if (ImGui::BeginMenu("文件")) {
       if (ImGui::MenuItem("打开")) {
       }
@@ -21,7 +21,10 @@ void WorldEditorWindow::setUI() {
     }
     if (ImGui::BeginMenu("运行")) {
       if (ImGui::MenuItem("启动")) {
-        system("game.exe");
+        
+        
+        std::thread th(&WorldEditorWindow::runGame, this);
+        th.detach();
       }
 
       ImGui::EndMenu();

@@ -386,6 +386,13 @@ public:
       getUiManager().MainLoop();
     }
   }
+
+  void runGame() {
+    GGame g;
+    GWorld*w=g.createWorld<GWorld>("res/myWorld.json");
+    w->setGameMode("GPlayer");
+    g.loop();
+  }
 };
 
 #endif // WORLDEDITOR_H

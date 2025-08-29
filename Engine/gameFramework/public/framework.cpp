@@ -61,7 +61,7 @@ GPlayer::GPlayer() {
   });
   controller.bind(GController::mleft, [this]() {
     FVector3 target =
-        cameraComp->getMousePositionWs(GGame::getGameIns()->window);
+        cameraComp->getMousePositionWs(getWorld()->gm.gameIns->window);
     moveComp->setTarget(target);
   });
   controller.bind(GController::kup, [this]() {

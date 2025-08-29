@@ -559,10 +559,7 @@ public:
     return curWorld;
   }
 
-  static GGame *getGameIns() {
-    static GGame game;
-    return &game;
-  }
+
 
   GGame() {
     window.create(sf::VideoMode(1600, 900), "Game");

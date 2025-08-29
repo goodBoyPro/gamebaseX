@@ -27,11 +27,11 @@ public:
   }
   void tick() override {
     PRINTDEBUG(L"node:%d", nodeId);
-    PRINTDEBUG(L"window:%d,%d", GGame::getGameIns()->window.getSize().x,
-               GGame::getGameIns()->window.getSize().y)
+    PRINTDEBUG(L"window:%d,%d", getWorld()->gm.gameIns->window.getSize().x,
+    getWorld()->gm.gameIns->window.getSize().y)
     PRINTDEBUG(L"windowDV:%f,%f",
-               GGame::getGameIns()->window.getDefaultView().getSize().x,
-               GGame::getGameIns()->window.getDefaultView().getSize().y)
+      getWorld()->gm.gameIns->window.getDefaultView().getSize().x,
+      getWorld()->gm.gameIns->window.getDefaultView().getSize().y)
   }
 };
 class MyWorld : public GWorld {
@@ -45,10 +45,11 @@ public:
   }
 };
 int main() {
-  GGame *gameins = GGame::getGameIns();
-  GWorld *world = gameins->createWorld<MyWorld>("res/myWorld.json");
+  
+  GGame g;
+  GWorld *world = g.createWorld<MyWorld>("res/myWorld.json");
   world->setGameMode("MyPlayer").player->moveComp->speed = 1;
   
 
-  gameins->loop();
+  g.loop();
 };
