@@ -3,7 +3,7 @@
 #define WORLDEDITOR_H
 
 #include "framework.h"
-#include "gui/imgui/guiFromImgui.h"
+#include "gui/imguiDx/guiDx.h"
 #include "render/sprite.h"
 
 class MovableObj {
@@ -364,52 +364,26 @@ public:
   }
 };
 
-class WorldEditorWindow : public GGame {
-  UiWindow *win1;
-  UiWindow *menus;
-  guiFromImgui *ui;
-  WindowBase wintest;
-  guiFromImgui *uitest;
-  void testInit() {
-    wintest.create(sf::VideoMode(400, 400), "test");
-    ui=ImguiManager::getUI().createBigWindow(L"win1", window.getSystemHandle());
-    // uitest=ImguiManager::getUI().createBigWindow(L"win2", wintest.getSystemHandle());
-    }
-  void testLoop() {
-    if (wintest.isOpen()) {
-      wintest.display();
-      wintest.clear();
-     
-    }
-  }
+class EditorWindowWithPanel : public GGame {
 public:
-  WorldEditorWindow() {
-    init();
+  BigWindow *UI = nullptr;
+  EditorWindowWithPanel() { UI = getUiManager().createBigWindow(L"ui",window.getSystemHandle()); }
+  virtual ~EditorWindowWithPanel() {
+    //销毁UI
   }
+};
+class WorldEditorWindow : public EditorWindowWithPanel {
+public:
+  WorldEditorWindow() { init(); }
   void init() {
-    testInit();
+    setUI();
+    createWorld<WorldForEditor>("res/myWorld.json"); }
 
-    setUI(ui);
-    // setUI(uitest);
-    createWorld<WorldForEditor>("res/myWorld.json");
-    
-  }
-  void setUI(guiFromImgui*ui_) {
-    win1 = ui_->createWindow<UiWindow>(
-        "uitest", ImGuiWindowFlags_NoResize);
-    win1->disableClose();
-    menus = (ui_->createWindow<Menus>(
-        "menus", ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize));
-    setMenus();
-  }
-  void setMenus();
-  void setWin1();
+  void setUI();
   void loop() {
-
     while (window.isOpen()) {
       curWorld->loop(window, event);
-      testLoop();
-      ImguiManager::getUI().mainLoop();
+      getUiManager().MainLoop();
     }
   }
 };
