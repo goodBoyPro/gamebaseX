@@ -31,6 +31,7 @@ public:
       callback(*it);
       it++;
     }
+    //这么设计是为了防止互相引用的对象被提前删除引起访问出错
     for (T *ptr : invalidActors) {
       delete ptr;
     }
