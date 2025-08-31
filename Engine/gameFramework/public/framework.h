@@ -588,8 +588,7 @@ public:
 };
 
 inline GameMode &GWorld::setGameMode(const std::string &playerClass_) {
-  // 如果gm.player不为空，应先释放
-  delete gm.player;
+  
   gm.player = (GPlayer *)createActorByClassName(playerClass_);
   if (gm.gameIns) {
     gm.gameIns->window.setCameraActive(gm.player->cameraComp);
