@@ -17,7 +17,7 @@ public:
 };
 REGISTER_CLASS(MyPlayer)
 class MyPlayer : public GPlayer {
-  GPrimitiveComponent *primComp = nullptr;
+  
 REGISTER_BODY(MyPlayer)
 public:
   void beginPlay() override {
@@ -47,8 +47,8 @@ public:
 int main() {
   
   GGame g;
-  GWorld *world = g.createWorld<MyWorld>("res/myWorld.json");
-  world->setGameMode("MyPlayer").player->moveComp->speed = 1;
+  GWorld *world = g.createWorld<GWorld>("res/myWorld.json");
+  
   
 
   g.loop();

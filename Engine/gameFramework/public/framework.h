@@ -391,7 +391,9 @@ public:
     std::string texPath;
     int texIndex;
   };
-  public:
+
+public:
+  Info *infoPtr=nullptr;
   GStaticSpriteComponent *sprComp = nullptr;
   GStaticActor() {}
   void construct(GTexture &tex_, int id_) {
@@ -485,6 +487,9 @@ void asyncLoad(const std::string &jsonPath_);
   inline static ActorContext actorContext;
 
 public:
+  GCameraComponent*getCameraDefault(){return cameraDefaultPtr->cameraComp;}
+  GController *getControllerDefault() { return &controllerDefault; }
+  void setControllerActive(GController*controller_){controllerActive=controller_;}
   PageGameWaitSourceLoad pageWait;
   friend class GActor;
   GridMap<GActor> &getGridMap() { return gridMap; }
@@ -528,12 +533,14 @@ public:
     
     // test
   }
-  void Construct() { bindDefaultCameraController(); }
+  void Construct() { }
   virtual void tick();
   virtual void beginPlay() {}
   void pollActorsActive(GameWindow &window_);
   virtual void loop(GameWindow &window_, EventBase &event_);
-  ~GWorld() { }
+  ~GWorld() {}
+  GStaticActor *createStaticActor(const std::string &name_, const FVector3 &pos_={0,0,0},
+    const FVector3 &sizeWs_={1,1,1}) ;
 };
 REGISTER_CLASS(LevelManager)
 class LevelManager : public GObject {
@@ -552,7 +559,9 @@ public:
   template <class T> GWorld *createWorld(const std::string &jsonPath_) {
     delete curWorld;
     curWorld = new T;
+
     curWorld->gm.gameIns = this;
+    
     curWorld->loadBaseActors(jsonPath_);
     curWorld->Construct();
     curWorld->beginPlay();

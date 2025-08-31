@@ -73,7 +73,7 @@ public:
   }
   bool isFocused =true;
   void loop(sf::RenderWindow &window, sf::Event &event) {
-
+    
     // 点击时
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::LostFocus) {
@@ -106,7 +106,10 @@ public:
         cbk.function();
       }
     }
-    //线性按键
+    // 线性按键
+    if (!isFocused) {
+      return;
+    }
     int i = 0;
     for (int in : inputLinearV) {
       if (sf::Keyboard::isKeyPressed((sf::Keyboard::Key)in)) {

@@ -193,7 +193,7 @@ public:
   std::set<GActor *> actorsSelected;
   enum { nothing, selected, selecting } state = nothing;
   WorldForEditor() {}
-  void beginPlay() override {
+  void bindInput() {
     getControllerActive()->bind(GController::q, [this]() { saveWorldData(); });
     getControllerActive()->bind(GController::custom, [this]() {
       if (state == selected) {
@@ -308,22 +308,13 @@ public:
         continue;
       }
       if (className == "GStaticActor") {
-        size_t texId = ((GStaticActor *)actor)
-                           ->sprComp->getSprite()
-                           .getTexturePtr()
-                           ->idAndPath.get_hash();
-        std::string path = ((GStaticActor *)actor)
-                               ->sprComp->getSprite()
-                               .getTexturePtr()
-                               ->idAndPath.getStringStd();
-        int index = ((GStaticActor *)actor)->sprComp->getSprite().getCurId();
-        const FVector3 &pos = actor->getPositionWs();
 
+        const FVector3 &pos = actor->getPositionWs();
+        const std::string name = ((GStaticActor *)actor)->infoPtr->name;
         const FVector3 &size = ((GStaticActor *)actor)->sprComp->getSizeWs();
         nlohmann::json j;
-        j["texId"] = texId;
-        j["path"] = path;
-        j["index"] = index;
+
+        j["name"] = name;
         j["position"] = {pos.x, pos.y, pos.z};
         j["sizeWs"] = {size.x, size.y, size.z};
         jsonObj["staticActors"].push_back(j);
@@ -357,9 +348,16 @@ public:
         jsonObj["animActors"].push_back(j);
       }
     }
+    // 地形信息
     std::string landScapeShaderPath =
         landScape.getShader().shader->idAndPath.getStringStd();
     jsonObj["landScapeShader"] = landScapeShaderPath;
+    // gameMode
+    jsonObj["gameMode"]["playerClass"] = gm.player->getGClass().className;
+    jsonObj["gameMode"]["playerPosition"] = {gm.player->getPositionWs().x,
+                                             gm.player->getPositionWs().y,
+                                             gm.player->getPositionWs().z};
+    // 保存
     ofile << jsonObj.dump(4);
   }
 };
@@ -367,9 +365,11 @@ public:
 class EditorWindowWithPanel : public GGame {
 public:
   BigWindow *UI = nullptr;
-  EditorWindowWithPanel() { UI = getUiManager().createBigWindow(L"ui",window.getSystemHandle()); }
+  EditorWindowWithPanel() {
+    UI = getUiManager().createBigWindow(L"ui", window.getSystemHandle());
+  }
   virtual ~EditorWindowWithPanel() {
-    //销毁UI
+    // 销毁UI
   }
 };
 class WorldEditorWindow : public EditorWindowWithPanel {
@@ -377,7 +377,11 @@ public:
   WorldEditorWindow() { init(); }
   void init() {
     setUI();
-    createWorld<WorldForEditor>("res/myWorld.json"); }
+    createWorld<WorldForEditor>("res/myWorld.json");
+    curWorld->setControllerActive(curWorld->getControllerDefault());
+    window.setCameraActive(curWorld->getCameraDefault());
+    ((WorldForEditor *)curWorld)->bindInput();
+  }
 
   void setUI();
   void loop() {
@@ -389,10 +393,10 @@ public:
 
   void runGame() {
     GGame g;
-    GWorld*w=g.createWorld<GWorld>("res/myWorld.json");
-    w->setGameMode("GPlayer");
+    g.createWorld<GWorld>("res/myWorld.json");
     g.loop();
   }
+  // 窗口方法
 };
 
 #endif // WORLDEDITOR_H

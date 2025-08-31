@@ -1,5 +1,6 @@
+#include "base/registeredInfo.h"
 #include <framework.h>
-#include"base/registeredInfo.h"
+
 void GActor::loop(float deltatime, GameWindow &window_) {
   for (GComponent *comp : __allComponents) {
     comp->loop(window_, deltatime);
@@ -87,26 +88,38 @@ void GWorld::loadBaseActors(const std::string &jsonPath_) {
 
   pageWait.loop(gm.gameIns->window, gm.gameIns->event, isDataLoadComplete);
 }
+GStaticActor *GWorld::createStaticActor(const std::string &name_,
+                                        const FVector3 &pos_,
+                                        const FVector3 &sizeWs_) {
+  auto actor = createActor<GStaticActor>(pos_);
+
+  GStaticActor::Info &staticActorInfo = ClassInfo::getStaticActorInfo(name_);
+  actor->infoPtr = &staticActorInfo;
+  actor->construct(GSource::getSource().getObject(staticActorInfo.texPath),
+                   staticActorInfo.texIndex);
+  actor->sprComp->setSizeWs(sizeWs_);
+  return actor;
+}
 void GWorld::asyncLoad(const std::string &jsonPath_) {
   nlohmann::json jsobj;
   std::ifstream ifile(jsonPath_);
   ifile >> jsobj;
   ifile.close();
+  //初始化地图
   gridMap.init(jsobj["mapInfo"]["row"], jsobj["mapInfo"]["column"],
                jsobj["mapInfo"]["width"], jsobj["mapInfo"]["height"]);
-
+  //绑定默认控制器和相机：相机需要地图信息，所以在这里绑定
+   bindDefaultCameraController();
   // staticActor
   for (auto info : jsobj["staticActors"]) {
-    
-    const std::string&name=info["name"];
+
+    const std::string &name = info["name"];
     const std::vector<float> &pos = info["position"].get<std::vector<float>>();
     FVector3 position = {pos[0], pos[1], pos[2]};
     const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
     FVector3 sizeWs = {size[0], size[1], size[2]};
-    auto actor = createActor<GStaticActor>(position);
-    GStaticActor::Info&staticActorInfo=ClassInfo::getStaticActorInfo(name);
-    actor->construct(GSource::getSource().getObject(staticActorInfo.texPath), staticActorInfo.texIndex);
-    actor->sprComp->setSizeWs(sizeWs);
+
+    createStaticActor(name, position, sizeWs);
   }
   // animActor
   for (auto info : jsobj["animActors"]) {
@@ -130,6 +143,13 @@ void GWorld::asyncLoad(const std::string &jsonPath_) {
   landScape.init(gridMap.beginPoint.x, gridMap.beginPoint.y,
                  gridMap.width * gridMap.column, gridMap.height * gridMap.row,
                  "res/shaderInst.json");
+  // gameMode
+
+  setGameMode(jsobj["gameMode"]["playerClass"]);
+  std::vector<float>playerPos=jsobj["gameMode"]["playerPosition"].get<std::vector<float>>();
+  gm.player->setPositionWs({playerPos[0],playerPos[1],playerPos[2]});
+  ////////////////////////////////////////////////////////////////////
+  //解除阻塞
   isDataLoadComplete = true;
 }
 void GWorld::pollActorsActive(GameWindow &window_) {
@@ -148,6 +168,7 @@ void GWorld::pollActorsActive(GameWindow &window_) {
   allRenderObj.resize(0);
 }
 void GWorld::bindDefaultCameraController() {
+  //需要地图先初始化
   cameraDefaultPtr = createActor<GCamera>();
   GCamera &cameraDefault = *cameraDefaultPtr;
   gm.gameIns->window.setCameraActive(cameraDefault.cameraComp);

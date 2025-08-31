@@ -37,16 +37,12 @@
 
 //     return 0;
 // }
-#include "gstring.h"
-#include "stdio.h"
-class actor {
-  struct Data{int a;int b;}data;
 
-public:
-  Data&getData(){return data;}
-  actor(){}};
+#include "stdio.h"
+
 int main() {
-  actor a;
-  auto &x = a.getData();
-  printf("%d",x.a);
+  {
+    printf("test\n");
+    return 0 ;}
+  printf("ok\n");
   return 0;}

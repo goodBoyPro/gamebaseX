@@ -1,4 +1,7 @@
 #include "worldEditor.h"
+static char name[64];
+static float pos[3] = {0};
+static float size[3]={1,1,1};
 void WorldEditorWindow::setUI() {
   MiniWindow *menu = UI->createWindow<WindowMenu>(
       "menus", ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar |
@@ -34,12 +37,13 @@ void WorldEditorWindow::setUI() {
   MiniWindow *win1 = UI->createWindow<PanelNoResize>("window1",0);
   win1->setPosition({10, 30});
   win1->setSize({300, 500});
-  win1->setWindowUi([]() {
-    float c[4]={1,1,1,1};
-    ImGui::InputFloat4("颜色", c, "%.4f", 1);
-    ImVec4 color;
-    ImGui::ColorButton("ys", color);
-    ImGui::ColorEdit4("ys2", c);
+  win1->setWindowUi([&]() {
+    ImGui::InputText("name", name, sizeof name);
+    ImGui::InputFloat3("位置", pos);
+    ImGui::InputFloat3("大小", size);
+    if (ImGui::Button("创建")) {
+      curWorld->createStaticActor(name,{pos[0],pos[1],pos[2]},{size[0],size[1],size[2]});
+    }
   });
   
 };
