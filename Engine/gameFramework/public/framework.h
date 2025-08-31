@@ -552,7 +552,7 @@ class GGame : public GObject {
 public:
   GWorld *curWorld = nullptr;
 
-  sf::Event event;
+  EventBase event;
 
 public:
   GameWindow window;

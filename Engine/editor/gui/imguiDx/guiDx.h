@@ -164,4 +164,5 @@ class PanelNoResize : public MiniWindow {
     }
   }
 };
+
 #endif // GUIDX_H

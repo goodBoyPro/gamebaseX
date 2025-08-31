@@ -1,6 +1,6 @@
 
 #include "guiDx.h"
-
+#include"filesystem"
 // 显式声明ImGui Win32处理函数
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam,
                                                              LPARAM lParam);
@@ -12,10 +12,10 @@ static IDXGIFactory* g_pFactory = nullptr;
 
 // 全局字体列表
 static std::vector<FontInfo> g_fonts = {
-    {"res/font/heiti.ttf", 16.0f, "黑体", nullptr, {}},             // 系统黑体
-    {"C:/Windows/Fonts/simsun.ttc", 16.0f, "宋体", nullptr, {}},    // 系统宋体
-    {"C:/Windows/Fonts/msyh.ttc", 16.0f, "微软雅黑", nullptr, {}},  // 系统微软雅黑
-    {"C:/Windows/Fonts/arial.ttf", 16.0f, "Arial", nullptr, {}}     // 系统Arial
+    {"res/font/heiti.ttf", 16.0f, "黑体", nullptr, {}}           // 系统黑体
+    // {"res/font/heiti.ttf", 16.0f, "宋体", nullptr, {}},    // 系统宋体
+    // {"res/font/heiti.ttf", 16.0f, "微软雅黑", nullptr, {}},  // 系统微软雅黑
+    // {"res/font/heiti.ttf", 16.0f, "Arial", nullptr, {}}     // 系统Arial
 };
 static ImFontAtlas* g_globalFontAtlas = nullptr;
 bool PreloadGlobalFonts() {
@@ -29,11 +29,11 @@ bool PreloadGlobalFonts() {
     // 2. 加载所有字体文件到全局Atlas
     for (auto& font : g_fonts) {
         // 检查文件是否存在
-        // if (!FileExists(font.filePath)) {
-        //     printf("错误：字体文件不存在 %s\n", font.filePath);
-        //     IM_DELETE(g_globalFontAtlas);
-        //     return false;
-        // }
+        if (!std::filesystem::exists(font.filePath)) {
+            printf("错误：字体文件不存在 %s\n", font.filePath);
+            IM_DELETE(g_globalFontAtlas);
+            continue;;
+        }
 
         ImFontConfig config;
         config.MergeMode = false;
@@ -53,7 +53,7 @@ bool PreloadGlobalFonts() {
             printf("警告：无法创建字体 %s\n", font.name);
             IM_DELETE(g_globalFontAtlas);
             g_globalFontAtlas = nullptr;
-            return false;
+            continue;
         }
     }
 
@@ -441,3 +441,8 @@ void UIManager::MainLoop() {
         window->loop();
     }
 }
+//强制初始化d3d环境
+struct UIManagerInitStruct{
+  UIManagerInitStruct(){getUiManager();}
+};
+static UIManagerInitStruct UIManagerInitStructInst;

@@ -208,7 +208,7 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
   //  计时器任务
   timeManager.loop();
   // 渲染
-  window_.clear(sf::Color::Black);
+  window_.clear(ColorBase::Black);
   // 渲染地图
   landScape.draw(window_);
   // actor逻辑
