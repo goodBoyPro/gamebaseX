@@ -11,7 +11,6 @@
 #include <nlohmann_json/json.hpp>
 #include <timeManager.h>
 
-
 // 反射
 #define REGISTER_CLASS(className)                                              \
   class className;                                                             \
@@ -253,9 +252,10 @@ public:
   }
   // 用户最好不要调用，请使用GameWindow中提供的方法
   IVector2 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
-    return {(int)(((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f)),
-            (int)(((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
-                   (PositionInWS.z / pixSize)))};
+    return {
+        (int)(((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f)),
+        (int)(((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
+               (PositionInWS.z / pixSize)))};
   }
   void setWindow(GameWindow *window_) { window = window_; }
   GameWindow *getWindow() { return window; }
@@ -446,29 +446,7 @@ public:
   }
 };
 ////////////////////////////////////////////////////////////////////////////////////////////
-class PageGameWaitSourceLoad {
-public:
-  void loop(GameWindow &window_, EventBase &event_,
-            std::atomic<bool> &isloaded) {
-    while (window_.isOpen()) {
 
-      GSource::getSource();
-      while (window_.pollEvent(event_)) {
-        if (event_.type == sf::Event::Closed) {
-          window_.close();
-        }
-        window_.clear();
-        printText(window_, L"加载中");
-        window_.display();
-      }
-
-      if (isloaded.load()) {
-
-        break;
-      }
-    }
-  }
-};
 ///////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GWorld)
 class GWorld : public GObject {
@@ -494,12 +472,16 @@ private:
   inline static ActorContext actorContext;
 
 public:
+
+  bool isLoadComplete(){return isDataLoadComplete;}
   GCameraObj &getCameraDefault() { return cameraDefault; }
   GController *getControllerDefault() { return &controllerDefault; }
+
+  void useDefaultControllerAndCamera();
   void setControllerActive(GController *controller_) {
     controllerActive = controller_;
   }
-  PageGameWaitSourceLoad pageWait;
+
   friend class GActor;
   friend class GGame;
   GridMap<GActor> &getGridMap() { return gridMap; }
@@ -551,6 +533,15 @@ public:
                                   const FVector3 &pos_ = {0, 0, 0},
                                   const FVector3 &sizeWs_ = {1, 1, 1});
 };
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+class PageGameWaitSourceLoad : public GWorld {
+public:
+  std::function<void()>doSomethingBoforeToWorld=[](){};
+  void loop(GameWindow &window_, EventBase &event_) override;
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(LevelManager)
 class LevelManager : public GObject {
   REGISTER_BODY(LevelManager)
@@ -560,32 +551,42 @@ class GGame : public GObject {
   REGISTER_BODY(GGame)
 public:
   GWorld *curWorld = nullptr;
-
+  GWorld*worldLoading=nullptr;
+  PageGameWaitSourceLoad waitPage;
   EventBase event;
 
 public:
+  void setCameraActive(GCameraObj *camera_) {
+    window.setCameraActive(camera_);
+  };
   GameWindow window;
   template <class T> GWorld *loadWorld(const std::string &jsonPath_) {
-    delete curWorld;
-    curWorld = new T;
+    delete worldLoading;
+    worldLoading=nullptr;
+    curWorld=&waitPage;
+    worldLoading = new T;
 
-    curWorld->gm.gameIns = this;
-
-    curWorld->loadBaseActors(jsonPath_);
-    curWorld->Construct();
-    curWorld->beginPlay();
-    return curWorld;
+    worldLoading->gm.gameIns = this;
+    worldLoading->bindDefaultCameraController();
+    worldLoading->loadBaseActors(jsonPath_);
+    worldLoading->Construct();
+    worldLoading->beginPlay();
+    return worldLoading;
   }
   template <class T>
   GWorld *createWorld(int rows, int colomns, float width, int height) {
-    curWorld = new T;
-    curWorld->gm.gameIns = this;
-    curWorld->getGridMap().init(rows, colomns, width, height);
-    curWorld->bindDefaultCameraController();
-    return curWorld;
+    worldLoading = new T;
+    worldLoading->gm.gameIns = this;
+    worldLoading->bindDefaultCameraController();
+    worldLoading->getGridMap().init(rows, colomns, width, height);
+    worldLoading->bindDefaultCameraController();
+    return worldLoading;
   }
 
   GGame() {
+    curWorld = &waitPage;
+    waitPage.gm.gameIns = this;
+   
     window.create(sf::VideoMode(1600, 900), "Game");
     window.setFramerateLimit(60);
     sf::Image icon;

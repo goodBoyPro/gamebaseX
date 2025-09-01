@@ -374,20 +374,25 @@ public:
 };
 class WorldEditorWindow : public EditorWindowWithPanel {
 public:
-  WorldEditorWindow() { init(); }
+  WorldEditorWindow() {
+    init();
+    // waitPage.doSomethingBoforeToWorld = [&]() {
+    //   worldLoading->setControllerActive(worldLoading->getControllerDefault());
+    //   window.setCameraActive(&(worldLoading->getCameraDefault()));
+    //   ((WorldForEditor *)worldLoading)->bindInput();
+    // };
+    // printf("lambda\n");
+  }
   void init() {
     setUI();
     loadWorld<WorldForEditor>("res/myWorld.json");
-    curWorld->setControllerActive(curWorld->getControllerDefault());
-    window.setCameraActive(&(curWorld->getCameraDefault()));
-    ((WorldForEditor *)curWorld)->bindInput();
   }
 
   void setUI();
   void loop() {
     while (window.isOpen()) {
       curWorld->loop(window, event);
-      // getUiManager().MainLoop();
+      getUiManager().MainLoop();
     }
   }
 

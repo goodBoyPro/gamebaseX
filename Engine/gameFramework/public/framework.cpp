@@ -90,8 +90,6 @@ void GPlayer::beginPlay() {
 void GWorld::loadBaseActors(const std::string &jsonPath_) {
   std::thread th([&]() { asyncLoad(jsonPath_); });
   th.detach();
-
-  pageWait.loop(gm.gameIns->window, gm.gameIns->event, isDataLoadComplete);
 }
 GStaticActor *GWorld::createStaticActor(const std::string &name_,
                                         const FVector3 &pos_,
@@ -113,8 +111,8 @@ void GWorld::asyncLoad(const std::string &jsonPath_) {
   // 初始化地图
   gridMap.init(jsobj["mapInfo"]["row"], jsobj["mapInfo"]["column"],
                jsobj["mapInfo"]["width"], jsobj["mapInfo"]["height"]);
-  // 绑定默认控制器和相机：相机需要地图信息，所以在这里绑定
-  bindDefaultCameraController();
+ 
+
   // staticActor
   for (auto info : jsobj["staticActors"]) {
 
@@ -156,7 +154,8 @@ void GWorld::asyncLoad(const std::string &jsonPath_) {
   gm.player->setPositionWs({playerPos[0], playerPos[1], playerPos[2]});
   ////////////////////////////////////////////////////////////////////
   // 解除阻塞
-  isDataLoadComplete = true;
+  sf::sleep(sf::seconds(3));
+    isDataLoadComplete = true;
 }
 void GWorld::pollActorsActive(GameWindow &window_) {
   int centerId =
@@ -174,9 +173,7 @@ void GWorld::pollActorsActive(GameWindow &window_) {
   allRenderObj.resize(0);
 }
 void GWorld::bindDefaultCameraController() {
-
-  gm.gameIns->window.setCameraActive(&cameraDefault);
-  controllerActive = &controllerDefault;
+useDefaultControllerAndCamera();
   controllerDefault.bind(GController::w, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
                                 FVector3(0, -0.1, 0));
@@ -277,3 +274,22 @@ GActor::GActor() {
   worldPtr = GWorld::actorContext.______worldParamForCreate;
   nodeId = 0;
 };
+void GWorld::useDefaultControllerAndCamera() {
+  gm.gameIns->window.setCameraActive(&cameraDefault);
+  controllerActive=&controllerDefault;
+}
+void PageGameWaitSourceLoad::loop(GameWindow &window_, EventBase &event_) {
+  while (window_.pollEvent(event_)) {
+    if (event_.type == sf::Event::Closed) {
+      window_.close();
+    }
+    window_.clear();
+    printText(window_, L"加载中");
+    window_.display();
+    if (gm.gameIns->worldLoading&&gm.gameIns->worldLoading->isLoadComplete()) {
+      gm.gameIns->curWorld = gm.gameIns->worldLoading;
+      doSomethingBoforeToWorld();
+      
+    }
+  }
+}
