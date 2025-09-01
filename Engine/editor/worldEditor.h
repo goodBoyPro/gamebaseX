@@ -387,7 +387,7 @@ public:
   void loop() {
     while (window.isOpen()) {
       curWorld->loop(window, event);
-      getUiManager().MainLoop();
+      // getUiManager().MainLoop();
     }
   }
 

@@ -174,7 +174,6 @@ void GWorld::pollActorsActive(GameWindow &window_) {
   allRenderObj.resize(0);
 }
 void GWorld::bindDefaultCameraController() {
-  // 需要地图先初始化
 
   gm.gameIns->window.setCameraActive(&cameraDefault);
   controllerActive = &controllerDefault;
