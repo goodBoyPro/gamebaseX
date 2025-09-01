@@ -41,6 +41,7 @@ public:
   }
   virtual T &loadFromPath(const Gstring &path_) {
     printf("error");
+    return defaultObj;
   }
   T &emplace(const std::string &path_) {
     size_t id = Gstring::calculateHash(path_);
