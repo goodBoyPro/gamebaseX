@@ -12,13 +12,13 @@ typedef sf::Texture TextureBase;
 typedef sf::Color ColorBase;
 typedef sf::Clock GameClock;
 class GameWindow : public WindowBase {
-  class GCameraComponent *cameraActive = nullptr;
+  class GCameraObj *cameraActive = nullptr;
 
 public:
-  void setCameraActive(GCameraComponent *cameraComp_) {
+  void setCameraActive(GCameraObj *cameraComp_) {
     cameraActive = cameraComp_;
   }
-  GCameraComponent *getCameraActve() { return cameraActive; }
+  GCameraObj *getCameraActve() { return cameraActive; }
   IVector2 wsToWin(const FVector3 &posWs_);
   FVector3 winToWs(FVector2 posWin_);
   FVector3 getMousePositionWs();

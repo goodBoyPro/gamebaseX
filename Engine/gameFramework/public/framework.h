@@ -221,7 +221,7 @@ public:
 public:
   static void loopAllActorsActive(std::vector<GActor *> allActorsActive_,
                                   float deltatime_,
-                                  class GCameraComponent *camera_,
+                                  class GCameraObj *camera_,
                                   GameWindow &window_) {
     for (GActor *actor : allActorsActive_) {
       actor->loop(deltatime_, window_);
@@ -229,23 +229,26 @@ public:
   }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
-REGISTER_CLASS(GCameraComponent)
-class GCameraComponent : public GSceneComponent {
-  REGISTER_BODY(GCameraComponent)
+REGISTER_CLASS(GCameraObj)
+class GCameraObj : public GObject{
+  REGISTER_BODY(GCameraObj)
 private:
+FVector3 positionWs={0,0,0};
   float pixSize = 0.01;
   FVector3 positionForRender;
 
-  void renderFix() { positionForRender = getPositionWs(); }
+  void renderFix() { positionForRender = positionWs; }
   void drawSpr(GRenderObjComponent *spr_, GameWindow &window_);
   std::vector<sf::Vertex> points;
   GameWindow *window = nullptr;
 
 public:
+FVector3&getPositionWs(){return positionWs;}
+void setPositionWs(const FVector3 &posWs_){positionWs=posWs_;}
   //用户最好不要调用，请使用GameWindow中提供的方法
   IVector2 wsToWin(const FVector3 &PositionInWS, float winW_, float win_H) {
-    return {(int)(((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f)),
-            (int)(((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
+    return {(int)(((PositionInWS.x - positionWs.x) / pixSize + winW_ / 2.f)),
+            (int)(((PositionInWS.y - positionWs.y) / pixSize + win_H / 2.f -
                   (PositionInWS.z / pixSize)))};
   }
   void setWindow(GameWindow *window_) { window = window_; }
@@ -255,9 +258,9 @@ public:
   //用户最好不要调用，请使用GameWindow中提供的方法
   FVector3 winToWs(const FVector2 &posWin_, GameWindow &window_) {
     return {(posWin_.x - window_.getDefaultView().getSize().x / 2) * pixSize +
-                getPositionWs().x,
+                positionWs.x,
             (posWin_.y - window_.getDefaultView().getSize().y / 2) * pixSize +
-                getPositionWs().y,
+                positionWs.y,
             0};
   }
   //用户最好不要调用，请使用GameWindow中提供的方法
@@ -295,18 +298,16 @@ public:
                         GameWindow &window_);
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
-REGISTER_CLASS(GCamera)
-class GCamera : public GActor {
-  REGISTER_BODY(GCamera)
-public:
-  GCameraComponent *cameraComp = nullptr;
-  GCamera() {
-#ifdef EDITOR
-    isEditorObj = true;
-#endif
-    cameraComp = createComponent<GCameraComponent>();
+REGISTER_CLASS(GCameraComponent)
+class GCameraComponent : public GSceneComponent {
+  REGISTER_BODY(GCameraComponent)
+  public:
+  GCameraObj camera;
+  GCameraComponent(){
+    
   }
-};
+  };
+///////////////////////////////////////////////////////////////////////////////////////////
 class GMoveComponent : public GComponent {
   FVector3 moveVector = {0, 0, 0};
   FVector3 target = {0, 0, 0};
@@ -366,6 +367,7 @@ public:
   GPlayer();
   void beginPlay() override;
 };
+///////////////////////////////////////////////////////////////////////////////////////////
 REGISTER_CLASS(GAnimActor)
 class GAnimActor : public GActor {
   REGISTER_BODY(GAnimActor)
@@ -474,7 +476,7 @@ void asyncLoad(const std::string &jsonPath_);
   GridMap<GActor> gridMap;
   friend void GActor::setPositionWs(const FVector3 &posWs_);
   std::vector<GRenderObjComponent *> allRenderObj;
-  GCamera *cameraDefaultPtr;
+  GCameraObj cameraDefault;
   TimeManager timeManager;
   GController controllerDefault;
   GController *controllerActive = nullptr;
@@ -487,11 +489,12 @@ void asyncLoad(const std::string &jsonPath_);
   inline static ActorContext actorContext;
 
 public:
-  GCameraComponent*getCameraDefault(){return cameraDefaultPtr->cameraComp;}
+  GCameraObj&getCameraDefault(){return cameraDefault;}
   GController *getControllerDefault() { return &controllerDefault; }
   void setControllerActive(GController*controller_){controllerActive=controller_;}
   PageGameWaitSourceLoad pageWait;
   friend class GActor;
+  friend class GGame;
   GridMap<GActor> &getGridMap() { return gridMap; }
   void setActorContext() { actorContext.______worldParamForCreate = this; }
 
@@ -500,7 +503,7 @@ public:
   
   // 该函数要访问gameIns，但是gameIns不是在构造函数设置的，如果在构造函数使用此函数，会出错
   GameMode &setGameMode(const std::string &playerClass_);
-  void setCameraActive(GCameraComponent *camera_);
+  void setCameraActive(GCameraObj *camera_);
   template <class T> T *createActor(const FVector3 &position = {0, 0, 0}) {
     setActorContext();
     T *actor = new T();
@@ -522,7 +525,7 @@ public:
   std::vector<GRenderObjComponent *> &getRenderObjComps() {
     return allRenderObj;
   }
-  GCameraComponent *getCameraActive();
+  GCameraObj *getCameraActive();
   GController *getControllerActive() { return controllerActive; }
   TimeManager &getTimeManager() { return timeManager; }
   void loadBaseActors(const std::string &jsonPath_);
@@ -598,7 +601,7 @@ inline GameMode &GWorld::setGameMode(const std::string &playerClass_) {
   
   gm.player = (GPlayer *)createActorByClassName(playerClass_);
   if (gm.gameIns) {
-    gm.gameIns->window.setCameraActive(gm.player->cameraComp);
+    gm.gameIns->window.setCameraActive(&(gm.player->cameraComp->camera));
   } else {
     printf("WARNING:setGameMode()cannot be used in construct\n");
   }

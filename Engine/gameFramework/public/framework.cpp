@@ -26,9 +26,14 @@ void GActor::setPositionWs(const FVector3 &posWs_) {
 };
 ///////////////////////////////////////////////////////////////////////////////////////////
 FVector3 GSceneComponent::getPositionWs() {
-  if (parentComp)
+  if (parentComp) {
     return parentComp->getPositionWs() + positionRelative;
-  return owner->getPositionWs() + positionRelative;
+  }
+  if (owner)
+  {
+    return owner->getPositionWs() + positionRelative;
+  }
+  return {0,0,0};
 }
 void GSceneComponent::setPositionWs(const FVector3 &posWs_) {
   setPositionRelative(posWs_ - owner->getPositionWs());
@@ -62,16 +67,16 @@ GPlayer::GPlayer() {
   });
   controller.bind(GController::mleft, [this]() {
     FVector3 target =
-        cameraComp->getMousePositionWs(getWorld()->gm.gameIns->window);
+        cameraComp->camera.getMousePositionWs(getWorld()->gm.gameIns->window);
     moveComp->setTarget(target);
   });
   controller.bind(GController::kup, [this]() {
-    if (cameraComp->getPixSize() < 0.0001)
+    if (cameraComp->camera.getPixSize() < 0.0001)
       return;
-    cameraComp->setPixSize(cameraComp->getPixSize() - 0.0001);
+    cameraComp->camera.setPixSize(cameraComp->camera.getPixSize() - 0.0001);
   });
   controller.bind(GController::kdown, [this]() {
-    cameraComp->setPixSize(cameraComp->getPixSize() + 0.0001);
+    cameraComp->camera.setPixSize(cameraComp->camera.getPixSize() + 0.0001);
   });
 }
 
@@ -105,11 +110,11 @@ void GWorld::asyncLoad(const std::string &jsonPath_) {
   std::ifstream ifile(jsonPath_);
   ifile >> jsobj;
   ifile.close();
-  //初始化地图
+  // 初始化地图
   gridMap.init(jsobj["mapInfo"]["row"], jsobj["mapInfo"]["column"],
                jsobj["mapInfo"]["width"], jsobj["mapInfo"]["height"]);
-  //绑定默认控制器和相机：相机需要地图信息，所以在这里绑定
-   bindDefaultCameraController();
+  // 绑定默认控制器和相机：相机需要地图信息，所以在这里绑定
+  bindDefaultCameraController();
   // staticActor
   for (auto info : jsobj["staticActors"]) {
 
@@ -146,10 +151,11 @@ void GWorld::asyncLoad(const std::string &jsonPath_) {
   // gameMode
 
   setGameMode(jsobj["gameMode"]["playerClass"]);
-  std::vector<float>playerPos=jsobj["gameMode"]["playerPosition"].get<std::vector<float>>();
-  gm.player->setPositionWs({playerPos[0],playerPos[1],playerPos[2]});
+  std::vector<float> playerPos =
+      jsobj["gameMode"]["playerPosition"].get<std::vector<float>>();
+  gm.player->setPositionWs({playerPos[0], playerPos[1], playerPos[2]});
   ////////////////////////////////////////////////////////////////////
-  //解除阻塞
+  // 解除阻塞
   isDataLoadComplete = true;
 }
 void GWorld::pollActorsActive(GameWindow &window_) {
@@ -168,10 +174,9 @@ void GWorld::pollActorsActive(GameWindow &window_) {
   allRenderObj.resize(0);
 }
 void GWorld::bindDefaultCameraController() {
-  //需要地图先初始化
-  cameraDefaultPtr = createActor<GCamera>();
-  GCamera &cameraDefault = *cameraDefaultPtr;
-  gm.gameIns->window.setCameraActive(cameraDefault.cameraComp);
+  // 需要地图先初始化
+
+  gm.gameIns->window.setCameraActive(&cameraDefault);
   controllerActive = &controllerDefault;
   controllerDefault.bind(GController::w, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
@@ -190,14 +195,13 @@ void GWorld::bindDefaultCameraController() {
                                 FVector3(0.1, 0, 0));
   });
   controllerDefault.bind(GController::kup, [&]() {
-    float x = cameraDefault.cameraComp->getPixSize() - 0.0005;
+    float x = cameraDefault.getPixSize() - 0.0005;
     if (x > 0) {
-      cameraDefault.cameraComp->setPixSize(x);
+      cameraDefault.setPixSize(x);
     }
   });
   controllerDefault.bind(GController::kdown, [&]() {
-    cameraDefault.cameraComp->setPixSize(
-        cameraDefault.cameraComp->getPixSize() + 0.0005);
+    cameraDefault.setPixSize(cameraDefault.getPixSize() + 0.0005);
   });
 }
 void GWorld::loop(GameWindow &window_, EventBase &event_) {
@@ -224,7 +228,7 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
   PRINTDEBUG(L"Actors:%d", gridMap.getActorsNumber());
   window_.display();
 }
-void GCameraComponent::drawSpr(GRenderObjComponent *spr_, GameWindow &window_) {
+void GCameraObj::drawSpr(GRenderObjComponent *spr_, GameWindow &window_) {
   int winW = window_.getDefaultView().getSize().x;
   int winH = window_.getDefaultView().getSize().y;
   const IVector2 &posWin = wsToWin(spr_->getPositionWs(), winW, winH);
@@ -233,8 +237,8 @@ void GCameraComponent::drawSpr(GRenderObjComponent *spr_, GameWindow &window_) {
   spr_->getRenderSpr()->setSizeWin(sizeWin.x, sizeWin.y);
   spr_->getRenderSpr()->drawWin(window_);
 }
-void GCameraComponent::drawAllRenDerObj(
-    std::vector<GRenderObjComponent *> rObjs, GameWindow &window_) {
+void GCameraObj::drawAllRenDerObj(std::vector<GRenderObjComponent *> rObjs,
+                                  GameWindow &window_) {
   renderFix();
   for (GRenderObjComponent *rObj : rObjs) {
     drawSpr(rObj, window_);
@@ -264,10 +268,10 @@ void GWorld::showGridMap(GameWindow &window_) {
 #endif
 }
 
-void GWorld::setCameraActive(GCameraComponent *camera_) {
+void GWorld::setCameraActive(GCameraObj *camera_) {
   gm.gameIns->window.setCameraActive(camera_);
 }
-GCameraComponent *GWorld::getCameraActive() {
+GCameraObj *GWorld::getCameraActive() {
   return gm.gameIns->window.getCameraActve();
 }
 GActor::GActor() {

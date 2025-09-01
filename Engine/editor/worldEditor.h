@@ -379,7 +379,7 @@ public:
     setUI();
     loadWorld<WorldForEditor>("res/myWorld.json");
     curWorld->setControllerActive(curWorld->getControllerDefault());
-    window.setCameraActive(curWorld->getCameraDefault());
+    window.setCameraActive(&(curWorld->getCameraDefault()));
     ((WorldForEditor *)curWorld)->bindInput();
   }
 
