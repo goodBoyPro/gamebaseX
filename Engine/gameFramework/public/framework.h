@@ -571,7 +571,7 @@ public:
     curWorld = new T;
     curWorld->gm.gameIns = this;
     curWorld->getGridMap().init(rows,colomns,width,height);
-    bindDefaultCameraController();
+    curWorld->bindDefaultCameraController();
     return curWorld;
   }
 
