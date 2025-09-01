@@ -377,7 +377,7 @@ public:
   WorldEditorWindow() { init(); }
   void init() {
     setUI();
-    createWorld<WorldForEditor>("res/myWorld.json");
+    loadWorld<WorldForEditor>("res/myWorld.json");
     curWorld->setControllerActive(curWorld->getControllerDefault());
     window.setCameraActive(curWorld->getCameraDefault());
     ((WorldForEditor *)curWorld)->bindInput();
@@ -393,7 +393,7 @@ public:
 
   void runGame() {
     GGame g;
-    g.createWorld<GWorld>("res/myWorld.json");
+    g.loadWorld<GWorld>("res/myWorld.json");
     g.loop();
   }
   // 窗口方法

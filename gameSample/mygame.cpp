@@ -47,7 +47,7 @@ public:
 int main() {
   
   GGame g;
-  GWorld *world = g.createWorld<GWorld>("res/myWorld.json");
+  GWorld *world = g.loadWorld<GWorld>("res/myWorld.json");
   
   
 

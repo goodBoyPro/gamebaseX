@@ -556,7 +556,7 @@ public:
 
 public:
   GameWindow window;
-  template <class T> GWorld *createWorld(const std::string &jsonPath_) {
+  template <class T> GWorld *loadWorld(const std::string &jsonPath_) {
     delete curWorld;
     curWorld = new T;
 
@@ -565,6 +565,13 @@ public:
     curWorld->loadBaseActors(jsonPath_);
     curWorld->Construct();
     curWorld->beginPlay();
+    return curWorld;
+  }
+  template <class T> GWorld *createWorld(int rows,int colomns,float width,int height) {
+    curWorld = new T;
+    curWorld->gm.gameIns = this;
+    curWorld->getGridMap().init(rows,colomns,width,height);
+    bindDefaultCameraController();
     return curWorld;
   }
 
