@@ -423,6 +423,7 @@ class GLandScape : public GSprite {
   float widhtTotal;
   float heightTotal;
   GameShaderInst gameShader;
+  bool*mapBool=nullptr;
 
 public:
   GSprite spr;
