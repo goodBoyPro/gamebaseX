@@ -452,7 +452,7 @@ REGISTER_CLASS(GWorld)
 class GWorld : public GObject {
   REGISTER_BODY(GWorld)
 private:
-  void asyncLoad(const std::string &jsonPath_);
+  void asyncLoad(std::string jsonPath_);
   std::atomic<bool> isDataLoadComplete = false;
   struct ActorsType {};
 

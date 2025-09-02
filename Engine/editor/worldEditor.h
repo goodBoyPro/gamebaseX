@@ -375,14 +375,15 @@ public:
 class WorldEditorWindow : public EditorWindowWithPanel {
 public:
   WorldEditorWindow() {
-    // waitPage.doSomethingBoforeToWorld = [&]() {
-    //   worldLoading->setControllerActive(worldLoading->getControllerDefault());
-    //   window.setCameraActive(&(worldLoading->getCameraDefault()));
-    //   ((WorldForEditor *)worldLoading)->bindInput();
-    // };
+    waitPage.doSomethingBoforeToWorld = [&]() {
+      worldLoading->setControllerActive(worldLoading->getControllerDefault());
+      window.setCameraActive(&(worldLoading->getCameraDefault()));
+      ((WorldForEditor *)worldLoading)->bindInput();
+    };
     setUI();
+    init();
   }
-  //未知bug，在构造函数中调用会导致解析json文件失败
+  
   void init() {
     
     loadWorld<WorldForEditor>("res/myWorld.json");

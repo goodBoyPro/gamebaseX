@@ -82,13 +82,14 @@ GPlayer::GPlayer() {
 
 void GPlayer::beginPlay() {
   sprComp->setTex(
-      GSource::getSource().getObject("res/arr_110110_c_5_5_0.5_1_tree.png"));
-  sprComp->getSprite().setId(10);
-  sprComp->setSizeWs({2, 2, 0});
+      GSource::getSource().getObject("res/base/player.png"));
+  sprComp->getSprite().setId(0);
+  sprComp->getSprite().setCenter(0.5, 1);
+  sprComp->setSizeWs({1, 1, 0});
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 void GWorld::loadBaseActors(const std::string &jsonPath_) {
-  std::thread th([&]() { asyncLoad(jsonPath_); });
+  std::thread th([this,jsonPath_]() { asyncLoad(jsonPath_); });
   th.detach();
 }
 GStaticActor *GWorld::createStaticActor(const std::string &name_,
@@ -103,7 +104,7 @@ GStaticActor *GWorld::createStaticActor(const std::string &name_,
   actor->sprComp->setSizeWs(sizeWs_);
   return actor;
 }
-void GWorld::asyncLoad(const std::string &jsonPath_) {
+void GWorld::asyncLoad(std::string jsonPath_) {
   nlohmann::json jsobj;
   std::ifstream ifile(jsonPath_);
   ifile >> jsobj;
@@ -154,7 +155,6 @@ void GWorld::asyncLoad(const std::string &jsonPath_) {
   gm.player->setPositionWs({playerPos[0], playerPos[1], playerPos[2]});
   ////////////////////////////////////////////////////////////////////
   // 解除阻塞
-  sf::sleep(sf::seconds(3));
     isDataLoadComplete = true;
 }
 void GWorld::pollActorsActive(GameWindow &window_) {
@@ -286,10 +286,10 @@ void PageGameWaitSourceLoad::loop(GameWindow &window_, EventBase &event_) {
     window_.clear();
     printText(window_, L"加载中");
     window_.display();
-    if (gm.gameIns->worldLoading&&gm.gameIns->worldLoading->isLoadComplete()) {
-      gm.gameIns->curWorld = gm.gameIns->worldLoading;
-      doSomethingBoforeToWorld();
-      
-    }
+  }
+  if (gm.gameIns->worldLoading&&gm.gameIns->worldLoading->isLoadComplete()) {
+    gm.gameIns->curWorld = gm.gameIns->worldLoading;
+    doSomethingBoforeToWorld();
+    
   }
 }

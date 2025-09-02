@@ -3,7 +3,7 @@
 #include "worldEditor.h"
 int main() {
   WorldEditorWindow window;
-  window.init();
+ 
   window.loop();
   
   return 0;}
