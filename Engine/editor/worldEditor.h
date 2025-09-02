@@ -374,6 +374,8 @@ public:
 };
 class WorldEditorWindow : public EditorWindowWithPanel {
 public:
+  Gstring worldFilePath;
+public:
   WorldEditorWindow() {
     waitPage.doSomethingBoforeToWorld = [&]() {
       worldLoading->setControllerActive(worldLoading->getControllerDefault());
@@ -381,12 +383,16 @@ public:
       ((WorldForEditor *)worldLoading)->bindInput();
     };
     setUI();
-    init();
+    load("res/myWorld.json");
   }
   
-  void init() {
-    
-    loadWorld<WorldForEditor>("res/myWorld.json");
+  void load(const std::string&jsonPath_) {
+    loadWorld<WorldForEditor>(jsonPath_);
+    worldFilePath=jsonPath_;
+  }
+  void create(const std::string &jsonPath_,int row_,int column_,float width_ , float height_) {
+    createWorld<WorldForEditor>(row_, column_, width_, height_);
+    worldFilePath=jsonPath_;
   }
 
   void setUI();

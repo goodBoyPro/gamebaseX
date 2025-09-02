@@ -538,6 +538,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////
 class PageGameWaitSourceLoad : public GWorld {
 public:
+PageGameWaitSourceLoad(){}
   std::function<void()>doSomethingBoforeToWorld=[](){};
   void loop(GameWindow &window_, EventBase &event_) override;
 };

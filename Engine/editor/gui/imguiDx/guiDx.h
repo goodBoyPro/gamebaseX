@@ -145,8 +145,8 @@ public:
     if (bOpen) {
       if (ImGui::BeginMainMenuBar()) {
         imguiRenderCBK();
-        ImGui::EndMainMenuBar();
       }
+      ImGui::EndMainMenuBar();
     }
   }
 };
@@ -159,8 +159,8 @@ class PanelNoResize : public MiniWindow {
       ImGui::SetNextWindowSize(size);
       if (ImGui::Begin(id.c_str(),nullptr,ImGuiWindowFlags_NoResize)) {
         imguiRenderCBK();
-        ImGui::End();
       }
+      ImGui::End();
     }
   }
 };

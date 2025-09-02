@@ -93,7 +93,7 @@ public:
   float edgeRight;
   float edgeUp;
   float edgeDown;
-  gridmapNode<T> *allNode;
+  gridmapNode<T> *allNode=nullptr;
   //   std::multiset<T *, compare> actorsAlive;
   std::vector<T *> actorsAlive;
 
@@ -226,6 +226,7 @@ public:
     delete[] allNode;
     for (auto elem : badActors)
       delete elem;
+    printf("actors released\n");
   }
 };
 
