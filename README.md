@@ -1,4 +1,6 @@
-# 开发规范
+# 技术规范
+## 注意
+  1. 最小可感知单位：0.01(float)
 ## 1. 命名
  1. 静态图片
    - arr_id_level_row_column_centerX_centerY_name.png

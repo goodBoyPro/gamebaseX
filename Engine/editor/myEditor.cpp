@@ -3,7 +3,8 @@
 #include "worldEditor.h"
 int main() {
   WorldEditorWindow window;
-  getUiManager().createBigWindow(L"win2",window.window.getSystemHandle())->createWindow<MiniWindow>("winxxx");
+  //  window.window2.create(sf::VideoMode(400,400),"window2");
+  // getUiManager().createBigWindow(L"win2",window.window2.getSystemHandle())->createWindow<MiniWindow>("winxxx");
  
   window.loop();
   

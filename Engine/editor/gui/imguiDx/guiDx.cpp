@@ -312,6 +312,7 @@ void CleanupWindowResources(HWND hWnd, ImGuiContext* ctx, WindowPrivateData* dat
         ImGui::SetCurrentContext(ctx);
         ImGui_ImplDX11_Shutdown();
         ImGui_ImplWin32_Shutdown();
+        ImGui::GetIO().Fonts=nullptr;
         ImGui::DestroyContext(ctx);
     }
 

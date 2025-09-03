@@ -395,11 +395,16 @@ public:
     worldFilePath=jsonPath_;
   }
 
+
   void setUI();
   void loop() {
+   
     while (window.isOpen()) {
       curWorld->loop(window, event);
+
+      
       getUiManager().MainLoop();
+      
     }
   }
 
