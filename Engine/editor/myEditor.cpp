@@ -3,6 +3,7 @@
 #include "worldEditor.h"
 int main() {
   WorldEditorWindow window;
+  getUiManager().createBigWindow(L"win2",window.window.getSystemHandle())->createWindow<MiniWindow>("winxxx");
  
   window.loop();
   
