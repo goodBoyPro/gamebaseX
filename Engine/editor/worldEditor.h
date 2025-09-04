@@ -385,7 +385,7 @@ public:
     setUI();
     load("res/myWorld.json");
   }
-  
+  WindowBase window2;
   void load(const std::string&jsonPath_) {
     loadWorld<WorldForEditor>(jsonPath_);
     worldFilePath=jsonPath_;
@@ -402,9 +402,8 @@ public:
     while (window.isOpen()) {
       curWorld->loop(window, event);
 
-      
+
       getUiManager().MainLoop();
-      
     }
   }
 

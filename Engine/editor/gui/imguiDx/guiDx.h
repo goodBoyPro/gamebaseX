@@ -147,6 +147,7 @@ public:
         imguiRenderCBK();
       }
       ImGui::EndMainMenuBar();
+     
     }
   }
 };
@@ -161,6 +162,32 @@ class PanelNoResize : public MiniWindow {
         imguiRenderCBK();
       }
       ImGui::End();
+    }
+  }
+};
+class PopUpWindow : public MiniWindow {
+public:
+  PopUpWindow(const std::string &id, int state) : MiniWindow(id, state) {}
+  bool bPop = false;
+  void open() {bPop=true;}
+  void close(){bPop=false;}
+  void loop() override {
+    if (bPop) {
+      ImGui::OpenPopup(id.c_str());
+      if (ImGui::BeginPopupModal(id.c_str())) {
+        imguiRenderCBK();
+        ImGui::EndPopup();      
+      }
+     
+    }
+  }
+};
+class CustomWindow : public MiniWindow {
+public:
+  CustomWindow(const std::string &id, int state) : MiniWindow(id, state) {}
+  void loop() override {
+    if (bOpen) {
+      imguiRenderCBK();
     }
   }
 };

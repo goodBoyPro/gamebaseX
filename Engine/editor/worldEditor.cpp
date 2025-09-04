@@ -1,12 +1,24 @@
 #include "worldEditor.h"
 static char name[64];
 static float pos[3] = {0};
-static float size[3]={1,1,1};
+static float size[3] = {1, 1, 1};
+PopUpWindow *windowPop;
 void WorldEditorWindow::setUI() {
+  windowPop =
+      (PopUpWindow *)(UI->createWindow<PopUpWindow>("popwindow"));
+  windowPop->setWindowUi([&]() {
+    if (ImGui::Button("确定")) {
+      windowPop->close();
+    }
+    
+    if (ImGui::Button("取消")) {
+      windowPop->close();
+    }
+  });
   MiniWindow *menu = UI->createWindow<WindowMenu>(
-      "menus", ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar |
-                   ImGuiWindowFlags_NoResize);
+      "menus");
   menu->setWindowUi([&]() {
+   
     if (ImGui::BeginMenu("文件")) {
       if (ImGui::MenuItem("打开")) {
       }
@@ -14,8 +26,18 @@ void WorldEditorWindow::setUI() {
       }
       if (ImGui::MenuItem("另存为")) {
       }
+      if (ImGui::MenuItem("加载地图")) {
+      }
+      if (ImGui::MenuItem("新建地图")) {
+       
+        windowPop->open();
+        printf("newMap");
+      }
+      
       ImGui::EndMenu();
     }
+   
+    
     if (ImGui::BeginMenu("编辑")) {
       if (ImGui::MenuItem("后退")) {
       }
@@ -44,6 +66,8 @@ void WorldEditorWindow::setUI() {
     if (ImGui::Button("创建")) {
       curWorld->createStaticActor(name,{pos[0],pos[1],pos[2]},{size[0],size[1],size[2]});
     }
+   
+  
   });
   
 };
