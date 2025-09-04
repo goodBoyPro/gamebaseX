@@ -146,7 +146,7 @@ void GWorld::asyncLoad(std::string jsonPath_) {
       jsobj["landScapeShader"].get<std::string>();
   landScape.init(gridMap.beginPoint.x, gridMap.beginPoint.y,
                  gridMap.width * gridMap.column, gridMap.height * gridMap.row,
-                 "res/shaderInst.json");
+                 shaderInstPath);
   // gameMode
 
   setGameMode(jsobj["gameMode"]["playerClass"]);

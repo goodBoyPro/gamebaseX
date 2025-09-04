@@ -98,6 +98,14 @@ public:
   std::vector<T *> actorsAlive;
 
 public:
+  std::vector<float> getMapBeginPosAndTotalSize() {
+    std::vector<float> ret;
+    ret.push_back(beginPoint.x);
+    ret.push_back(beginPoint.y);
+    ret.push_back(width * column);
+    ret.push_back(height * row);
+    return ret;
+  }
   GridMap() {}
   GridMap(int row_, int column_, float height_, float width_) {
     init(row_, column_, height_, width_);

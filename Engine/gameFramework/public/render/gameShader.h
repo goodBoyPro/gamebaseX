@@ -37,20 +37,24 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 inline sf::Texture tesTest;
-class GameShaderInst {
+class GMaterial {
+
 public:
+Gstring idAndPath;
   ShaderFrag *shader = nullptr;
   std::map<std::string, float> properties;
   std::map<std::string, std::vector<float>> vec4Properties;
   std::map<std::string, std::string> textures;
-  GameShaderInst() {}
-  GameShaderInst(const std::string &shaderInstJson_) { init(shaderInstJson_); }
-  virtual ~GameShaderInst() {}
-  virtual void init(const std::string &shaderInstJson_) {
-    // shader = &(GResourceShader::defaultShader);///////////////////////////////////////////////需修复
+  GMaterial() {}
+  GMaterial(const std::string &matJson_) { init(matJson_); }
+  virtual ~GMaterial() {}
+  virtual void init(const std::string &matInstJson_) {
+    // shader =
+    // &(GResourceShader::defaultShader);///////////////////////////////////////////////需修复
+    idAndPath=matInstJson_;
     nlohmann::json jsObj;
     std::ifstream ifile;
-    ifile.open(shaderInstJson_);
+    ifile.open(matInstJson_);
     ifile >> jsObj;
     ifile.close();
     ///////////////////////////////////////////////////////////读取
@@ -85,6 +89,7 @@ public:
     }
   }
   void draw(GSprite &spr_, GameWindow &window_) {
+    if(!shader){return;}
     shader->getShader()->setUniform(
         "time", GameStatics::getGameClcok().getElapsedTime().asSeconds());
     window_.draw(spr_.getSpriteBase(), shader->getShader());
@@ -92,9 +97,11 @@ public:
     window_.draw(shape, shader->getShader());
   }
   void setValueScalarByname(const std::string &name_, float value_) {
+    if(!shader)return;
     shader->getShader()->setUniform(name_, value_);
   }
   void setValueVectorByname(const std::string &name_, const FVector4 &vec4_) {
+    if(!shader)return;
     shader->getShader()->setUniform(name_, vec4_);
   }
 };

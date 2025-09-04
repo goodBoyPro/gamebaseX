@@ -194,7 +194,7 @@ public:
   enum { nothing, selected, selecting } state = nothing;
   WorldForEditor() {}
   void bindInput() {
-    getControllerActive()->bind(GController::q, [this]() { saveWorldData(); });
+    
     getControllerActive()->bind(GController::custom, [this]() {
       if (state == selected) {
         axis.selected = true;
@@ -290,9 +290,9 @@ public:
 
     window_.display();
   }
-  void saveWorldData() {
+  void saveWorldData(const std::string&path_) {
     std::ofstream ofile;
-    ofile.open("res/myWorld.json");
+    ofile.open(path_);
     nlohmann::json jsonObj;
     const std::vector<GActor *> &all = getGridMap().getAllActors();
 
@@ -350,13 +350,19 @@ public:
     }
     // 地形信息
     std::string landScapeShaderPath =
-        landScape.getShader().shader->idAndPath.getStringStd();
+        landScape.getMaterial().idAndPath.getStringStd();
     jsonObj["landScapeShader"] = landScapeShaderPath;
     // gameMode
+    if (gm.player) {
     jsonObj["gameMode"]["playerClass"] = gm.player->getGClass().className;
     jsonObj["gameMode"]["playerPosition"] = {gm.player->getPositionWs().x,
                                              gm.player->getPositionWs().y,
                                              gm.player->getPositionWs().z};
+    } else {
+      jsonObj["gameMode"]["playerClass"] = "GPlayer";
+    jsonObj["gameMode"]["playerPosition"] = {0,0,0};
+    }
+    
     // 保存
     ofile << jsonObj.dump(4);
   }
@@ -383,16 +389,17 @@ public:
       ((WorldForEditor *)worldLoading)->bindInput();
     };
     setUI();
-    load("res/myWorld.json");
   }
   WindowBase window2;
   void load(const std::string&jsonPath_) {
     loadWorld<WorldForEditor>(jsonPath_);
     worldFilePath=jsonPath_;
   }
-  void create(const std::string &jsonPath_,int row_,int column_,float width_ , float height_) {
-    createWorld<WorldForEditor>(row_, column_, width_, height_);
-    worldFilePath=jsonPath_;
+  void create(const std::string &jsonPath_,int row_,int column_,float width_ , float height_,const std::string&matJson_) {
+    createWorld<WorldForEditor>(row_, column_, width_, height_, matJson_);
+   
+    worldFilePath = jsonPath_;
+    waitPage.doSomethingBoforeToWorld();
   }
 
 
@@ -406,13 +413,16 @@ public:
       getUiManager().MainLoop();
     }
   }
-
+  void save() {
+   ( (WorldForEditor*)curWorld)->saveWorldData(worldFilePath.getStringStd());
+  }
   void runGame() {
     GGame g;
-    g.loadWorld<GWorld>("res/myWorld.json");
+    g.loadWorld<GWorld>(worldFilePath.getStringStd());
     g.loop();
   }
   // 窗口方法
+  
 };
 
 #endif // WORLDEDITOR_H

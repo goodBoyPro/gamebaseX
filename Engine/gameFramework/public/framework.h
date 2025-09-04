@@ -422,12 +422,12 @@ class GLandScape : public GSprite {
   float beginY;
   float widhtTotal;
   float heightTotal;
-  GameShaderInst gameShader;
+  GMaterial landMaterial;
   bool*mapBool=nullptr;
 
 public:
   GSprite spr;
-  GameShaderInst &getShader() { return gameShader; }
+  GMaterial &getMaterial() { return landMaterial; }
   void init(float beginX_, float beginY_, float widthTotal_, float heightTotal_,
             const std::string &shaderInstPath_) {
     beginX = beginX_;
@@ -435,7 +435,7 @@ public:
     widhtTotal = widthTotal_;
     heightTotal = heightTotal_;
     spr.init(GSource::getSource().getObject("res/base/texture/pix1.png"));
-    gameShader.init(shaderInstPath_);
+    landMaterial.init(shaderInstPath_);
   }
 
   void draw(GameWindow &window_) {
@@ -443,7 +443,7 @@ public:
     const IVector2 &winpos = window_.wsToWin({beginX, beginY, 0});
     spr.setPositionWin(winpos.x, winpos.y);
     spr.setSizeWin(widhtTotal / pixSize, heightTotal / pixSize);
-    gameShader.draw(spr, window_);
+    landMaterial.draw(spr, window_);
   }
 };
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -576,12 +576,17 @@ public:
     return worldLoading;
   }
   template <class T>
-  GWorld *createWorld(int rows, int colomns, float width, int height) {
+  GWorld *createWorld(int rows, int colomns, float width, int height,const std::string matJson_) {
     worldLoading = new T;
     worldLoading->gm.gameIns = this;
     worldLoading->bindDefaultCameraController();
     worldLoading->getGridMap().init(rows, colomns, width, height);
+
     worldLoading->bindDefaultCameraController();
+    const std::vector<float>mapbs= worldLoading->getGridMap().getMapBeginPosAndTotalSize();
+    worldLoading->landScape.init(mapbs[0], mapbs[1], mapbs[2], mapbs[3],
+                                 matJson_);
+    curWorld=worldLoading;
     return worldLoading;
   }
 
