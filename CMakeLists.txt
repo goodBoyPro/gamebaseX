@@ -68,8 +68,9 @@ target_compile_definitions(${exeName} PRIVATE -DEDITOR)
 set(exeName mainTest)
 file(GLOB_RECURSE src 
     ${ABS_DIR}/cpptest/*.cpp
+    ${ABS_DIR}/Engine/editor/gui/imguiDx/imguiLib/*.cpp
     )
 add_executable(${exeName}  ${src})
 set_target_properties(${exeName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ABS_DIR}/output/bin)
 target_link_directories(${exeName} PRIVATE ${ABS_DIR}/Engine/ExternLibrary/SFML/lib)
-target_link_libraries(${exeName} opengl32 sfml-graphics sfml-window sfml-system sfml-audio  winmm)
+target_link_libraries(${exeName} opengl32 sfml-graphics sfml-window sfml-system sfml-audio  winmm d3d11 dwmapi d3dcompiler) 
