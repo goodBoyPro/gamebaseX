@@ -116,7 +116,7 @@ public:
     column = nextPowerOfTwo(column_);
     height = height_;
     width = width_;
-    beginPoint = {-row / 2.f * height, -column / 2.f * width};
+    beginPoint = { -column / 2.f * width,-row / 2.f * height,};
     printf("beginPoint:%f,%f\n", beginPoint.x, beginPoint.y);
 
     gridmapNode<T>::gridmapNodeWidth = width_;

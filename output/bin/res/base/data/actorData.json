@@ -1,41 +1,39 @@
 {
-    "staticActors":[
+    "staticActors": [
         {
-            "name":"tree1",
-            "id":1,
-            "texId":2125843542878897406,
-            "texPath":"res/arr_110110_c_5_5_0.5_1_tree.png",
-            "texIndex":11
+            "id": 1,
+            "name": "tree1",
+            "texId": 2125843542878897406,
+            "texIndex": 11,
+            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
         },
         {
-            "name":"tree2",
-            "id":15,
-            "texId":2125843542878897406,
-            "texPath":"res/arr_110110_c_5_5_0.5_1_tree.png",
-            "texIndex":11
+            "id": 15,
+            "name": "tree2",
+            "texId": 2125843542878897406,
+            "texIndex": 11,
+            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
         },
         {
-            "name":"tree3",
-            "id":15,
-            "texId":2125843542878897406,
-            "texPath":"res/arr_110110_c_5_5_0.5_1_tree.png",
-            "texIndex":14
+            "id": 15,
+            "name": "tree3",
+            "texId": 2125843542878897406,
+            "texIndex": 14,
+            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
         },
         {
-            "name":"tree4",
-            "id":15,
-            "texId":2125843542878897406,
-            "texPath":"res/arr_110110_c_5_5_0.5_1_tree.png",
-            "texIndex":16
+            "id": 15,
+            "name": "tree4",
+            "texId": 2125843542878897406,
+            "texIndex": 16,
+            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
+        },
+        {
+            "id": 2775392462885874752,
+            "name": "treeA",
+            "texId": 2125843542878897406,
+            "texIndex": 1,
+            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
         }
-    ],
-    "animActors":{
-        "name":1,
-        "texId":1,
-        "texPath":"",
-        "beginIndex": 1,
-        "endIndex":1,
-        "frameSpeed":1
-
-    }
+    ]
 }

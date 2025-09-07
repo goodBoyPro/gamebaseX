@@ -160,6 +160,7 @@ void GWorld::asyncLoad(std::string jsonPath_) {
 void GWorld::pollActorsActive(GameWindow &window_) {
   int centerId =
       gridMap.getPositionIndex(window_.getCameraActve()->getPositionWs());
+  if(centerId==-1)return;
   gridMap.setActorsAlive(centerId);
   for (GActor *actor : gridMap.actorsAlive) {
     actor->loop(deltaTime, window_);
@@ -245,9 +246,11 @@ void GWorld::tick() {
 };
 void GWorld::showGridMap(GameWindow &window_) {
 #ifdef EDITOR
+  int id = gridMap.getPositionIndex(
+      gm.gameIns->window.getCameraActve()->getPositionWs());
+  if(id==-1)return;
   FVector2 p = gridMap
-                   .allNode[gridMap.getPositionIndex(
-                       gm.gameIns->window.getCameraActve()->getPositionWs())]
+                   .allNode[id]
                    .point;
   FVector3 p1 = {p.x, p.y, 0};
   FVector3 p2 = {p.x + gridmapNode<GActor>::gridmapNodeWidth, p.y, 0};

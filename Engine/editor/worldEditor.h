@@ -1,7 +1,7 @@
-
 #ifndef WORLDEDITOR_H
 #define WORLDEDITOR_H
 
+#include "base/registeredInfo.h"
 #include "framework.h"
 #include "gui/imguiDx/guiDx.h"
 #include "render/sprite.h"
@@ -194,7 +194,7 @@ public:
   enum { nothing, selected, selecting } state = nothing;
   WorldForEditor() {}
   void bindInput() {
-    
+
     getControllerActive()->bind(GController::custom, [this]() {
       if (state == selected) {
         axis.selected = true;
@@ -290,7 +290,7 @@ public:
 
     window_.display();
   }
-  void saveWorldData(const std::string&path_) {
+  void saveWorldData(const std::string &path_) {
     std::ofstream ofile;
     ofile.open(path_);
     nlohmann::json jsonObj;
@@ -354,15 +354,15 @@ public:
     jsonObj["landScapeShader"] = landScapeShaderPath;
     // gameMode
     if (gm.player) {
-    jsonObj["gameMode"]["playerClass"] = gm.player->getGClass().className;
-    jsonObj["gameMode"]["playerPosition"] = {gm.player->getPositionWs().x,
-                                             gm.player->getPositionWs().y,
-                                             gm.player->getPositionWs().z};
+      jsonObj["gameMode"]["playerClass"] = gm.player->getGClass().className;
+      jsonObj["gameMode"]["playerPosition"] = {gm.player->getPositionWs().x,
+                                               gm.player->getPositionWs().y,
+                                               gm.player->getPositionWs().z};
     } else {
       jsonObj["gameMode"]["playerClass"] = "GPlayer";
-    jsonObj["gameMode"]["playerPosition"] = {0,0,0};
+      jsonObj["gameMode"]["playerPosition"] = {0, 0, 0};
     }
-    
+
     // 保存
     ofile << jsonObj.dump(4);
   }
@@ -370,19 +370,26 @@ public:
 
 class EditorWindowWithPanel : public GGame {
 public:
+  inline static std::vector<EditorWindowWithPanel *> allEditorWindow;
   BigWindow *UI = nullptr;
   EditorWindowWithPanel() {
-    UI = getUiManager().createBigWindow(L"ui", window.getSystemHandle());
+    window.close();
+    window.create(sf::VideoMode(800, 600), "", sf::Style::None);
+    UI = getUiManager().createBigWindow(L"ui");
+    UI->addOtherWindow(window.getSystemHandle());
   }
-  virtual ~EditorWindowWithPanel() {
-    // 销毁UI
-  }
+  virtual void loop() {}
+  virtual ~EditorWindowWithPanel() { window.close(); }
 };
 class WorldEditorWindow : public EditorWindowWithPanel {
 public:
   Gstring worldFilePath;
+  std::string jsonTemp = "temp/mapTemp.json";
+
 public:
   WorldEditorWindow() {
+    createFolderIfNotExist("temp");
+    UI->isMainWindow = true;
     waitPage.doSomethingBoforeToWorld = [&]() {
       worldLoading->setControllerActive(worldLoading->getControllerDefault());
       window.setCameraActive(&(worldLoading->getCameraDefault()));
@@ -391,38 +398,92 @@ public:
     setUI();
   }
   WindowBase window2;
-  void load(const std::string&jsonPath_) {
+  void load(const std::string &jsonPath_) {
     loadWorld<WorldForEditor>(jsonPath_);
-    worldFilePath=jsonPath_;
-  }
-  void create(const std::string &jsonPath_,int row_,int column_,float width_ , float height_,const std::string&matJson_) {
-    createWorld<WorldForEditor>(row_, column_, width_, height_, matJson_);
-   
     worldFilePath = jsonPath_;
+  }
+  void create(int row_, int column_, float width_, float height_,
+              const std::string &matJson_) {
+    createWorld<WorldForEditor>(row_, column_, width_, height_, matJson_);
+    std::ofstream ofile(jsonTemp);
+    ofile.close();
     waitPage.doSomethingBoforeToWorld();
   }
 
-
   void setUI();
-  void loop() {
-   
-    while (window.isOpen()) {
-      curWorld->loop(window, event);
-
-
-      getUiManager().MainLoop();
-    }
-  }
+  void loop() override;
   void save() {
-   ( (WorldForEditor*)curWorld)->saveWorldData(worldFilePath.getStringStd());
+    if (worldFilePath.getStringStd() != "") {
+      ((WorldForEditor *)curWorld)->saveWorldData(worldFilePath.getStringStd());
+    }
+    ClassInfo::saveAllInfo();
   }
   void runGame() {
-    GGame g;
-    g.loadWorld<GWorld>(worldFilePath.getStringStd());
-    g.loop();
+    ((WorldForEditor *)curWorld)->saveWorldData(jsonTemp);
+    std::thread th([this]() {
+      GGame g;
+      g.loadWorld<GWorld>(jsonTemp);
+      g.loop();
+    });
+    th.detach();
   }
   // 窗口方法
-  
 };
 
+class EditorProgram {
+private:
+  friend EditorProgram &getEditorProgram();
+
+  EditorProgram() { createEditorPanel<WorldEditorWindow>(); }
+  inline static EditorProgram &getEditorProgramP() {
+    static EditorProgram ret;
+    return ret;
+  }
+
+public:
+  ~EditorProgram() {
+    for (auto w : EditorWindowWithPanel::allEditorWindow) {
+      delete w;
+    }
+  }
+  template <class T> EditorWindowWithPanel *createEditorPanel() {
+    T *ret = new T;
+    EditorWindowWithPanel::allEditorWindow.push_back(ret);
+    return ret;
+  }
+  std::string projectPath;
+  bool isRun = true;
+  void mainLoop() {
+    MSG msg;
+    while (isRun) {
+      while (PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+        if (msg.message == WM_QUIT)
+          isRun = false;
+      }
+      //////////////////////////////////////////////////////////////渲染
+      // for (auto w : EditorWindowWithPanel::allEditorWindow) {
+      //   w->loop();
+      // }
+      auto it = std::remove_if(EditorWindowWithPanel::allEditorWindow.begin(),
+                               EditorWindowWithPanel::allEditorWindow.end(),
+                               [&](EditorWindowWithPanel *p) {
+                                 if (!(p->UI->bValid)) {
+                                   delete p;
+                                   return true;
+                                 } else {
+                                   p->loop();
+                                   return false;
+                                 }
+                               });
+      EditorWindowWithPanel::allEditorWindow.erase(
+          it, EditorWindowWithPanel::allEditorWindow.end());
+      getUiManager().MainLoop();
+    }
+  };
+};
+inline EditorProgram &getEditorProgram() {
+  return EditorProgram::getEditorProgramP();
+}
 #endif // WORLDEDITOR_H

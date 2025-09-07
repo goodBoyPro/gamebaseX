@@ -77,14 +77,25 @@ public:
   }
 };
 class BigWindow {
+  
   HWND hWnd = nullptr;
   HWND parentHwnd = nullptr;
+  HWND otherHwnd=nullptr;
   ImGuiContext *ctx = nullptr;
   WindowPrivateData *data = nullptr;
   ImColor clearColor = {0, 0, 0, 0};
 
 public:
+  bool isMainWindow = false;
+  bool bValid=true;
+  bool brun=true;
+  HWND hwndMainWindow=nullptr;
   friend class UIManager;
+  void addOtherWindow(HWND other_) {
+    otherHwnd=other_;
+    SetParent(other_, hwndMainWindow);
+    SetWindowPos(other_, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+  }
   void setParentWindow(HWND parent_) {
     parentHwnd = parent_;
     SetLayeredWindowAttributes(hWnd, ImColor(0, 0, 0), NULL, LWA_COLORKEY);
@@ -98,8 +109,28 @@ public:
       MoveWindow(hWnd, 0, 0, rect.right, rect.bottom, true);
     }
   }
+  void matchOther() {
+    if (!otherHwnd)
+      return;
+      ImGuiStyle& style = ImGui::GetStyle();
+      ImVec2 originalPadding = style.WindowPadding;
+      float originalBorderSize = style.WindowBorderSize;
+      
+      // 临时移除内边距和边框
+      style.WindowPadding = ImVec2(0, 0);
+      style.WindowBorderSize = 0.0f;
+    ImGui::SetNextWindowBgAlpha(0);
+    
+    ImGui::Begin("地图视口",nullptr,ImGuiWindowFlags_NoScrollbar);
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    ImVec2 size = ImGui::GetContentRegionAvail();
+    MoveWindow(otherHwnd, pos.x,pos.y,size.x,size.y, true);
+    ImGui::End();
+    style.WindowPadding = originalPadding;
+    style.WindowBorderSize = originalBorderSize;
+  }
   void loop();
-  BigWindow() {}
+  BigWindow();
   ~BigWindow();
 
 public:
@@ -113,7 +144,8 @@ class UIManager {
   std::vector<BigWindow *> allWindows;
 
 public:
-  BigWindow *createBigWindow(const wchar_t *windowName, HWND parent_ = nullptr);
+  
+  BigWindow *createBigWindow(const wchar_t *windowName,bool isMainWindow_=false);
   void MainLoop();
   static UIManager &getUI() {
     static UIManager ret;

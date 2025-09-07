@@ -423,19 +423,22 @@ class GLandScape : public GSprite {
   float widhtTotal;
   float heightTotal;
   GMaterial landMaterial;
-  bool*mapBool=nullptr;
+  bool *mapBool = nullptr;
 
 public:
   GSprite spr;
   GMaterial &getMaterial() { return landMaterial; }
   void init(float beginX_, float beginY_, float widthTotal_, float heightTotal_,
-            const std::string &shaderInstPath_) {
+            const std::string &matPath_) {
     beginX = beginX_;
     beginY = beginY_;
     widhtTotal = widthTotal_;
     heightTotal = heightTotal_;
     spr.init(GSource::getSource().getObject("res/base/texture/pix1.png"));
-    landMaterial.init(shaderInstPath_);
+    if (matPath_ == "") {
+    } else {
+      landMaterial.init(matPath_);
+    }
   }
 
   void draw(GameWindow &window_) {
@@ -473,8 +476,7 @@ private:
   inline static ActorContext actorContext;
 
 public:
-
-  bool isLoadComplete(){return isDataLoadComplete;}
+  bool isLoadComplete() { return isDataLoadComplete; }
   GCameraObj &getCameraDefault() { return cameraDefault; }
   GController *getControllerDefault() { return &controllerDefault; }
 
@@ -538,8 +540,8 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////////////////
 class PageGameWaitSourceLoad : public GWorld {
 public:
-PageGameWaitSourceLoad(){}
-  std::function<void()>doSomethingBoforeToWorld=[](){};
+  PageGameWaitSourceLoad() { getGridMap().init(1, 1, 1000, 1000); }
+  std::function<void()> doSomethingBoforeToWorld = []() {};
   void loop(GameWindow &window_, EventBase &event_) override;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -553,7 +555,7 @@ class GGame : public GObject {
   REGISTER_BODY(GGame)
 public:
   GWorld *curWorld = nullptr;
-  GWorld*worldLoading=nullptr;
+  GWorld *worldLoading = nullptr;
   PageGameWaitSourceLoad waitPage;
   EventBase event;
 
@@ -564,8 +566,8 @@ public:
   GameWindow window;
   template <class T> GWorld *loadWorld(const std::string &jsonPath_) {
     delete worldLoading;
-    worldLoading=nullptr;
-    curWorld=&waitPage;
+    worldLoading = nullptr;
+    curWorld = &waitPage;
     worldLoading = new T;
 
     worldLoading->gm.gameIns = this;
@@ -576,24 +578,26 @@ public:
     return worldLoading;
   }
   template <class T>
-  GWorld *createWorld(int rows, int colomns, float width, int height,const std::string matJson_) {
+  GWorld *createWorld(int rows, int colomns, float width, int height,
+                      const std::string matJson_) {
     worldLoading = new T;
     worldLoading->gm.gameIns = this;
     worldLoading->bindDefaultCameraController();
     worldLoading->getGridMap().init(rows, colomns, width, height);
 
     worldLoading->bindDefaultCameraController();
-    const std::vector<float>mapbs= worldLoading->getGridMap().getMapBeginPosAndTotalSize();
+    const std::vector<float> mapbs =
+        worldLoading->getGridMap().getMapBeginPosAndTotalSize();
     worldLoading->landScape.init(mapbs[0], mapbs[1], mapbs[2], mapbs[3],
                                  matJson_);
-    curWorld=worldLoading;
+    curWorld = worldLoading;
     return worldLoading;
   }
 
   GGame() {
     curWorld = &waitPage;
     waitPage.gm.gameIns = this;
-   
+
     window.create(sf::VideoMode(1600, 900), "Game");
     window.setFramerateLimit(60);
     sf::Image icon;

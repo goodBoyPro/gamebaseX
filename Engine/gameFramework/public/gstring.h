@@ -5,7 +5,7 @@
 
 class Gstring {
 private:
-  std::string str;
+  std::string str="";
   size_t hash = 0;
 
 public:
