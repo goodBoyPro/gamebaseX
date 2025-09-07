@@ -111,7 +111,7 @@ public:
   }
   void matchOther() {
     if (!otherHwnd)
-      return;
+      {return;}
       ImGuiStyle& style = ImGui::GetStyle();
       ImVec2 originalPadding = style.WindowPadding;
       float originalBorderSize = style.WindowBorderSize;

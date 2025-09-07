@@ -5,6 +5,7 @@
 #include "nlohmann_json/json.hpp"
 #include "sprite.h"
 #include <fstream>
+
 class ShaderFrag : public GSourceObj {
   sf::Shader shader;
 
@@ -36,22 +37,27 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-inline sf::Texture tesTest;
 class GMaterial {
 
 public:
-Gstring idAndPath;
+  struct FloatProperty {
+    float value = 1;
+    float max = 1;
+    float min = 0;
+  };
+  Gstring idAndPath;
   ShaderFrag *shader = nullptr;
-  std::map<std::string, float> properties;
+  std::map<std::string, FloatProperty> properties;
   std::map<std::string, std::vector<float>> vec4Properties;
   std::map<std::string, std::string> textures;
   GMaterial() {}
   GMaterial(const std::string &matJson_) { init(matJson_); }
+  void reLoadMat(){init(idAndPath.getStringStd());}
   virtual ~GMaterial() {}
   virtual void init(const std::string &matInstJson_) {
     // shader =
     // &(GResourceShader::defaultShader);///////////////////////////////////////////////需修复
-    idAndPath=matInstJson_;
+    idAndPath = matInstJson_;
     nlohmann::json jsObj;
     std::ifstream ifile;
     ifile.open(matInstJson_);
@@ -59,8 +65,15 @@ Gstring idAndPath;
     ifile.close();
     ///////////////////////////////////////////////////////////读取
     const std::string &fragPath = jsObj["fragPath"];
-    for (auto &property : jsObj["properties"].items()) {
-      properties[property.key()] = property.value().get<float>();
+    for (auto &[k, v] : jsObj["properties"].items()) {
+      // properties[property.key()] = property.value().get<float>();
+      const std::vector<float> &p = v.get<std::vector<float>>();
+      properties[k].value = p[0];
+      if (p.size() != 3) {
+       continue;
+      }
+      properties[k].min = p[1];
+      properties[k].max=p[2];
     }
     for (auto &property : jsObj["vec4Properties"].items()) {
       vec4Properties[property.key()] =
@@ -70,10 +83,9 @@ Gstring idAndPath;
       textures[texture.key()] = texture.value().get<std::string>();
     }
     ////////////////////////////////////////////////////////////设置
-    shader =
-        &(GResourceShader::getResourceShaders().getObject(fragPath));
+    shader = &(GResourceShader::getResourceShaders().getObject(fragPath));
     for (auto &p : properties) {
-      shader->getShader()->setUniform(p.first, p.second);
+      shader->getShader()->setUniform(p.first, p.second.value);
     }
     for (auto &p : vec4Properties) {
       if (p.second.size() != 4) {
@@ -89,7 +101,9 @@ Gstring idAndPath;
     }
   }
   void draw(GSprite &spr_, GameWindow &window_) {
-    if(!shader){return;}
+    if (!shader) {
+      return;
+    }
     shader->getShader()->setUniform(
         "time", GameStatics::getGameClcok().getElapsedTime().asSeconds());
     window_.draw(spr_.getSpriteBase(), shader->getShader());
@@ -97,11 +111,13 @@ Gstring idAndPath;
     window_.draw(shape, shader->getShader());
   }
   void setValueScalarByname(const std::string &name_, float value_) {
-    if(!shader)return;
+    if (!shader)
+      return;
     shader->getShader()->setUniform(name_, value_);
   }
   void setValueVectorByname(const std::string &name_, const FVector4 &vec4_) {
-    if(!shader)return;
+    if (!shader)
+      return;
     shader->getShader()->setUniform(name_, vec4_);
   }
 };

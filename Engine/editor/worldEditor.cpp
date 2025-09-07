@@ -1,5 +1,5 @@
 #include "worldEditor.h"
-
+#include "materialEditPanel.h"
 static std::function<void()> popCbk;
 PopUpWindow *windowPop;
 void WorldEditorWindow::setUI() {
@@ -56,7 +56,20 @@ void WorldEditorWindow::setUI() {
       ImGui::EndMenu();
     }
   });
+  //////////////////////////////////////////////////////////////////////////////////
+  MiniWindow *landScapeMaterial =
+      UI->createWindow<MiniWindow>("地形材质", 0);
 
+  landScapeMaterial->setWindowUi([&]() {
+    if(curWorld==&waitPage){return;}
+    materialEditPanel(curWorld->landScape.getMaterial());
+    ImGui::Separator();
+    float pixSize=window.getCameraActve()->getPixSize();//这里不能用static
+    if (ImGui::DragFloat("视口缩放", &pixSize,0.001,0.001,100)) {
+      window.getCameraActve()->setPixSize(pixSize);
+    }
+  });
+  //////////////////////////////////////////////////////////////////////////////////
   MiniWindow *win1 = UI->createWindow<PanelNoResize>("window1", 0);
   win1->setPosition({10, 30});
   win1->setSize({300, 500});
@@ -65,7 +78,7 @@ void WorldEditorWindow::setUI() {
     auto &names = ClassInfo::getStaticActors();
     static float pos[3] = {0};
     static float size[3] = {1, 1, 1};
-    static std::string nameIndex =names.begin()->first;
+    static std::string nameIndex = names.begin()->first;
     if (ImGui::BeginCombo("名称", nameIndex.c_str())) {
       for (auto &n : names) {
         if (ImGui::Selectable(n.first.c_str(), nameIndex == n.first.c_str())) {
@@ -75,7 +88,7 @@ void WorldEditorWindow::setUI() {
 
       ImGui::EndCombo();
     }
-    
+
     ImGui::InputFloat3("位置", pos);
     ImGui::InputFloat3("大小", size);
     if (ImGui::Button("创建")) {

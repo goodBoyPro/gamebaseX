@@ -6,6 +6,7 @@
 #include "gui/imguiDx/guiDx.h"
 #include "render/sprite.h"
 
+
 class MovableObj {
 public:
   GSprite spr;
