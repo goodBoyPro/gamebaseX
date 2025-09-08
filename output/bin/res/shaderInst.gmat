@@ -1,28 +1,51 @@
 {
-    "fragPath":"res/shaders/shader.frag",
-    "properties":{
-        "time":[1],
-        
-      
-        "blocks_scale":[200,0,200],
-        "grass_scale":[50,0,200],
-        "water_scale":[80,1,200],
-        "noise_scale":[10,1,30],
-        "normal_scale":[80,1,150],
-        "normalInt":[1,0,1]
+    "fragPath": "res/shaders/shader.frag",
+    "properties": {
+        "blocks_scale": [
+            200.0,
+            0.0,
+            200.0
+        ],
+        "grass_scale": [
+            50.0,
+            0.0,
+            200.0
+        ],
+        "noise_scale": [
+            10.0,
+            1.0,
+            30.0
+        ],
+        "normalInt": [
+            1.0,
+            0.0,
+            1.0
+        ],
+        "normal_scale": [
+            80.0,
+            1.0,
+            150.0
+        ],
+        "water_scale": [
+            80.0,
+            1.0,
+            200.0
+        ]
     },
-    "vec4Properties":{
-        "light":[-0.5,-0.5,-0.5,0]
+    "textures": {
+        "tex_blocks": "res/test.png",
+        "tex_grass": "res/grass.png",
+        "tex_mapmask": "res/mapMask.png",
+        "tex_noise": "res/noise.png",
+        "tex_normal": "res/normal.png",
+        "tex_water": "res/water.png"
     },
-    "textures":{
-        "tex_grass":"res/grass.png",
-        "tex_blocks":"res/test.png",
-        "tex_water":"res/water.png",
-        "tex_mapmask":"res/mapMask.png",
-        "tex_noise":"res/noise.png",
-        "tex_normal":"res/normal.png"
+    "vec4Properties": {
+        "light": [
+            -0.5,
+            -0.5,
+            -0.5,
+            0.0
+        ]
     }
-
 }
-
-

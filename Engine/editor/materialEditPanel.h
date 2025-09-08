@@ -21,5 +21,9 @@ inline void materialEditPanel(GMaterial &mat) {
   if (ImGui::Button("刷新")) {
     mat.reLoadMat();
   }
+  ImGui::SameLine();
+  if (ImGui::Button("保存##matLS")) {
+    mat.save();
+  }
 }
 #endif // MATERIALEDITPANEL_H

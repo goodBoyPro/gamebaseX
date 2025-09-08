@@ -76,7 +76,7 @@ void WorldEditorWindow::setUI() {
     materialEditPanel(curWorld->landScape.getMaterial());
     ImGui::Separator();
     float pixSize=window.getCameraActve()->getPixSize();//这里不能用static
-    if (ImGui::DragFloat("视口缩放", &pixSize,0.001,0.001,100)) {
+    if (ImGui::DragFloat("视口缩放", &pixSize,0.0001,0.001,100,"%.4f")) {
       window.getCameraActve()->setPixSize(pixSize);
     }
   });
@@ -115,7 +115,7 @@ void WorldEditorWindow::setUI() {
     static int curIndex=0;
     if(ImGui::BeginCombo("序列图", files[curIndex].name.c_str())){
       for(size_t i=0;i<files.size();i++){
-        if(ImGui::Selectable(files[i].name.c_str(),curIndex==i)){
+        if(ImGui::Selectable(files[i].path.c_str(),curIndex==i)){
          curIndex=i;       
         }
       }

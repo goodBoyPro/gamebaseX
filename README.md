@@ -7,6 +7,7 @@
  2. 动画图片
    - ani_id_level_row_column_centerX_centerY_name.png
  3. 资源应使用导入器导入
+ 4. 引用文件路径统一不使用./开头，直接使用res/name.file
 
 ## 2. cpp
  1. 使用工厂函数创建的对象必须显式定义默认构造函数，和init方法

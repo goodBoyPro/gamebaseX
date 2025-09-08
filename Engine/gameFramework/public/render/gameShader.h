@@ -52,7 +52,7 @@ public:
   std::map<std::string, std::string> textures;
   GMaterial() {}
   GMaterial(const std::string &matJson_) { init(matJson_); }
-  void reLoadMat(){init(idAndPath.getStringStd());}
+  void reLoadMat() { init(idAndPath.getStringStd()); }
   virtual ~GMaterial() {}
   virtual void init(const std::string &matInstJson_) {
     // shader =
@@ -70,10 +70,10 @@ public:
       const std::vector<float> &p = v.get<std::vector<float>>();
       properties[k].value = p[0];
       if (p.size() != 3) {
-       continue;
+        continue;
       }
       properties[k].min = p[1];
-      properties[k].max=p[2];
+      properties[k].max = p[2];
     }
     for (auto &property : jsObj["vec4Properties"].items()) {
       vec4Properties[property.key()] =
@@ -119,6 +119,27 @@ public:
     if (!shader)
       return;
     shader->getShader()->setUniform(name_, vec4_);
+  }
+  void save() {
+    
+    nlohmann::json jobj;
+   
+    jobj["fragPath"] = shader->idAndPath.getStringStd();
+    nlohmann::json &jProperty = jobj["properties"];
+    nlohmann::json &jVec4P = jobj["vec4Properties"];
+    nlohmann::json &jTexs = jobj["textures"];
+    for (auto &p : properties) {
+      jProperty[p.first]={p.second.value,p.second.min,p.second.max};
+    }
+    for (auto &p : vec4Properties) {
+      jVec4P[p.first]={p.second[0],p.second[1],p.second[2],p.second[3]};
+    }
+    for (auto &p : textures) {
+      jTexs[p.first]=p.second;
+    }
+    std::ofstream ofile(idAndPath.getStringStd());
+    ofile << jobj.dump(4);
+    ofile.close();
   }
 };
 ///////////////////////////////////////////////////////////////////////////

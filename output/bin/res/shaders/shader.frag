@@ -1,3 +1,6 @@
+//system
+uniform float time;
+//
 uniform sampler2D tex_grass;
 uniform sampler2D tex_blocks;
 uniform sampler2D tex_water;
@@ -5,7 +8,7 @@ uniform sampler2D tex_mapmask;
 uniform sampler2D tex_noise;
 uniform sampler2D tex_normal;
 
-uniform float time;
+
 uniform vec4 light;
 uniform float blocks_scale;
 uniform float grass_scale;
