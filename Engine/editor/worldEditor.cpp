@@ -1,5 +1,6 @@
 #include "worldEditor.h"
 #include "materialEditPanel.h"
+#include"fileManager.h"
 static std::function<void()> popCbk;
 PopUpWindow *windowPop;
 void WorldEditorWindow::setUI() {
@@ -19,15 +20,25 @@ void WorldEditorWindow::setUI() {
       }
       if (ImGui::MenuItem("新建地图")) {
         static float mapInfo[4] = {0};
-        static char mapMatPath[64];
+       
         windowPop->setWindowUi([this]() {
           ImGui::InputFloat("行", mapInfo);
           ImGui::InputFloat("列", mapInfo + 1);
           ImGui::InputFloat("单元宽", mapInfo + 2);
           ImGui::InputFloat("单元高", mapInfo + 3);
-          ImGui::InputText("地形材质", mapMatPath, sizeof mapMatPath);
+          auto&filesMat=FileManager::getFileManager().filesGmat;
+          static int matIndex=0;
+          if(ImGui::BeginCombo("地形材质",filesMat[matIndex].name.c_str())){
+            for(size_t i=0;i<filesMat.size();i++){
+              if(ImGui::Selectable(filesMat[i].path.c_str(),matIndex==i)){
+                matIndex=i;               
+              }
+            }
+            ImGui::EndCombo();
+          }
+         
           if (ImGui::Button("确定")) {
-            create(mapInfo[0], mapInfo[1], mapInfo[2], mapInfo[3], mapMatPath);
+            create(mapInfo[0], mapInfo[1], mapInfo[2], mapInfo[3],  filesMat[matIndex].path);
             windowPop->close();
           };
           ImGui::SameLine();
@@ -98,13 +109,23 @@ void WorldEditorWindow::setUI() {
     ////////////////////////////////////////////////////////注册staticActor
     static char name[64] = {0};
     static int texIndex = 0;
-    static char texPath[64] = {0};
+   
     ImGui::InputText("名称##regSA", name, sizeof name);
-    ImGui::InputText("序列图路径", texPath, sizeof texPath);
+    auto &files=FileManager::getFileManager().filesPng;
+    static int curIndex=0;
+    if(ImGui::BeginCombo("序列图", files[curIndex].name.c_str())){
+      for(size_t i=0;i<files.size();i++){
+        if(ImGui::Selectable(files[i].name.c_str(),curIndex==i)){
+         curIndex=i;       
+        }
+      }
+      ImGui::EndCombo();
+
+    }
     ImGui::InputInt("index", &texIndex);
     if (ImGui::Button("注册")) {
       printf("register\n");
-      ClassInfo::registerStaticActors(name, texPath, texIndex);
+      ClassInfo::registerStaticActors(name,files[curIndex].path, texIndex);
     }
   });
 };
