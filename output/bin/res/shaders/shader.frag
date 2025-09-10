@@ -7,8 +7,11 @@ uniform sampler2D tex_water;
 uniform sampler2D tex_mapmask;
 uniform sampler2D tex_noise;
 uniform sampler2D tex_normal;
+uniform sampler2D texGrassMask;
 
 
+uniform float grassSpeed;
+uniform float grassWave;
 uniform vec4 light;
 uniform float blocks_scale;
 uniform float grass_scale;
@@ -47,15 +50,16 @@ void main() {
     vec2 maskUV=coord;
     vec2 noiseUV=coord*noise_scale;
     vec2 blocksUV=coord*blocks_scale;
-    vec2 grassUV=coord*grass_scale;
+    vec2 grassUV=vec2(coord.x*grass_scale,coord.y*grass_scale*2 );
     vec2 normalUV=coord*normal_scale+sin(time*8)/100;
     float noiseValue=texture2D(tex_noise,noiseUV);
     vec2 waterUV=coord*water_scale+time/(20)+(noiseValue)/noise_scale;
 
-   
+    float animValue=texture2D(texGrassMask,grassUV).x;
+    vec2 grassUVFix=vec2(grassUV.x+animValue.x*sin(time*grassSpeed)/grassWave,grassUV.y );
     
     float maskValue=texture2D(tex_mapmask,maskUV);
-    vec4 cGrass=texture2D(tex_grass,grassUV);
+    vec4 cGrass=texture2D(tex_grass,grassUVFix);
     vec4 cBlocks=texture2D(tex_blocks,blocksUV);
     vec4 cWater=texture2D(tex_water,waterUV);
     

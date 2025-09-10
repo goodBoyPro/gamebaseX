@@ -35,9 +35,17 @@ public:
   T &getObject(const Gstring &str) {
     auto it = data.find(str.get_hash());
     if (it == data.end()) {
-      T&s=loadFromPath(str);
-      return s;}
+      T &s = loadFromPath(str);
+      return s;
+    }
     return it->second;
+  }
+  void removeObject(const Gstring &str) {
+    auto it = data.find(str.get_hash());
+    if (it == data.end()) {
+      return;
+    }
+    data.erase(it);
   }
   virtual T &loadFromPath(const Gstring &path_) {
     printf("error");
@@ -101,38 +109,36 @@ public:
         continue;
       }
     }
-    
   }
   GTexture &loadFromPath(const Gstring &path_) {
-    
+
     const std::vector<std::string> &strs = splitString(
         std::filesystem::path(path_.getStringStd()).filename().string());
-        const std::string &path = path_.getStringStd();
-        GTexture &gtex = emplace(path);
-        if (strs.size() != count-1) {
-          gtex.init(1, 1, 0, 0, path);
-          return gtex;
-        }
-        try {
-          int row = std::stoi(strs[erow-1]);
-          int column = std::stoi(strs[ecolumn-1]);
-          float centerX = std::stof(strs[ecenterX-1]);
-          float centerY = std::stof(strs[ecenterY-1]);
+    const std::string &path = path_.getStringStd();
+    GTexture &gtex = emplace(path);
+    if (strs.size() != count - 1) {
+      gtex.init(1, 1, 0, 0, path);
+      return gtex;
+    }
+    try {
+      int row = std::stoi(strs[erow - 1]);
+      int column = std::stoi(strs[ecolumn - 1]);
+      float centerX = std::stof(strs[ecenterX - 1]);
+      float centerY = std::stof(strs[ecenterY - 1]);
 
-          gtex.init(row, column, centerX, centerY, path);
-          return gtex;
-  
-        } catch (const std::exception &e) {
-          std::cerr << "invalid file! " << e.what() << std::endl;
-          gtex.init(1, 1, 0, 0, path);
-          return gtex;
-        }   
+      gtex.init(row, column, centerX, centerY, path);
+      return gtex;
+
+    } catch (const std::exception &e) {
+      std::cerr << "invalid file! " << e.what() << std::endl;
+      gtex.init(1, 1, 0, 0, path);
+      return gtex;
+    }
   };
   GSource() {
-    
+
     // loadResource();
-   
   }
-  ~GSource() {  }
+  ~GSource() {}
 };
 #endif // GSOURCE_H

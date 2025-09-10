@@ -6,8 +6,18 @@
             0.0,
             200.0
         ],
+        "grassSpeed": [
+            1.25,
+            -50.0,
+            50.0
+        ],
+        "grassWave": [
+            50.540000915527344,
+            -30.0,
+            100.0
+        ],
         "grass_scale": [
-            50.0,
+            127.86000061035156,
             0.0,
             200.0
         ],
@@ -33,8 +43,9 @@
         ]
     },
     "textures": {
+        "texGrassMask": "res/animask.png",
         "tex_blocks": "res/test.png",
-        "tex_grass": "res/grass.png",
+        "tex_grass": "res/grass09.png",
         "tex_mapmask": "res/mapMask.png",
         "tex_noise": "res/noise.png",
         "tex_normal": "res/normal.png",

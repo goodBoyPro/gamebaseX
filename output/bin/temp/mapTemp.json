@@ -9,37 +9,9 @@
     },
     "landScapeShader": "res/shaderInst.gmat",
     "mapInfo": {
-        "column": 32,
+        "column": 8,
         "height": 10.0,
-        "row": 32,
+        "row": 8,
         "width": 10.0
-    },
-    "staticActors": [
-        {
-            "name": "tree4",
-            "position": [
-                3.029546022415161,
-                0.19339048862457275,
-                0.0
-            ],
-            "sizeWs": [
-                3.0,
-                3.0,
-                1.0
-            ]
-        },
-        {
-            "name": "tree4",
-            "position": [
-                0.7709673643112183,
-                2.3312485218048096,
-                0.0
-            ],
-            "sizeWs": [
-                3.0,
-                3.0,
-                1.0
-            ]
-        }
-    ]
+    }
 }

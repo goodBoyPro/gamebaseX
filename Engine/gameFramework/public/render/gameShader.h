@@ -14,6 +14,7 @@ public:
   void init(const std::string &path_) {
     shader.loadFromFile(path_, sf::Shader::Fragment);
   }
+  void reload(){init(idAndPath.getStringStd());};
   sf::Shader *getShader() { return &shader; }
 };
 ///////////////////////////////////////////////////////////////////////
@@ -52,7 +53,10 @@ public:
   std::map<std::string, std::string> textures;
   GMaterial() {}
   GMaterial(const std::string &matJson_) { init(matJson_); }
-  void reLoadMat() { init(idAndPath.getStringStd()); }
+  void reLoadMat() {
+    shader->reload();
+    init(idAndPath.getStringStd());
+    }
   virtual ~GMaterial() {}
   virtual void init(const std::string &matInstJson_) {
     // shader =
