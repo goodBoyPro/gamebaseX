@@ -46,4 +46,35 @@ inline bool isStringValid(const std::string &name_) {
   }
   return false; // 全为空白字符
 }
+// 检查name是否以exp_结尾，如果不是则添加exp_
+inline std::string setExpand(const std::string& name, const std::string& exp_) {
+  // 如果后缀为空，直接返回原字符串
+  if (exp_.empty()) {
+      return name;
+  }
+  
+  // 如果原字符串长度小于后缀长度，直接添加后缀
+  if (name.length() < exp_.length()) {
+      return name + exp_;
+  }
+  
+  // 计算需要比较的起始位置
+  size_t startPos = name.length() - exp_.length();
+  
+  // 比较字符串末尾与后缀是否相同
+  bool endsWithExp = true;
+  for (size_t i = 0; i < exp_.length(); ++i) {
+      if (name[startPos + i] != exp_[i]) {
+          endsWithExp = false;
+          break;
+      }
+  }
+  
+  // 如果不相同则添加后缀，否则返回原字符串
+  if (!endsWithExp) {
+      return name + exp_;
+  } else {
+      return name;
+  }
+}
 #endif // BASE_H

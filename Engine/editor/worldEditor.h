@@ -5,7 +5,7 @@
 #include "framework.h"
 #include "gui/imguiDx/guiDx.h"
 #include "render/sprite.h"
-
+#include "fileManager.h"
 
 class MovableObj {
 public:
@@ -417,7 +417,9 @@ public:
     if (worldFilePath.getStringStd() != "") {
       ((WorldForEditor *)curWorld)->saveWorldData(worldFilePath.getStringStd());
     }
+
     ClassInfo::saveAllInfo();
+    FileManager::getFileManager().updateFiles();
   }
   void runGame() {
     ((WorldForEditor *)curWorld)->saveWorldData(jsonTemp);

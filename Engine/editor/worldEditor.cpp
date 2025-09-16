@@ -17,11 +17,40 @@ void WorldEditorWindow::setUI() {
       if (ImGui::MenuItem("另存为")) {
       }
       if (ImGui::MenuItem("加载地图")) {
+        windowPop->setWindowUi([this]() {
+          ImGui::Text("选择地图");
+          auto &filesMap = FileManager::getFileManager().filesGmap;
+          if (filesMap.size() == 0) {
+            ImGui::Text("无可用地图");
+            return;}
+          static int mapIndex=0;
+          if(ImGui::BeginCombo("地图",filesMap[mapIndex].name.c_str())){
+            for(size_t i=0;i<filesMap.size();i++){
+              if(ImGui::Selectable(filesMap[i].path.c_str(),mapIndex==i)){
+                mapIndex=i;               
+              }
+            }
+            ImGui::EndCombo();
+          }
+
+          if (ImGui::Button("确定")) {
+           
+            load(filesMap[mapIndex].path);
+            windowPop->close();
+          };
+          ImGui::SameLine();
+          if (ImGui::Button("取消")) {
+            windowPop->close();
+          };
+        });
+        windowPop->open();
       }
+     
       if (ImGui::MenuItem("新建地图")) {
         static float mapInfo[4] = {0};
-       
+        static char path[128]={0};
         windowPop->setWindowUi([this]() {
+          ImGui::InputText("路径", path, sizeof(path));
           ImGui::InputFloat("行", mapInfo);
           ImGui::InputFloat("列", mapInfo + 1);
           ImGui::InputFloat("单元宽", mapInfo + 2);
@@ -36,9 +65,13 @@ void WorldEditorWindow::setUI() {
             }
             ImGui::EndCombo();
           }
-         
+
           if (ImGui::Button("确定")) {
-            create(mapInfo[0], mapInfo[1], mapInfo[2], mapInfo[3],  filesMat[matIndex].path);
+            if(path[0]==0)return;
+            create(mapInfo[0], mapInfo[1], mapInfo[2], mapInfo[3],
+                   filesMat[matIndex].path);
+            
+            worldFilePath=setExpand(path, ".gmap");
             windowPop->close();
           };
           ImGui::SameLine();
