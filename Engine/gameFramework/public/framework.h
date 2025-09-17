@@ -10,7 +10,7 @@
 #include <gameLog.h>
 #include <nlohmann_json/json.hpp>
 #include <timeManager.h>
-
+#include"gameConfig.h"
 // 反射
 #define REGISTER_CLASS(className)                                              \
   class className;                                                             \
@@ -423,7 +423,7 @@ class GLandScape : public GSprite {
   float widhtTotal;
   float heightTotal;
   GMaterial landMaterial;
-  bool *mapBool = nullptr;
+  
 
 public:
   GSprite spr;
@@ -598,10 +598,10 @@ public:
     curWorld = &waitPage;
     waitPage.gm.gameIns = this;
 
-    window.create(sf::VideoMode(1600, 900), "Game");
-    window.setFramerateLimit(60);
+    window.create(sf::VideoMode(getGameConfig().windowWidth,getGameConfig().windowHeight), "Game");
+    window.setFramerateLimit(getGameConfig().frameLimit);
     sf::Image icon;
-    icon.loadFromFile("res/a.png");
+    icon.loadFromFile(getGameConfig().windowIcon);
     window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
   }
   ~GGame() { delete curWorld; }
