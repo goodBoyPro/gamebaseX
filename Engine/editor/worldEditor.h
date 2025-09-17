@@ -6,6 +6,7 @@
 #include "gui/imguiDx/guiDx.h"
 #include "render/sprite.h"
 #include "fileManager.h"
+#include"editorConfig.h"
 
 class MovableObj {
 public:
