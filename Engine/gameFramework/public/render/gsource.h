@@ -105,7 +105,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-class GSource : public GReourceTree<GTexture> {
+class GTextureTree : public GReourceTree<GTexture> {
   enum Info {
     epath,
     etype, //
@@ -121,8 +121,8 @@ class GSource : public GReourceTree<GTexture> {
   };
 
 public:
-  static GSource &getSource() {
-    static GSource sr;
+  static GTextureTree &getSource() {
+    static GTextureTree sr;
     return sr;
   }
   // 已弃用
@@ -197,10 +197,10 @@ public:
     //   return gtex;
     // }
   };
-  GSource() {
+  GTextureTree() {
 
     // loadResource();
   }
-  ~GSource() {}
+  ~GTextureTree() {}
 };
 #endif // GSOURCE_H

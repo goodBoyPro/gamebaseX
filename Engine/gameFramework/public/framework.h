@@ -434,7 +434,7 @@ public:
     beginY = beginY_;
     widhtTotal = widthTotal_;
     heightTotal = heightTotal_;
-    spr.init(GSource::getSource().getObject("res/base/texture/pix1.png"));
+    spr.init(GTextureTree::getSource().getObject("res/base/texture/pix1.png"));
     if (matPath_ == "") {
     } else {
       landMaterial.init(matPath_);

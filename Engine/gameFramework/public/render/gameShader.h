@@ -99,7 +99,7 @@ public:
           p.first, {p.second[0], p.second[1], p.second[2], p.second[3]});
     }
     for (auto &t : textures) {
-      sf::Texture &tex = GSource::getSource().getObject(t.second).texture;
+      sf::Texture &tex = GTextureTree::getSource().getObject(t.second).texture;
       tex.setRepeated(true);
       shader->getShader()->setUniform(t.first, tex);
     }

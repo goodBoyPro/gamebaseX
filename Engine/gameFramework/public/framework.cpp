@@ -82,7 +82,7 @@ GPlayer::GPlayer() {
 
 void GPlayer::beginPlay() {
   sprComp->setTex(
-      GSource::getSource().getObject("res/base/player.png"));
+      GTextureTree::getSource().getObject("res/base/player.png"));
   sprComp->getSprite().setId(0);
   sprComp->getSprite().setCenter(0.5, 1);
   sprComp->setSizeWs({1, 1, 0});
@@ -99,7 +99,7 @@ GStaticActor *GWorld::createStaticActor(const std::string &name_,
 
   GStaticActor::Info &staticActorInfo = ClassInfo::getStaticActorInfo(name_);
   actor->infoPtr = &staticActorInfo;
-  actor->construct(GSource::getSource().getObject(staticActorInfo.texPath),
+  actor->construct(GTextureTree::getSource().getObject(staticActorInfo.texPath),
                    staticActorInfo.texIndex);
   actor->sprComp->setSizeWs(sizeWs_);
   return actor;
@@ -137,7 +137,7 @@ void GWorld::asyncLoad(std::string jsonPath_) {
     const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
     FVector3 sizeWs = {size[0], size[1], size[2]};
     auto actor = createActor<GAnimActor>(position);
-    actor->construct(GSource::getSource().getObject(texId), beginIndex,
+    actor->construct(GTextureTree::getSource().getObject(texId), beginIndex,
                      endIndex, frameSpeed);
     actor->sprComp->setSizeWs(sizeWs);
   }
