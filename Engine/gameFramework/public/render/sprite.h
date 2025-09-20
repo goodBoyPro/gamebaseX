@@ -2,8 +2,9 @@
 #define SPRITE_H
 #include "base/base.h"
 #include "cmath"
-#include "string"
 #include "gstring.h"
+#include "string"
+
 class GSourceObj {
 public:
   Gstring idAndPath;
@@ -17,11 +18,17 @@ public:
   int row = 1;
   float centerX = 0;
   float centerY = 0;
+  // 纹理小格单元尺寸
   IVector2 sizeTexUnit;
   GTexture() {};
   void init(int row_, int column_, float centerX_, float centerY_,
             const std::string &path) {
-    texture.loadFromFile(path);
+    if (!texture.loadFromFile(path)) {
+      texture.loadFromFile("system/texture/invalidTex.png");
+      sizeTexUnit = {(int)(texture.getSize().x / column_),
+                     (int)(texture.getSize().y / row_)};
+      return;
+    };
     row = row_;
     column = column_;
     centerX = centerX_;
@@ -43,7 +50,7 @@ protected:
   int rows = 1;
   int columns = 1;
   int curId = 0;
-  GTexture*texturePtr=nullptr;
+  GTexture *texturePtr = nullptr;
 
 public:
   // 用户不要引用
@@ -51,7 +58,7 @@ public:
   FVector3 posWs = {0, 0, 0};
 
 public:
-  GTexture*getTexturePtr(){return texturePtr;}
+  GTexture *getTexturePtr() { return texturePtr; }
   bool isContainPos(float x, float y) {
     return sprite.getGlobalBounds().contains(x, y);
   }
@@ -59,7 +66,7 @@ public:
   GSprite() = default;
   void setSortFlag(float value_) { sortFlag = value_; }
   void init(GTexture &textureArray) {
-    texturePtr=&textureArray;
+    texturePtr = &textureArray;
     rows = textureArray.row;
     columns = textureArray.column;
     sizeTexUnit = textureArray.sizeTexUnit;
@@ -106,7 +113,7 @@ private:
 public:
   const int getIdBegin() { return idBegin; }
   const int getIdEnd() { return idEnd; }
-  int getFramePerS(){return 1.f/updateDelayS;}
+  int getFramePerS() { return 1.f / updateDelayS; }
   GAnimation() {}
   void init(GTexture &textureArray, int beg_, int end_) {
     GSprite::init(textureArray);

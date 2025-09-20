@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <iostream>
 #include <map>
+#include <regex>
 #include <thread>
 #include <vector>
 
@@ -15,6 +16,44 @@ public:
   std::vector<std::vector<std::string>>
   collectFiles(const std::string &directory, const std::string &extension);
   virtual ~GSourceIF() {}
+  bool isNumber(const std::string &str) {
+    // 空字符串不是数值
+    if (str.empty()) {
+      return false;
+    }
+
+    size_t i = 0;
+    // 处理可选的正负号
+    if (str[i] == '+' || str[i] == '-') {
+      i++;
+      // 如果只有符号，不是数值
+      if (i == str.size()) {
+        return false;
+      }
+    }
+
+    bool hasDigit = false; // 标记是否出现过数字
+    bool hasDot = false;   // 标记是否出现过小数点
+
+    for (; i < str.size(); ++i) {
+      if (isdigit(str[i])) {
+        // 遇到数字，标记已出现数字
+        hasDigit = true;
+      } else if (str[i] == '.') {
+        // 遇到小数点：不能出现过多个小数点，且至少需要有数字（前或后）
+        if (hasDot) {
+          return false; // 多个小数点无效
+        }
+        hasDot = true;
+      } else {
+        // 其他字符均为无效
+        return false;
+      }
+    }
+
+    // 必须至少出现过一个数字才是有效的数值
+    return hasDigit;
+  }
 };
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +125,7 @@ public:
     static GSource sr;
     return sr;
   }
+  // 已弃用
   void loadResource() {
     std::vector<std::vector<std::string>> vec = collectFiles("res", ".png");
     for (std::vector<std::string> &cvec : vec) {
@@ -115,25 +155,47 @@ public:
     const std::vector<std::string> &strs = splitString(
         std::filesystem::path(path_.getStringStd()).filename().string());
     const std::string &path = path_.getStringStd();
-    GTexture &gtex = emplace(path);
-    if (strs.size() != count - 1) {
-      gtex.init(1, 1, 0, 0, path);
-      return gtex;
+    // 检查格式
+    bool isRightFormat = true;
+    if (strs.size() < 4) {
+      isRightFormat = false;
+    } else {
+      int num=strs.size()-1;
+      for (int i=0;i<4;i++){       
+        if(!isNumber(strs[num-i])){
+          isRightFormat = false;
+          break;
+        }
+      }
     }
-    try {
-      int row = std::stoi(strs[erow - 1]);
-      int column = std::stoi(strs[ecolumn - 1]);
-      float centerX = std::stof(strs[ecenterX - 1]);
-      float centerY = std::stof(strs[ecenterY - 1]);
+    GTexture &gtex = emplace(path);
+
+    if (isRightFormat) {
+     int num=strs.size()-1;
+      int row = std::stoi(strs[num - 3]);
+      int column = std::stoi(strs[num - 2]);
+      float centerX = std::stof(strs[num - 1]);
+      float centerY = std::stof(strs[num]);
 
       gtex.init(row, column, centerX, centerY, path);
       return gtex;
-
-    } catch (const std::exception &e) {
-      std::cerr << "invalid file! " << e.what() << std::endl;
-      gtex.init(1, 1, 0, 0, path);
-      return gtex;
     }
+    gtex.init(1, 1, 0, 0, path);
+    return gtex;
+    // try {
+    //   int row = std::stoi(strs[erow - 1]);
+    //   int column = std::stoi(strs[ecolumn - 1]);
+    //   float centerX = std::stof(strs[ecenterX - 1]);
+    //   float centerY = std::stof(strs[ecenterY - 1]);
+
+    //   gtex.init(row, column, centerX, centerY, path);
+    //   return gtex;
+
+    // } catch (const std::exception &e) {
+    //   std::cerr << "invalid file! " << e.what() << std::endl;
+    //   gtex.init(1, 1, 0, 0, path);
+    //   return gtex;
+    // }
   };
   GSource() {
 

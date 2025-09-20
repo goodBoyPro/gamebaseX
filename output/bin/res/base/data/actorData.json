@@ -5,35 +5,42 @@
             "name": "tree1",
             "texId": 2125843542878897406,
             "texIndex": 11,
-            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
+            "texPath": "res/tree_5_5_0.5_1.png"
         },
         {
             "id": 15,
             "name": "tree2",
             "texId": 2125843542878897406,
             "texIndex": 11,
-            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
+            "texPath": "res/tree_5_5_0.5_1.png"
         },
         {
             "id": 15,
             "name": "tree3",
             "texId": 2125843542878897406,
             "texIndex": 14,
-            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
+            "texPath": "res/tree_5_5_0.5_1.png"
         },
         {
             "id": 15,
             "name": "tree4",
             "texId": 2125843542878897406,
             "texIndex": 16,
-            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
+            "texPath": "res/tree_5_5_0.5_1.png"
         },
         {
             "id": 2775392462885874752,
             "name": "treeA",
             "texId": 2125843542878897406,
             "texIndex": 1,
-            "texPath": "res/arr_110110_c_5_5_0.5_1_tree.png"
+            "texPath": "res/tree_5_5_0.5_1.png"
+        },
+        {
+            "id": 6988323358183408726,
+            "name": "treex1",
+            "texId": 4761305552305773966,
+            "texIndex": 2,
+            "texPath": "res/tree_5_5_0.5_1.png"
         }
     ]
 }
