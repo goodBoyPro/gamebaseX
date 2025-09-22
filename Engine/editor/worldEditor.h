@@ -3,7 +3,7 @@
 
 #include "base/registeredInfo.h"
 #include "framework.h"
-#include "gui/imguiDx/guiDx.h"
+#include "gui/imguiDx/editorUiSystem.h"
 #include "render/sprite.h"
 #include "fileManager.h"
 #include"editorConfig.h"

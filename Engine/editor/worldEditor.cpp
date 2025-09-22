@@ -103,7 +103,7 @@ void WorldEditorWindow::setUI() {
   //////////////////////////////////////////////////////////////////////////////////
   MiniWindow *landScapeMaterial =
       UI->createWindow<MiniWindow>("地形材质", 0);
-
+  UI->layout.areaRight.addWindow(landScapeMaterial);
   landScapeMaterial->setWindowUi([&]() {
     if(curWorld==&waitPage){return;}
     materialEditPanel(curWorld->landScape.getMaterial());
@@ -114,7 +114,8 @@ void WorldEditorWindow::setUI() {
     }
   });
   //////////////////////////////////////////////////////////////////////////////////
-  MiniWindow *win1 = UI->createWindow<PanelNoResize>("window1", 0);
+  MiniWindow *win1 = UI->createWindow<MiniWindow>("window1", 0);
+  UI->layout.areaLeft.addWindow(win1);
   win1->setPosition({10, 30});
   win1->setSize({300, 500});
   win1->setWindowUi([&]() {
@@ -149,7 +150,7 @@ void WorldEditorWindow::setUI() {
     if(ImGui::BeginCombo("序列图", files[curIndex].name.c_str())){
       for(size_t i=0;i<files.size();i++){
         if(ImGui::Selectable(files[i].path.c_str(),curIndex==i)){
-         curIndex=i;       
+          curIndex = i;       
         }
       }
       ImGui::EndCombo();
@@ -161,6 +162,9 @@ void WorldEditorWindow::setUI() {
       ClassInfo::registerStaticActors(name,files[curIndex].path, texIndex);
     }
   });
+  MiniWindow *port = UI->createWindow<PortCarrierWindow>("port");
+  ((PortCarrierWindow*)port)->otherHwnd=window.getSystemHandle();
+  UI->layout.areaCenter.addWindow(port);
 };
 void WorldEditorWindow::loop() {
 

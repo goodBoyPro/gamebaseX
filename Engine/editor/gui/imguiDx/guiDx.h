@@ -13,7 +13,7 @@
 #include <tchar.h>
 #include <vector>
 #include <windows.h>
-
+#include"miniWindow.h"
 // 窗口私有资源结构体
 struct WindowPrivateData {
   ImGuiContext *imguiContext;  // 窗口专属ImGui上下文
@@ -32,60 +32,19 @@ struct FontInfo {
   std::vector<unsigned char> fontData; // 缓存字体文件数据（避免重复IO）
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-class MiniWindow {
-public:
-  bool couldClose = true;
-  
 
-protected:
-  ImVec2 position = {100, 0};
-  ImVec2 size = {100, 100};
-
-public:
-  MiniWindow(const std::string &id_, int state_) {
-    id = id_;
-    state = state_;
-    ImGuiStyle &style = ImGui::GetStyle();
-    style.Colors[ImGuiCol_Text] = ImVec4(0.1, 0.1, 0.1, 1);
-  };
-  virtual ~MiniWindow() { printf("uncons\n"); };
-  std::function<void()> imguiRenderCBK = []() {};
-  void disableClose() { couldClose = false; }
-
-public:
-  std::string id;
-  bool bOpen = true;
-  void setPosition(const ImVec2 &pos_) { position = pos_; }
-  void setSize(const ImVec2 &size_) { size = size_; }
-  int state = 0;
-  // 这里分开写是因为需要在lamda表达式内部调用自身
-  void setWindowUi(const std::function<void()> &callback) {
-    imguiRenderCBK = callback;
-  };
-  virtual void loop() {
-    if ((bOpen)) {
-      if (couldClose) {
-       
-        ImGui::Begin(id.c_str(), &bOpen, state);
-      } else {
-        ImGui::Begin(id.c_str(), nullptr, state);
-      }
-
-      imguiRenderCBK();
-      ImGui::End();
-    }
-  }
-};
 class BigWindow {
   
-  HWND hWnd = nullptr;
-  HWND parentHwnd = nullptr;
-  HWND otherHwnd=nullptr;
-  ImGuiContext *ctx = nullptr;
-  WindowPrivateData *data = nullptr;
+  
   ImColor clearColor = {0, 0, 0, 0};
 
 public:
+  WindowLayOut layout;
+HWND hWnd = nullptr;
+HWND parentHwnd = nullptr;
+HWND otherHwnd=nullptr;
+ImGuiContext *ctx = nullptr;
+WindowPrivateData *data = nullptr;
   bool isMainWindow = false;
   bool bValid=true;
   bool brun=true;
@@ -138,22 +97,8 @@ public:
   template <class T>
   MiniWindow *createWindow(const std::string &id, int state = 0);
 };
-class UIManager {
-  const WCHAR *sharedClassName = L"ImGui_DX11_Shared_Window";
-  UIManager();
-  std::vector<BigWindow *> allWindows;
 
-public:
-  
-  BigWindow *createBigWindow(const wchar_t *windowName,bool isMainWindow_=false);
-  void MainLoop();
-  static UIManager &getUI() {
-    static UIManager ret;
-    return ret;
-  }
-  ~UIManager();
-};
-inline UIManager &getUiManager() { return UIManager::getUI(); }
+
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -170,58 +115,9 @@ inline MiniWindow *BigWindow::createWindow(const std::string &id, int state) {
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////
-class WindowMenu : public MiniWindow {
-public:
-  WindowMenu(const std::string &id, int state) : MiniWindow(id, state) {}
-  void loop() override {
-    if (bOpen) {
-      if (ImGui::BeginMainMenuBar()) {
-        imguiRenderCBK();
-      }
-      ImGui::EndMainMenuBar();
-     
-    }
-  }
-};
-class PanelNoResize : public MiniWindow {
-  public:
-  PanelNoResize(const std::string &id, int state) : MiniWindow(id, state) {}
-  void loop() override {
-    if (bOpen) {
-      
-      ImGui::SetNextWindowSize(size);
-      if (ImGui::Begin(id.c_str(),nullptr,ImGuiWindowFlags_NoResize)) {
-        imguiRenderCBK();
-      }
-      ImGui::End();
-    }
-  }
-};
-class PopUpWindow : public MiniWindow {
-public:
-  PopUpWindow(const std::string &id, int state) : MiniWindow(id, state) {}
-  bool bPop = false;
-  void open() {bPop=true;}
-  void close(){bPop=false;}
-  void loop() override {
-    if (bPop) {
-      ImGui::OpenPopup(id.c_str());
-      if (ImGui::BeginPopupModal(id.c_str())) {
-        imguiRenderCBK();
-        ImGui::EndPopup();      
-      }
-     
-    }
-  }
-};
-class CustomWindow : public MiniWindow {
-public:
-  CustomWindow(const std::string &id, int state) : MiniWindow(id, state) {}
-  void loop() override {
-    if (bOpen) {
-      imguiRenderCBK();
-    }
-  }
-};
+void initImguiEnv();
+void cleanImguiEnv();
+BigWindow *createBigWindowImgui(const wchar_t *windowName,
+                           bool isMainWindow_ = false);
 
 #endif // GUIDX_H

@@ -2,7 +2,7 @@
 #include "guiDx.h"
 #include "Windows.h"
 #include "filesystem"
-
+static const wchar_t *imguiWindowName = L"EditorWindowImgui10111";
 // 主窗口
 static LRESULT CALLBACK editorWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
                                          LPARAM lParam) {
@@ -17,6 +17,9 @@ static LRESULT CALLBACK editorWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
     return 0;
   case WM_SIZE: {
     UpdateWindow(hwnd);
+    if (data) {
+      data->layout.match(data->hwndMainWindow);
+    }
     return 0;
   }
   }
@@ -33,10 +36,10 @@ static HWND createEditorWindow(const WCHAR *title, BigWindow *bigWin_) {
   wc.hbrBackground = (HBRUSH)(COLOR_WINDOW - 2); // 设置背景色
   wc.style = CS_HREDRAW | CS_VREDRAW;
   RegisterClass(&wc);
-  HWND rethwnd = CreateWindowEx(0,                   // 扩展样式
-                                L"eidtorWindow",     // 窗口类名
-                                title,               // 窗口标题
-                                WS_OVERLAPPEDWINDOW|WS_MAXIMIZE, // 窗口样式
+  HWND rethwnd = CreateWindowEx(0,                                 // 扩展样式
+                                L"eidtorWindow",                   // 窗口类名
+                                title,                             // 窗口标题
+                                WS_OVERLAPPEDWINDOW | WS_MAXIMIZE, // 窗口样式
 
                                 // 窗口位置和大小
                                 CW_USEDEFAULT, CW_USEDEFAULT, 1200, 900,
@@ -459,7 +462,7 @@ void BigWindow::loop() {
     for (auto &miniw : allWindows) {
       miniw.second->loop();
     }
-    matchOther();
+   layout.renderloop();
     followParent();
     /////////////////////////////////////////////////////////////
     g_pd3dDeviceContext->OMSetRenderTargets(1, &data->rtv, nullptr);
@@ -476,7 +479,7 @@ BigWindow::~BigWindow() {
   }
   CleanupWindowResources(hWnd, ctx, data);
 }
-UIManager::UIManager() {
+void initImguiEnv() {
   if (!CreateDeviceD3D()) {
     MessageBox(nullptr, L"创建D3D设备失败!", L"错误", MB_ICONERROR);
     CleanupDeviceD3D();
@@ -484,56 +487,29 @@ UIManager::UIManager() {
   }
   PreloadGlobalFonts();
 
-  if (!RegisterSharedWindowClass(sharedClassName)) {
+  if (!RegisterSharedWindowClass(imguiWindowName)) {
     MessageBox(nullptr, L"注册窗口类失败!", L"错误", MB_ICONERROR);
     CleanupDeviceD3D();
     throw(std::runtime_error("register windowclass failed\n"));
   }
 }
-BigWindow *UIManager::createBigWindow(const wchar_t *windowName,
-                                      bool isMainWindow_) {
+void cleanImguiEnv() {
+  CleanupGlobalFonts();
+  UnregisterClass(imguiWindowName, GetModuleHandle(nullptr));
+  UnregisterClass(L"eidtorWindow", GetModuleHandle(nullptr));
+  CleanupDeviceD3D();
+}
+BigWindow *createBigWindowImgui(const wchar_t *windowName, bool isMainWindow_) {
   BigWindow *ret = new BigWindow;
   ret->hwndMainWindow = createEditorWindow(windowName, ret);
-  ret->hWnd = CreateWindowWithPrivateData(sharedClassName, windowName, 100, 100,
+  ret->hWnd = CreateWindowWithPrivateData(imguiWindowName, windowName, 100, 100,
                                           800, 600, &(ret->ctx), &(ret->data));
   ret->setParentWindow(ret->hwndMainWindow);
   ret->isMainWindow = isMainWindow_;
   if (ret->hWnd == nullptr) {
     throw(std::runtime_error("hwnd create failed\n"));
   }
-
-  allWindows.push_back(ret);
-
   return ret;
-}
-UIManager::~UIManager() {
-  for (BigWindow *window : allWindows) {
-    delete window;
-  }
-  CleanupGlobalFonts();
-  UnregisterClass(sharedClassName, GetModuleHandle(nullptr));
-  UnregisterClass(L"eidtorWindow", GetModuleHandle(nullptr));
-  CleanupDeviceD3D();
-}
-void UIManager::MainLoop() {
-  // for (BigWindow *window : allWindows) {
-  //   window->loop();
-  // }
-  auto it =
-      std::remove_if(allWindows.begin(), allWindows.end(), [&](BigWindow *w) {
-        if (!(w->bValid)) {
-          delete w;
-          return true;
-        } else {
-          w->loop();
-          return false;
-        }
-      });
-  allWindows.erase(it, allWindows.end());
-}
-// 强制初始化d3d环境
-struct UIManagerInitStruct {
-  UIManagerInitStruct() { getUiManager(); }
 };
-static UIManagerInitStruct UIManagerInitStructInst;
+
 BigWindow::BigWindow() {}
