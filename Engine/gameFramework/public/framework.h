@@ -604,7 +604,10 @@ public:
     icon.loadFromFile(getGameConfig().windowIcon);
     window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
   }
-  ~GGame() { delete curWorld; }
+  ~GGame() {
+    if(curWorld!=&waitPage)
+    delete curWorld;
+   }
   void loop() {
 
     while (window.isOpen()) {

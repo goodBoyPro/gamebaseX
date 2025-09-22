@@ -15,7 +15,7 @@ static LRESULT CALLBACK editorWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
       data->bValid = false;
     }
     return 0;
-  case WS_SIZEBOX: {
+  case WM_SIZE: {
     UpdateWindow(hwnd);
     return 0;
   }

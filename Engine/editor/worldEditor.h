@@ -446,9 +446,10 @@ private:
 
 public:
   ~EditorProgram() {
-    for (auto w : EditorWindowWithPanel::allEditorWindow) {
-      delete w;
-    }
+    //全局对象析构顺序不确定,，不能在这里删除
+    // for (auto w : EditorWindowWithPanel::allEditorWindow) {
+    //   delete w;
+    // }
   }
   template <class T> EditorWindowWithPanel *createEditorPanel() {
     T *ret = new T;
@@ -463,8 +464,11 @@ public:
       while (PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-        if (msg.message == WM_QUIT)
-          isRun = false;
+        if (msg.message == WM_QUIT) {
+          for (auto w : EditorWindowWithPanel::allEditorWindow) {
+            w->isValid = false;
+          }
+          isRun = false;}
       }
       //////////////////////////////////////////////////////////////渲染
       // for (auto w : EditorWindowWithPanel::allEditorWindow) {
