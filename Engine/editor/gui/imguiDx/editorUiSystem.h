@@ -42,6 +42,22 @@ public:
     }
   }
 };
+class PanelNoResizeMove : public MiniWindow {
+public:
+  PanelNoResizeMove(const std::string &id, int state) : MiniWindow(id, state) {}
+  void loop() override {
+    if (bOpen) {
+
+      ImGui::SetNextWindowSize(size);
+      ImGui::SetNextWindowPos(position);
+      if (ImGui::Begin(id.c_str(), nullptr,
+                       ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
+        imguiRenderCBK();
+      }
+      ImGui::End();
+    }
+  }
+};
 class PopUpWindow : public MiniWindow {
 public:
   PopUpWindow(const std::string &id, int state) : MiniWindow(id, state) {}
@@ -85,7 +101,7 @@ public:
           ImGui::SetNextWindowBgAlpha(0);
           ImGui::SetNextWindowSize(size);
           ImGui::SetNextWindowPos(position);
-          ImGui::Begin("地图视口", nullptr, ImGuiWindowFlags_NoScrollbar);
+          ImGui::Begin("地图视口", nullptr, ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
           ImVec2 pos = ImGui::GetCursorScreenPos();
           ImVec2 size = ImGui::GetContentRegionAvail();
           MoveWindow(otherHwnd, pos.x, pos.y, size.x, size.y, true);

@@ -67,6 +67,10 @@ public:
   ImVec2 size = {100, 100};
   void setPosition(const ImVec2 &pos_) { position = pos_; }
   void setSize(const ImVec2 &size_) { size = size_; }
+  void setPositionSize(float x, float y, float w, float h) {
+    position = {x, y};
+    size = {w, h};
+  }
   std::vector<MiniWindow *> allWindows;
   MiniWindow *addWindow(MiniWindow *w) {
     w->parentArea = this;
@@ -116,7 +120,7 @@ public:
         dragStartPos(0.0f), minRatio(0.1f), maxRatio(0.9f) {}
 
   // 渲染分割线并处理输入
-  bool render(const ImVec2 &pos, float length) {
+  bool render(const ImVec2 &pos, float length,float LengthTotal) {
     ImGuiIO &io = ImGui::GetIO();
     ImDrawList *drawList = ImGui::GetWindowDrawList();
 
@@ -153,7 +157,8 @@ public:
       dragStartPos = mousePos;
 
       // 计算新的比例（基于总长度）
-      splitRatio += delta / length;
+
+      splitRatio += delta /LengthTotal;
 
       // 限制比例范围
       if (splitRatio < minRatio)
@@ -187,7 +192,14 @@ public:
       currentThickness = hoverThickness;
       currentColor = hoverColor;
       // 改变鼠标光标
-      ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+      
+      if (isVertical) {
+        // 垂直分割线：左右调整光标
+        ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+      } else {
+        // 水平分割线：上下调整光标
+        ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+      }
     }
 
     // 绘制分割线
@@ -224,8 +236,14 @@ public:
   bool dragging() const { return isDragging; }
 };
 class WindowLayOut {
-  float menuBarHeight = 24;
-  Splitter splitterLeft{true, 0.2f};
+  float menuBarHeight = 21;
+  float spilitterThickness = 2;
+  float x1=0.2;
+  float x2=0.8;
+  float y1=0.8;
+  Splitter splitterLeft{true, x1};
+  Splitter splitterRight{true, x2};
+  Splitter splitterBottom{false, y1};
   int width = 1;
   int height = 1;
 
@@ -248,24 +266,38 @@ public:
                     //  ImGuiWindowFlags_NoSavedSettings |
                      ImGuiWindowFlags_NoBringToFrontOnFocus //
     );
-    float leftSplitterX = width * splitterLeft.getRatio();
-    splitterLeft.render(ImVec2(leftSplitterX, menuBarHeight), 800);
+    
+    if (splitterLeft.render(ImVec2(width * splitterLeft.getRatio(), menuBarHeight), height * y1,
+                            width)) {
+      x1 = splitterLeft.getRatio();
+      match(GetForegroundWindow());
+    };
+    if(splitterRight.render(ImVec2(width * splitterRight.getRatio(), menuBarHeight), height * y1,
+                            width)){
+      x2 = splitterRight.getRatio();
+      match(GetForegroundWindow());
+    };
+    if (splitterBottom.render(ImVec2(0, menuBarHeight + height * splitterBottom.getRatio()), width,
+                              height - menuBarHeight)) {
+      y1 = splitterBottom.getRatio();
+      match(GetForegroundWindow());
+    };
     ImGui::End();
   }
   void match(HWND hwnd_) {
     RECT rect;
     GetClientRect(hwnd_, &rect);
-    width = rect.right - rect.left;
-    height = rect.bottom - rect.top;
-    height -= menuBarHeight; // 减去菜单栏高度
-    areaLeft.setPosition(ImVec2(0, menuBarHeight));
-    areaLeft.setSize(ImVec2(width * 0.2f, height * 0.8f));
-    areaCenter.setPosition(ImVec2(width * 0.2f, menuBarHeight));
-    areaCenter.setSize(ImVec2(width * 0.6f, height * 0.8f));
-    areaRight.setPosition(ImVec2(width * 0.8f, menuBarHeight));
-    areaRight.setSize(ImVec2(width * 0.2f, height * 0.8f));
-    areaBottom.setPosition(ImVec2(0, menuBarHeight + height * 0.8f));
-    areaBottom.setSize(ImVec2(width, height * 0.2f));
+    width = rect.right - rect.left-spilitterThickness*2;
+    height = rect.bottom - rect.top- menuBarHeight-spilitterThickness;
+
+    
+    areaLeft.setPositionSize(0, menuBarHeight, width * x1, height *y1);
+    
+    areaCenter.setPositionSize(width * x1+spilitterThickness, menuBarHeight, width * (x2-x1), height *y1);
+   
+    areaRight.setPositionSize(width * x2+spilitterThickness*2, menuBarHeight, width * (1-x2), height *y1);
+   
+    areaBottom.setPositionSize(0, menuBarHeight + height * y1+spilitterThickness, width, height * (1-y1));
     areaLeft.autoMatchPositionSize();
     areaCenter.autoMatchPositionSize();
     areaRight.autoMatchPositionSize();

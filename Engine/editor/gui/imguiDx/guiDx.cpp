@@ -276,8 +276,10 @@ LRESULT WINAPI SharedWndProc(HWND hWnd, UINT msg, WPARAM wParam,
     break;
 
   case WM_DESTROY:
-    // PostQuitMessage(0);
+    {// PostQuitMessage(0);
     return 0;
+  }
+
   }
 
   return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -462,7 +464,7 @@ void BigWindow::loop() {
     for (auto &miniw : allWindows) {
       miniw.second->loop();
     }
-   layout.renderloop();
+    layout.renderloop();
     followParent();
     /////////////////////////////////////////////////////////////
     g_pd3dDeviceContext->OMSetRenderTargets(1, &data->rtv, nullptr);

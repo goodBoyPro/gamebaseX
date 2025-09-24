@@ -102,7 +102,7 @@ void WorldEditorWindow::setUI() {
   });
   //////////////////////////////////////////////////////////////////////////////////
   MiniWindow *landScapeMaterial =
-      UI->createWindow<MiniWindow>("地形材质", 0);
+      UI->createWindow<PanelNoResizeMove>("地形材质", 0);
   UI->layout.areaRight.addWindow(landScapeMaterial);
   landScapeMaterial->setWindowUi([&]() {
     if(curWorld==&waitPage){return;}
@@ -114,7 +114,7 @@ void WorldEditorWindow::setUI() {
     }
   });
   //////////////////////////////////////////////////////////////////////////////////
-  MiniWindow *win1 = UI->createWindow<MiniWindow>("window1", 0);
+  MiniWindow *win1 = UI->createWindow<PanelNoResizeMove>("window1", 0);
   UI->layout.areaLeft.addWindow(win1);
   win1->setPosition({10, 30});
   win1->setSize({300, 500});
@@ -165,6 +165,12 @@ void WorldEditorWindow::setUI() {
   MiniWindow *port = UI->createWindow<PortCarrierWindow>("port");
   ((PortCarrierWindow*)port)->otherHwnd=window.getSystemHandle();
   UI->layout.areaCenter.addWindow(port);
+  
+
+  MiniWindow*windowBottom=UI->createWindow<PanelNoResizeMove>("底部信息",0);
+  UI->layout.areaBottom.addWindow(windowBottom);
+
+  UI->layout.match(UI->hwndMainWindow);
 };
 void WorldEditorWindow::loop() {
 
