@@ -67,9 +67,10 @@ public:
   ImVec2 size = {100, 100};
   void setPosition(const ImVec2 &pos_) { position = pos_; }
   void setSize(const ImVec2 &size_) { size = size_; }
-  void setPositionSize(float x, float y, float w, float h) {
+  ImVec2 setPositionSize(float x, float y, float w, float h) {
     position = {x, y};
     size = {w, h};
+    return ImVec2(w, h);
   }
   std::vector<MiniWindow *> allWindows;
   MiniWindow *addWindow(MiniWindow *w) {
@@ -237,7 +238,7 @@ public:
 };
 class WindowLayOut {
   float menuBarHeight = 21;
-  float spilitterThickness = 2;
+  float spilitterThickness = 4;
   float x1=0.2;
   float x2=0.8;
   float y1=0.8;
@@ -287,17 +288,22 @@ public:
   void match(HWND hwnd_) {
     RECT rect;
     GetClientRect(hwnd_, &rect);
-    width = rect.right - rect.left-spilitterThickness*2;
-    height = rect.bottom - rect.top- menuBarHeight-spilitterThickness;
+    width = rect.right - rect.left;
+    height = rect.bottom - rect.top- menuBarHeight;
 
     
-    areaLeft.setPositionSize(0, menuBarHeight, width * x1, height *y1);
+    // areaLeft.setPositionSize(0, menuBarHeight, width * x1, height *y1);
+    areaLeft.setPositionSize(0, menuBarHeight, width * x1-spilitterThickness/2, height *y1-spilitterThickness/2);
     
-    areaCenter.setPositionSize(width * x1+spilitterThickness, menuBarHeight, width * (x2-x1), height *y1);
+    // areaCenter.setPositionSize(width * x1+spilitterThickness, menuBarHeight, width * (x2-x1), height *y1);
+    areaCenter.setPositionSize(width * x1+spilitterThickness/2, menuBarHeight, width * (x2-x1)-spilitterThickness, height *y1-spilitterThickness/2);
    
-    areaRight.setPositionSize(width * x2+spilitterThickness*2, menuBarHeight, width * (1-x2), height *y1);
+    // areaRight.setPositionSize(width * x2+spilitterThickness*2, menuBarHeight, width * (1-x2), height *y1);
+    areaRight.setPositionSize(width * x2+spilitterThickness/2, menuBarHeight, width * (1-x2)-spilitterThickness, height *y1-spilitterThickness/2);
+
+    // areaBottom.setPositionSize(0, menuBarHeight + height *y1+spilitterThickness, width, height * (1-y1));
+    areaBottom.setPositionSize(0, menuBarHeight + height *y1+spilitterThickness/2, width, height * (1-y1)-spilitterThickness/2);
    
-    areaBottom.setPositionSize(0, menuBarHeight + height * y1+spilitterThickness, width, height * (1-y1));
     areaLeft.autoMatchPositionSize();
     areaCenter.autoMatchPositionSize();
     areaRight.autoMatchPositionSize();
