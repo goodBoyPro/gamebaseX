@@ -26,6 +26,7 @@ include_directories(
     ${ABS_DIR}/Engine/ExternLibrary/SFML/include
     ${ABS_DIR}/Engine/ExternLibrary/include
     ${ABS_DIR}/Engine/gameFramework/public
+    ${ABS_DIR}/Engine/editor
     ${ABS_DIR}/build/generatedCodeFile
 )
 
@@ -67,7 +68,18 @@ target_compile_definitions(${exeName} PRIVATE -DEDITOR)
 #mainTest
 set(exeName mainTest)
 file(GLOB_RECURSE src 
-    ${ABS_DIR}/cpptest/*.cpp
+    ${ABS_DIR}/cpptest/mainTest.cpp
+    ${ABS_DIR}/Engine/editor/gui/imguiDx/imguiLib/*.cpp
+    )
+add_executable(${exeName}  ${src})
+set_target_properties(${exeName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ABS_DIR}/output/bin)
+target_link_directories(${exeName} PRIVATE ${ABS_DIR}/Engine/ExternLibrary/SFML/lib)
+target_link_libraries(${exeName} opengl32 sfml-graphics sfml-window sfml-system sfml-audio  winmm d3d11 dwmapi d3dcompiler) 
+
+#imguiTest
+set(exeName imguiTest)
+file(GLOB_RECURSE src 
+    ${ABS_DIR}/cpptest/imguiTest.cpp
     ${ABS_DIR}/Engine/editor/gui/imguiDx/imguiLib/*.cpp
     )
 add_executable(${exeName}  ${src})
