@@ -1,0 +1,2 @@
+print(xx,yy,zz)
+print(123,456,789)
