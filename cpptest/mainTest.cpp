@@ -7,6 +7,8 @@ int main() {
         ScriptExecutorManager::isNumber(strs[2])    //
     ) {
       std::cout << strs[0] << strs[1] <<strs[2] << std::endl;
+    }else {
+      std::cerr<<"format:"<<"print(str,num,num)"<<std::endl;
     }
   });
   manager.loop();
