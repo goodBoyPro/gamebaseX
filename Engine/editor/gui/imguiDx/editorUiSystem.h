@@ -101,7 +101,7 @@ public:
           ImGui::SetNextWindowBgAlpha(0);
           ImGui::SetNextWindowSize(size);
           ImGui::SetNextWindowPos(position);
-          ImGui::Begin("地图视口", nullptr, ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+          ImGui::Begin(id.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
           ImVec2 pos = ImGui::GetCursorScreenPos();
           ImVec2 size = ImGui::GetContentRegionAvail();
           MoveWindow(otherHwnd, pos.x, pos.y, size.x, size.y, true);

@@ -121,7 +121,7 @@ public:
         dragStartPos(0.0f), minRatio(0.1f), maxRatio(0.9f) {}
 
   // 渲染分割线并处理输入
-  bool render(const ImVec2 &pos, float length,float LengthTotal) {
+  bool render(const ImVec2 &pos, float length, float LengthTotal) {
     ImGuiIO &io = ImGui::GetIO();
     ImDrawList *drawList = ImGui::GetWindowDrawList();
 
@@ -159,7 +159,7 @@ public:
 
       // 计算新的比例（基于总长度）
 
-      splitRatio += delta /LengthTotal;
+      splitRatio += delta / LengthTotal;
 
       // 限制比例范围
       if (splitRatio < minRatio)
@@ -193,7 +193,7 @@ public:
       currentThickness = hoverThickness;
       currentColor = hoverColor;
       // 改变鼠标光标
-      
+
       if (isVertical) {
         // 垂直分割线：左右调整光标
         ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
@@ -239,12 +239,14 @@ public:
 class WindowLayOut {
   float menuBarHeight = 21;
   float spilitterThickness = 4;
-  float x1=0.2;
-  float x2=0.8;
-  float y1=0.8;
-  Splitter splitterLeft{true, x1};
-  Splitter splitterRight{true, x2};
+  float x11 = 0.2;
+  float x12 = 0.8;
+  float x21 = 0.8;
+  float y1 = 0.8;
+  Splitter splitterLeft{true, x11};
+  Splitter splitterRight{true, x12};
   Splitter splitterBottom{false, y1};
+  Splitter splitterBottomRight{true, x21};
   int width = 1;
   int height = 1;
 
@@ -254,60 +256,86 @@ public:
   WindowArea areaCenter;
   WindowArea areaRight;
   WindowArea areaBottom;
+  WindowArea areaBottomRgiht;
   WindowLayOut() {}
   void renderloop() {
 
     // 渲染左侧分割器
     ImGui::SetNextWindowPos({0, menuBarHeight});
-    ImGui::SetNextWindowSize({(float)width, (float)(height-menuBarHeight)});
+    ImGui::SetNextWindowSize({(float)width, (float)(height - menuBarHeight)});
     ImGui::Begin("SplitterContainer", nullptr,
                  ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs |
-                    //  ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoBackground |  // 不绘制窗口背景
-                    //  ImGuiWindowFlags_NoSavedSettings |
+                     //  ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoBackground | // 不绘制窗口背景
+                     //  ImGuiWindowFlags_NoSavedSettings |
                      ImGuiWindowFlags_NoBringToFrontOnFocus //
     );
-    
-    if (splitterLeft.render(ImVec2(width * splitterLeft.getRatio(), menuBarHeight), height * y1,
-                            width)) {
-      x1 = splitterLeft.getRatio();
+
+    if (splitterLeft.render(
+            ImVec2(width * splitterLeft.getRatio(), menuBarHeight), height * y1,
+            width)) {
+      x11 = splitterLeft.getRatio();
       match(GetForegroundWindow());
     };
-    if(splitterRight.render(ImVec2(width * splitterRight.getRatio(), menuBarHeight), height * y1,
-                            width)){
-      x2 = splitterRight.getRatio();
+    if (splitterRight.render(
+            ImVec2(width * splitterRight.getRatio(), menuBarHeight),
+            height * y1, width)) {
+      x12 = splitterRight.getRatio();
       match(GetForegroundWindow());
     };
-    if (splitterBottom.render(ImVec2(0, menuBarHeight + height * splitterBottom.getRatio()), width,
-                              height - menuBarHeight)) {
+    if (splitterBottom.render(
+            ImVec2(0, menuBarHeight + height * splitterBottom.getRatio()),
+            width, height - menuBarHeight)) {
       y1 = splitterBottom.getRatio();
       match(GetForegroundWindow());
     };
+    if (splitterBottomRight.render({width * splitterBottomRight.getRatio(),
+                                    height * y1 + menuBarHeight},
+                                   height * (1 - y1) + 100, width)) {
+      x21 = splitterBottomRight.getRatio();
+      match(GetForegroundWindow());
+    }
     ImGui::End();
   }
   void match(HWND hwnd_) {
     RECT rect;
     GetClientRect(hwnd_, &rect);
     width = rect.right - rect.left;
-    height = rect.bottom - rect.top- menuBarHeight;
+    height = rect.bottom - rect.top - menuBarHeight;
 
-    
     // areaLeft.setPositionSize(0, menuBarHeight, width * x1, height *y1);
-    areaLeft.setPositionSize(0, menuBarHeight, width * x1-spilitterThickness/2, height *y1-spilitterThickness/2);
-    
-    // areaCenter.setPositionSize(width * x1+spilitterThickness, menuBarHeight, width * (x2-x1), height *y1);
-    areaCenter.setPositionSize(width * x1+spilitterThickness/2, menuBarHeight, width * (x2-x1)-spilitterThickness, height *y1-spilitterThickness/2);
-   
-    // areaRight.setPositionSize(width * x2+spilitterThickness*2, menuBarHeight, width * (1-x2), height *y1);
-    areaRight.setPositionSize(width * x2+spilitterThickness/2, menuBarHeight, width * (1-x2)-spilitterThickness, height *y1-spilitterThickness/2);
+    areaLeft.setPositionSize(0, menuBarHeight,
+                             width * x11 - spilitterThickness / 2,
+                             height * y1 - spilitterThickness / 2);
 
-    // areaBottom.setPositionSize(0, menuBarHeight + height *y1+spilitterThickness, width, height * (1-y1));
-    areaBottom.setPositionSize(0, menuBarHeight + height *y1+spilitterThickness/2, width, height * (1-y1)-spilitterThickness/2);
-   
+    // areaCenter.setPositionSize(width * x1+spilitterThickness, menuBarHeight,
+    // width * (x2-x1), height *y1);
+    areaCenter.setPositionSize(width * x11 + spilitterThickness / 2,
+                               menuBarHeight,
+                               width * (x12 - x11) - spilitterThickness,
+                               height * y1 - spilitterThickness / 2);
+
+    // areaRight.setPositionSize(width * x2+spilitterThickness*2, menuBarHeight,
+    // width * (1-x2), height *y1);
+    areaRight.setPositionSize(width * x12 + spilitterThickness / 2,
+                              menuBarHeight,
+                              width * (1 - x12) - spilitterThickness,
+                              height * y1 - spilitterThickness / 2);
+
+    // areaBottom.setPositionSize(0, menuBarHeight + height
+    // *y1+spilitterThickness, width, height * (1-y1));
+    areaBottom.setPositionSize(
+        0, menuBarHeight + height * y1 + spilitterThickness / 2, width * x21,
+        height * (1 - y1) - spilitterThickness / 2);
+    areaBottomRgiht.setPositionSize(
+        width * x21, menuBarHeight + height * y1 + spilitterThickness / 2,
+        width * (1 - x21), height * (1 - y1) - spilitterThickness / 2);
+
     areaLeft.autoMatchPositionSize();
     areaCenter.autoMatchPositionSize();
     areaRight.autoMatchPositionSize();
     areaBottom.autoMatchPositionSize();
+    areaBottomRgiht.autoMatchPositionSize();
   }
 };
 #endif // MINIWINDOW_H

@@ -6,7 +6,8 @@
 #include "gui/imguiDx/editorUiSystem.h"
 #include "render/sprite.h"
 #include "fileManager.h"
-#include"editorConfig.h"
+#include "editorConfig.h"
+#include"actorChecker.h"
 
 class MovableObj {
 public:
@@ -377,12 +378,15 @@ public:
   EditorWindowWithPanel() {
     window.close();
     window.create(sf::VideoMode(800, 600), "", sf::Style::None);
-    UI = getUiManager().createBigWindow(L"ui");
+    UI = getUiManager().createBigWindow(L"Editor");
     UI->addOtherWindow(window.getSystemHandle());
   }
   virtual void loop() {}
   virtual ~EditorWindowWithPanel() { window.close(); }
 };
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 class WorldEditorWindow : public EditorWindowWithPanel {
 public:
   Gstring worldFilePath;
@@ -397,9 +401,11 @@ public:
       window.setCameraActive(&(worldLoading->getCameraDefault()));
       ((WorldForEditor *)worldLoading)->bindInput();
     };
+    
     setUI();
   }
-  WindowBase window2;
+  // WindowBase window2;
+  ActorChecker actorChecker;
   void load(const std::string &jsonPath_) {
     loadWorld<WorldForEditor>(jsonPath_);
     worldFilePath = jsonPath_;
@@ -433,7 +439,9 @@ public:
   }
   // 窗口方法
 };
-
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
 class EditorProgram {
 private:
   friend EditorProgram &getEditorProgram();

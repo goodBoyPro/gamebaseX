@@ -162,19 +162,28 @@ void WorldEditorWindow::setUI() {
       ClassInfo::registerStaticActors(name,files[curIndex].path, texIndex);
     }
   });
+  ////////////////////////////////////////////////地图视口
   MiniWindow *port = UI->createWindow<PortCarrierWindow>("port");
   ((PortCarrierWindow*)port)->otherHwnd=window.getSystemHandle();
   UI->layout.areaCenter.addWindow(port);
-  
 
-  MiniWindow*windowBottom=UI->createWindow<PanelNoResizeMove>("底部信息",0);
+
+  ///////////////////////////////////////////////checker视口
+  MiniWindow *checkerPort = UI->createWindow<PortCarrierWindow>("CheckerPort");
+  UI->addOtherWindow(actorChecker.window.getSystemHandle());
+  ((PortCarrierWindow *)checkerPort)->otherHwnd =
+      actorChecker.window.getSystemHandle();
+  UI->layout.areaBottomRgiht.addWindow(checkerPort);
+  //////////////////////////////////////////////////////////////////////////
+  MiniWindow*windowBottom=UI->createWindow<PanelNoResizeMove>("对象浏览",0);
   UI->layout.areaBottom.addWindow(windowBottom);
-
+  ///////////////////////////////////////////////////执行布局
   UI->layout.match(UI->hwndMainWindow);
 };
 void WorldEditorWindow::loop() {
 
   if (window.isOpen()) {
     curWorld->loop(window, event);
+    actorChecker.loop();
   }
 }

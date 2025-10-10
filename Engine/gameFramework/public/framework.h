@@ -564,14 +564,16 @@ public:
     window.setCameraActive(camera_);
   };
   GameWindow window;
-  template <class T> GWorld *loadWorld(const std::string &jsonPath_) {
+  template <class T> GWorld *loadWorld(const std::string &jsonPath_="") {
     delete worldLoading;
     worldLoading = nullptr;
     curWorld = &waitPage;
+    
     worldLoading = new T;
 
     worldLoading->gm.gameIns = this;
     worldLoading->bindDefaultCameraController();
+
     worldLoading->loadBaseActors(jsonPath_);
     worldLoading->Construct();
     worldLoading->beginPlay();
@@ -579,7 +581,9 @@ public:
   }
   template <class T>
   GWorld *createWorld(int rows, int colomns, float width, int height,
-                      const std::string matJson_) {
+                      const std::string matJson_ = "") {
+    curWorld = &waitPage;
+    delete worldLoading;
     worldLoading = new T;
     worldLoading->gm.gameIns = this;
     worldLoading->bindDefaultCameraController();
@@ -588,8 +592,9 @@ public:
     worldLoading->bindDefaultCameraController();
     const std::vector<float> mapbs =
         worldLoading->getGridMap().getMapBeginPosAndTotalSize();
-    worldLoading->landScape.init(mapbs[0], mapbs[1], mapbs[2], mapbs[3],
-                                 matJson_);
+    if(matJson_!="")
+    {worldLoading->landScape.init(mapbs[0], mapbs[1], mapbs[2], mapbs[3],
+                                 matJson_);}
     curWorld = worldLoading;
     return worldLoading;
   }
@@ -608,7 +613,7 @@ public:
     if(curWorld!=&waitPage)
     delete curWorld;
    }
-  void loop() {
+  virtual void loop() {
 
     while (window.isOpen()) {
 

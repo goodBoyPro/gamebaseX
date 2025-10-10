@@ -105,6 +105,11 @@ GStaticActor *GWorld::createStaticActor(const std::string &name_,
   return actor;
 }
 void GWorld::asyncLoad(std::string jsonPath_) {
+  if (jsonPath_ == "") {
+    gridMap.init(2, 2, 300, 300);
+    isDataLoadComplete = true;
+    return;
+  }
   nlohmann::json jsobj;
   std::ifstream ifile(jsonPath_);
   ifile >> jsobj;
@@ -286,10 +291,10 @@ void PageGameWaitSourceLoad::loop(GameWindow &window_, EventBase &event_) {
     if (event_.type == sf::Event::Closed) {
       window_.close();
     }
-    window_.clear();
-    printText(window_, L"加载中");
-    window_.display();
   }
+  window_.clear();
+  printText(window_, L"加载中");
+  window_.display();
   if (gm.gameIns->worldLoading&&gm.gameIns->worldLoading->isLoadComplete()) {
     gm.gameIns->curWorld = gm.gameIns->worldLoading;
     doSomethingBoforeToWorld();

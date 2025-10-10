@@ -6,6 +6,7 @@
 #include "imguiLib/imgui_impl_dx11.h"
 #include "imguiLib/imgui_impl_win32.h"
 #include "map"
+#include "miniWindow.h"
 #include "stdexcept"
 #include <d3d11.h>
 #include <dxgi.h>
@@ -13,7 +14,7 @@
 #include <tchar.h>
 #include <vector>
 #include <windows.h>
-#include"miniWindow.h"
+
 // 窗口私有资源结构体
 struct WindowPrivateData {
   ImGuiContext *imguiContext;  // 窗口专属ImGui上下文
@@ -34,24 +35,25 @@ struct FontInfo {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class BigWindow {
-  
-  
+
   ImColor clearColor = {0, 0, 0, 0};
 
 public:
   WindowLayOut layout;
-HWND hWnd = nullptr;
-HWND parentHwnd = nullptr;
-HWND otherHwnd=nullptr;
-ImGuiContext *ctx = nullptr;
-WindowPrivateData *data = nullptr;
+  HWND hWnd = nullptr;
+  HWND parentHwnd = nullptr;
+  
+  std::vector<HWND> otherHwnd;
+  ImGuiContext *ctx = nullptr;
+  WindowPrivateData *data = nullptr;
   bool isMainWindow = false;
-  bool bValid=true;
-  bool brun=true;
-  HWND hwndMainWindow=nullptr;
+  bool bValid = true;
+  bool brun = true;
+  HWND hwndMainWindow = nullptr;
   friend class UIManager;
   void addOtherWindow(HWND other_) {
-    otherHwnd=other_;
+    // otherHwnd=other_;
+    otherHwnd.push_back(other_);
     SetParent(other_, hwndMainWindow);
     SetWindowPos(other_, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
   }
@@ -68,22 +70,26 @@ WindowPrivateData *data = nullptr;
       MoveWindow(hWnd, 0, 0, rect.right, rect.bottom, true);
     }
   }
+  // 未使用，由PortCarrierWindow管理
   void matchOther() {
-    if (!otherHwnd)
-      {return;}
-      ImGuiStyle& style = ImGui::GetStyle();
-      ImVec2 originalPadding = style.WindowPadding;
-      float originalBorderSize = style.WindowBorderSize;
-      
-      // 临时移除内边距和边框
-      style.WindowPadding = ImVec2(0, 0);
-      style.WindowBorderSize = 0.0f;
+    // if (!otherHwnd)
+    //   {return;}
+    ImGuiStyle &style = ImGui::GetStyle();
+    ImVec2 originalPadding = style.WindowPadding;
+    float originalBorderSize = style.WindowBorderSize;
+
+    // 临时移除内边距和边框
+    style.WindowPadding = ImVec2(0, 0);
+    style.WindowBorderSize = 0.0f;
     ImGui::SetNextWindowBgAlpha(0);
-    
-    ImGui::Begin("地图视口",nullptr,ImGuiWindowFlags_NoScrollbar);
+
+    ImGui::Begin("地图视口", nullptr, ImGuiWindowFlags_NoScrollbar);
     ImVec2 pos = ImGui::GetCursorScreenPos();
     ImVec2 size = ImGui::GetContentRegionAvail();
-    MoveWindow(otherHwnd, pos.x,pos.y,size.x,size.y, true);
+    for (HWND hwnd : otherHwnd) {
+      MoveWindow(hwnd, pos.x, pos.y, size.x, size.y, true);
+    }
+
     ImGui::End();
     style.WindowPadding = originalPadding;
     style.WindowBorderSize = originalBorderSize;
@@ -97,7 +103,6 @@ public:
   template <class T>
   MiniWindow *createWindow(const std::string &id, int state = 0);
 };
-
 
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -118,6 +123,6 @@ inline MiniWindow *BigWindow::createWindow(const std::string &id, int state) {
 void initImguiEnv();
 void cleanImguiEnv();
 BigWindow *createBigWindowImgui(const wchar_t *windowName,
-                           bool isMainWindow_ = false);
+                                bool isMainWindow_ = false);
 
 #endif // GUIDX_H
