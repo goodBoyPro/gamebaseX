@@ -1,13 +1,13 @@
 #ifndef WORLDEDITOR_H
 #define WORLDEDITOR_H
 
+#include "actorChecker.h"
 #include "base/registeredInfo.h"
+#include "editorConfig.h"
+#include "fileManager.h"
 #include "framework.h"
 #include "gui/imguiDx/editorUiSystem.h"
 #include "render/sprite.h"
-#include "fileManager.h"
-#include "editorConfig.h"
-#include"actorChecker.h"
 
 class MovableObj {
 public:
@@ -194,7 +194,7 @@ public:
   RectForEditor rectForMouseSelect;
   FlagCenter shapeOfCenter;
   std::set<GActor *> actorsSelected;
-  enum { nothing, selected, selecting } state = nothing;
+  enum { nothing, selected, selecting, moveCamera } state = nothing;
   WorldForEditor() {}
   void bindInput() {
 
@@ -241,8 +241,30 @@ public:
       if (state == nothing) {
         actorsSelected.clear();
       }
+      if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)) {
+        const FVector2 &posTemp = gm.gameIns->window.getMousePositionWin();
+        if (isMiddleFirstPressed) {
+          mouseLastPos = posTemp;
+          isMiddleFirstPressed = false;
+          
+        } else {
+          mouseDeltaMove = posTemp - mouseLastPos;
+          mouseLastPos = posTemp;
+          GCameraObj *camera = gm.gameIns->window.getCameraActve();
+          FVector2 delta=gm.gameIns->window.getCameraActve()->getPixSize()*mouseDeltaMove;
+          camera->setPositionWs(camera->getPositionWs()-FVector3(delta.x,delta.y,0));
+        }
+        
+      } else {
+        isMiddleFirstPressed = true;
+        mouseDeltaMove = {0, 0};   
+      }
+         
     });
   }
+  bool isMiddleFirstPressed = true;
+  FVector2 mouseDeltaMove = {0, 0};
+  FVector2 mouseLastPos = {0, 0};
   void axisAttachActor() {
     if (actorsSelected.empty()) {
       return;
@@ -377,7 +399,7 @@ public:
   BigWindow *UI = nullptr;
   EditorWindowWithPanel() {
     window.close();
-    window.create(sf::VideoMode(800, 600), "", sf::Style::None);
+    window.create(sf::VideoMode(800, 600), "", sf::Style::None,GameStatics::getWindowContexSettings());
     UI = getUiManager().createBigWindow(L"Editor");
     UI->addOtherWindow(window.getSystemHandle());
   }
@@ -401,7 +423,7 @@ public:
       window.setCameraActive(&(worldLoading->getCameraDefault()));
       ((WorldForEditor *)worldLoading)->bindInput();
     };
-    
+
     setUI();
   }
   // WindowBase window2;
@@ -454,10 +476,10 @@ private:
 
 public:
   ~EditorProgram() {
-    //全局对象析构顺序不确定,，不能在这里删除
-    // for (auto w : EditorWindowWithPanel::allEditorWindow) {
-    //   delete w;
-    // }
+    // 全局对象析构顺序不确定,，不能在这里删除
+    //  for (auto w : EditorWindowWithPanel::allEditorWindow) {
+    //    delete w;
+    //  }
   }
   template <class T> EditorWindowWithPanel *createEditorPanel() {
     T *ret = new T;
@@ -476,7 +498,8 @@ public:
           for (auto w : EditorWindowWithPanel::allEditorWindow) {
             w->isValid = false;
           }
-          isRun = false;}
+          isRun = false;
+        }
       }
       //////////////////////////////////////////////////////////////渲染
       // for (auto w : EditorWindowWithPanel::allEditorWindow) {

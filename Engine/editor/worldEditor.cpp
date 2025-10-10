@@ -185,5 +185,7 @@ void WorldEditorWindow::loop() {
   if (window.isOpen()) {
     curWorld->loop(window, event);
     actorChecker.loop();
-  }
+  } else {
+    actorChecker.window.close();
+    }
 }

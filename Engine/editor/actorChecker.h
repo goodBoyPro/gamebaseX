@@ -7,7 +7,7 @@ public:
   GActor *currentActor = nullptr;
   ActorChecker() {
     window.close();
-    window.create(sf::VideoMode(400,400), "",sf::Style::None);
+    window.create(sf::VideoMode(400,400), "",sf::Style::None,GameStatics::getWindowContexSettings());
     createWorld<GWorld>(2, 2, 600, 600);
     setCurrentActor("GStaticActor", "tree1");
   }
