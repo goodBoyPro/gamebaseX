@@ -49,33 +49,33 @@ GPlayer::GPlayer() {
   moveComp->speed = 1;
   cameraComp = createComponent<GCameraComponent>();
   sprComp = createComponent<GStaticSpriteComponent>();
-  controller.bind(GController::a, [this]() {
+  controller.bindLinearInput(GController::a, [this]() {
     moveComp->moveX = -1;
     moveComp->isAutoMove = false;
   });
-  controller.bind(GController::d, [this]() {
+  controller.bindLinearInput(GController::d, [this]() {
     moveComp->moveX = 1;
     moveComp->isAutoMove = false;
   });
-  controller.bind(GController::w, [this]() {
+  controller.bindLinearInput(GController::w, [this]() {
     moveComp->moveY = -1;
     moveComp->isAutoMove = false;
   });
-  controller.bind(GController::s, [this]() {
+  controller.bindLinearInput(GController::s, [this]() {
     moveComp->moveY = 1;
     moveComp->isAutoMove = false;
   });
-  controller.bind(GController::mleft, [this]() {
+  controller.bindClickInput(GController::mleft, [this]() {
     FVector3 target =
         cameraComp->camera.getMousePositionWs(getWorld()->gm.gameIns->window);
     moveComp->setTarget(target);
   });
-  controller.bind(GController::kup, [this]() {
+  controller.bindLinearInput(GController::kup, [this]() {
     if (cameraComp->camera.getPixSize() < 0.0001)
       return;
     cameraComp->camera.setPixSize(cameraComp->camera.getPixSize() - 0.0001);
   });
-  controller.bind(GController::kdown, [this]() {
+  controller.bindLinearInput(GController::kdown, [this]() {
     cameraComp->camera.setPixSize(cameraComp->camera.getPixSize() + 0.0001);
   });
 }
@@ -180,29 +180,29 @@ void GWorld::pollActorsActive(GameWindow &window_) {
 }
 void GWorld::bindDefaultCameraController() {
 useDefaultControllerAndCamera();
-  controllerDefault.bind(GController::w, [&]() {
+  controllerDefault.bindLinearInput(GController::w, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
                                 FVector3(0, -0.1, 0));
   });
-  controllerDefault.bind(GController::s, [&]() {
+  controllerDefault.bindLinearInput(GController::s, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
                                 FVector3(0, 0.1, 0));
   });
-  controllerDefault.bind(GController::a, [&]() {
+  controllerDefault.bindLinearInput(GController::a, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
                                 FVector3(-0.1, 0, 0));
   });
-  controllerDefault.bind(GController::d, [&]() {
+  controllerDefault.bindLinearInput(GController::d, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
                                 FVector3(0.1, 0, 0));
   });
-  controllerDefault.bind(GController::kup, [&]() {
+  controllerDefault.bindLinearInput(GController::kup, [&]() {
     float x = cameraDefault.getPixSize() - 0.0005;
     if (x > 0) {
       cameraDefault.setPixSize(x);
     }
   });
-  controllerDefault.bind(GController::kdown, [&]() {
+  controllerDefault.bindLinearInput(GController::kdown, [&]() {
     cameraDefault.setPixSize(cameraDefault.getPixSize() + 0.0005);
   });
 }

@@ -198,7 +198,7 @@ public:
   WorldForEditor() {}
   void bindInput() {
 
-    getControllerActive()->bind(GController::custom, [this]() {
+    getControllerActive()->bindLinearInput(GController::custom, [this]() {
       if (state == selected) {
         axis.selected = true;
         axis.listenEvent(gm.gameIns->window, gm.gameIns->event);
