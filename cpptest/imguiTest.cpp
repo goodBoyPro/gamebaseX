@@ -9,6 +9,7 @@
 
 #include "gui/imguiDx//imguiLib/imgui.h"
 #include "actorBrowser.h"
+#include"browserTest.h"
 #include "gui/imguiDx//imguiLib/imgui_impl_dx11.h"
 #include "gui/imguiDx//imguiLib/imgui_impl_win32.h"
 #include <d3d11.h>
@@ -201,7 +202,10 @@ int main(int, char **) {
       ImGui::End();
     }
     /////////////////////////////////////////////////////////////////////////////////测试
-    
+    static IntVectorBrowser int_browser;
+    int_browser.Draw();
+    static BrowserTest browser;
+    browser.draw();
     /////////////////////////////////////////////////////////////////////////////////测试
 
     // Rendering
