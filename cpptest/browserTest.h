@@ -1,7 +1,12 @@
 #ifndef BROWSErTEST_H
 #define BROWSErTEST_H
 #include "gui/imguiDx/imguiLib/imgui.h"
+#include "gui/imguiDx//imguiLib/imgui_impl_dx11.h"
+#include "gui/imguiDx//imguiLib/imgui_impl_win32.h"
+#include <d3d11.h>
+#include <tchar.h>
 #include "stdio.h"
+#include"gui/imguiDx/d11TextureAtlas.h"
 class BrowserTest {
 public:
   int selectedIndex = -1;
@@ -13,6 +18,7 @@ public:
     return {index % columnCount * (itemSize.x + distance) + topLeft.x,
             (int)(index / columnCount) * (itemSize.y + distance) + topLeft.y};
   }
+  
   void draw() {
 
     if (ImGui::Begin("testW")) {
@@ -28,6 +34,9 @@ public:
           if (ImGui::Selectable("", isSelected, 0, itemSize)) {
             selectedIndex = i;
           };
+          ImGui::SetCursorPos(pos);
+          //   ImGui::Image(icon1, {itemSize.x/2,itemSize.y/2});
+          RenderAtlasImage( "system/texture/a.png", pos, {30,30});
           ImGui::SetCursorPos({pos.x, pos.y + itemSize.y - 10});
           if (isSelected) {
             ImGui::TextColored({255,0,255,255},"%d", i);

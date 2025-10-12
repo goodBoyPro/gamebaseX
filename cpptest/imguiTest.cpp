@@ -15,7 +15,6 @@
 #include <d3d11.h>
 #include <tchar.h>
 
-
 // Data
 static ID3D11Device *g_pd3dDevice = nullptr;
 static ID3D11DeviceContext *g_pd3dDeviceContext = nullptr;
@@ -112,6 +111,9 @@ int main(int, char **) {
   bool show_another_window = false;
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+  BrowserTest browser;
+  // browser.icon1=LoadTextureSimple(g_pd3dDevice, "system/texture/a.png");
+  CreateTextureAtlas(g_pd3dDevice);
   // Main loop
   bool done = false;
   while (!done) {
@@ -204,7 +206,7 @@ int main(int, char **) {
     /////////////////////////////////////////////////////////////////////////////////测试
     static IntVectorBrowser int_browser;
     int_browser.Draw();
-    static BrowserTest browser;
+   
     browser.draw();
     /////////////////////////////////////////////////////////////////////////////////测试
 
