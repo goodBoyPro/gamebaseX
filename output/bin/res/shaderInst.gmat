@@ -2,7 +2,7 @@
     "fragPath": "res/shaders/shader.frag",
     "properties": {
         "blocks_scale": [
-            200.0,
+            50.0,
             0.0,
             200.0
         ],

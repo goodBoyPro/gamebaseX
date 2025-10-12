@@ -24,11 +24,13 @@ public:
   void init(int row_, int column_, float centerX_, float centerY_,
             const std::string &path) {
     if (!texture.loadFromFile(path)) {
-      texture.loadFromFile("system/texture/invalidTex.png");
+      texture.loadFromFile("system/texture/invalidTex.png");     
       sizeTexUnit = {(int)(texture.getSize().x / column_),
                      (int)(texture.getSize().y / row_)};
       return;
     };
+    texture.generateMipmap();
+    texture.setSmooth(true);
     row = row_;
     column = column_;
     centerX = centerX_;
