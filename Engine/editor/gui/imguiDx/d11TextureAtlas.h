@@ -71,10 +71,10 @@ inline TextureAtlas CreateTextureAtlas(ID3D11Device* device) {
     const int padding = 1;  // 子图像之间的间隔（防止采样时边缘混淆）
     int maxSubimageHeight = 0;
     int totalWidth = 0;
-
+    
     // 先计算最大高度和总宽度（按单行排列的理论值）
     for (const auto& sub : tempSubimages) {
-        maxSubimageHeight = std::max(maxSubimageHeight, sub.height);
+        maxSubimageHeight =((( maxSubimageHeight) > (sub.height)) ? ( maxSubimageHeight) : (sub.height));
         totalWidth += sub.width + padding;
     }
 
