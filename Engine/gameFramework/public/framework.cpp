@@ -97,7 +97,7 @@ GStaticActor *GWorld::createStaticActor(const std::string &name_,
                                         const FVector3 &sizeWs_) {
   auto actor = createActor<GStaticActor>(pos_);
 
-  GStaticActor::Info &staticActorInfo = ClassInfo::getStaticActorInfo(name_);
+  StaticActorInfo &staticActorInfo = ClassInfo::getStaticActorInfo(name_);
   actor->infoPtr = &staticActorInfo;
   actor->construct(GTextureTree::getSource().getObject(staticActorInfo.texPath),
                    staticActorInfo.texIndex);

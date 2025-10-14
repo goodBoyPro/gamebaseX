@@ -390,16 +390,16 @@ REGISTER_CLASS(GStaticActor)
 class GStaticActor : public GActor {
   REGISTER_BODY(GStaticActor)
 public:
-  struct Info {
-    std::string name;
-    size_t id;
-    size_t texId;
-    std::string texPath;
-    int texIndex;
-  };
+  // struct Info {
+  //   std::string name;
+  //   size_t id;
+  //   size_t texId;
+  //   std::string texPath;
+  //   int texIndex;
+  // };
 
 public:
-  Info *infoPtr = nullptr;
+  class StaticActorInfo *infoPtr = nullptr;
   GStaticSpriteComponent *sprComp = nullptr;
   GStaticActor() {}
   void construct(GTexture &tex_, int id_) {
