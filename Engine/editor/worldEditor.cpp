@@ -179,7 +179,9 @@ void WorldEditorWindow::setUI() {
   MiniWindow*windowBottom=UI->createWindow<PanelNoResizeMove>("对象浏览",0);
   UI->layout.areaBottom.addWindow(windowBottom);
   windowBottom->setWindowUi([]() {
-    if (ImGui::BeginChild("child")) {
+    if (ImGui::BeginChild("childxxy")) {
+      ImGui::Text("test");
+      ImGui::Separator();
       ImGui::SetCursorPos({10, 10});
       RenderAtlasImage("system/texture/a.png", {10,10}, {100,100});
       

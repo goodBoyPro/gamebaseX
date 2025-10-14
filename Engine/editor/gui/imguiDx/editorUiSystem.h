@@ -23,8 +23,8 @@ public:
     if (bOpen) {
       if (ImGui::BeginMainMenuBar()) {
         imguiRenderCBK();
+        ImGui::EndMainMenuBar();
       }
-      ImGui::EndMainMenuBar();
     }
   }
 };
@@ -37,8 +37,8 @@ public:
       ImGui::SetNextWindowSize(size);
       if (ImGui::Begin(id.c_str(), nullptr, ImGuiWindowFlags_NoResize)) {
         imguiRenderCBK();
+        ImGui::End();
       }
-      ImGui::End();
     }
   }
 };
@@ -55,7 +55,6 @@ public:
         imguiRenderCBK();
         ImGui::End();
       }
-     
     }
   }
 };
@@ -86,29 +85,32 @@ public:
 };
 class PortCarrierWindow : public MiniWindow {
 public:
-    PortCarrierWindow(const std::string &id, int state) : MiniWindow(id, state) {}
-    HWND otherHwnd = nullptr;
-    void loop() override {
-        if (!otherHwnd) {
-            return;
-          }
-          ImGuiStyle &style = ImGui::GetStyle();
-          ImVec2 originalPadding = style.WindowPadding;
-          float originalBorderSize = style.WindowBorderSize;
-      
-          // 临时移除内边距和边框
-          style.WindowPadding = ImVec2(0, 0);
-          style.WindowBorderSize = 0.0f;
-          ImGui::SetNextWindowBgAlpha(0);
-          ImGui::SetNextWindowSize(size);
-          ImGui::SetNextWindowPos(position);
-          ImGui::Begin(id.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-          ImVec2 pos = ImGui::GetCursorScreenPos();
-          ImVec2 size = ImGui::GetContentRegionAvail();
-          MoveWindow(otherHwnd, pos.x, pos.y, size.x, size.y, true);
-          ImGui::End();
-          style.WindowPadding = originalPadding;
-          style.WindowBorderSize = originalBorderSize;
+  PortCarrierWindow(const std::string &id, int state) : MiniWindow(id, state) {}
+  HWND otherHwnd = nullptr;
+  void loop() override {
+    if (!otherHwnd) {
+      return;
+    }
+    ImGuiStyle &style = ImGui::GetStyle();
+    ImVec2 originalPadding = style.WindowPadding;
+    float originalBorderSize = style.WindowBorderSize;
+
+    // 临时移除内边距和边框
+    style.WindowPadding = ImVec2(0, 0);
+    style.WindowBorderSize = 0.0f;
+    ImGui::SetNextWindowBgAlpha(0);
+    ImGui::SetNextWindowSize(size);
+    ImGui::SetNextWindowPos(position);
+    if (ImGui::Begin(id.c_str(), nullptr,
+                     ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize |
+                         ImGuiWindowFlags_NoMove)) {
+      ImVec2 pos = ImGui::GetCursorScreenPos();
+      ImVec2 size = ImGui::GetContentRegionAvail();
+      MoveWindow(otherHwnd, pos.x, pos.y, size.x, size.y, true);
+      ImGui::End();
     };
-    
+
+    style.WindowPadding = originalPadding;
+    style.WindowBorderSize = originalBorderSize;
+  };
 };

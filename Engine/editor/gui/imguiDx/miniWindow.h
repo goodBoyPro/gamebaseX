@@ -266,39 +266,39 @@ public:
     // 渲染左侧分割器
     ImGui::SetNextWindowPos({0, menuBarHeight});
     ImGui::SetNextWindowSize({(float)width, (float)(height - menuBarHeight)});
-    ImGui::Begin("SplitterContainer", nullptr,
-                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs |
-                     //  ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoBackground | // 不绘制窗口背景
-                     //  ImGuiWindowFlags_NoSavedSettings |
-                     ImGuiWindowFlags_NoBringToFrontOnFocus //
-    );
-
-    if (splitterLeft.render(
-            ImVec2(width * splitterLeft.getRatio(), menuBarHeight), height * y1,
-            width)) {
-      x11 = splitterLeft.getRatio();
-      match(GetForegroundWindow());
-    };
-    if (splitterRight.render(
-            ImVec2(width * splitterRight.getRatio(), menuBarHeight),
-            height * y1, width)) {
-      x12 = splitterRight.getRatio();
-      match(GetForegroundWindow());
-    };
-    if (splitterBottom.render(
-            ImVec2(0, menuBarHeight + height * splitterBottom.getRatio()),
-            width, height - menuBarHeight)) {
-      y1 = splitterBottom.getRatio();
-      match(GetForegroundWindow());
-    };
-    if (splitterBottomRight.render({width * splitterBottomRight.getRatio(),
-                                    height * y1 + menuBarHeight},
-                                   height * (1 - y1) + 100, width)) {
-      x21 = splitterBottomRight.getRatio();
-      match(GetForegroundWindow());
+    if (ImGui::Begin("SplitterContainer", nullptr,
+                     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs |
+                         //  ImGuiWindowFlags_AlwaysAutoResize |
+                         ImGuiWindowFlags_NoBackground | // 不绘制窗口背景
+                         //  ImGuiWindowFlags_NoSavedSettings |
+                         ImGuiWindowFlags_NoBringToFrontOnFocus //
+                     )) {
+      if (splitterLeft.render(
+              ImVec2(width * splitterLeft.getRatio(), menuBarHeight),
+              height * y1, width)) {
+        x11 = splitterLeft.getRatio();
+        match(GetForegroundWindow());
+      };
+      if (splitterRight.render(
+              ImVec2(width * splitterRight.getRatio(), menuBarHeight),
+              height * y1, width)) {
+        x12 = splitterRight.getRatio();
+        match(GetForegroundWindow());
+      };
+      if (splitterBottom.render(
+              ImVec2(0, menuBarHeight + height * splitterBottom.getRatio()),
+              width, height - menuBarHeight)) {
+        y1 = splitterBottom.getRatio();
+        match(GetForegroundWindow());
+      };
+      if (splitterBottomRight.render({width * splitterBottomRight.getRatio(),
+                                      height * y1 + menuBarHeight},
+                                     height * (1 - y1) + 100, width)) {
+        x21 = splitterBottomRight.getRatio();
+        match(GetForegroundWindow());
+      }
+      ImGui::End();
     }
-    ImGui::End();
   }
   void match(HWND hwnd_) {
     RECT rect;
