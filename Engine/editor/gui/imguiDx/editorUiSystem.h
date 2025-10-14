@@ -53,8 +53,9 @@ public:
       if (ImGui::Begin(id.c_str(), nullptr,
                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
         imguiRenderCBK();
+        ImGui::End();
       }
-      ImGui::End();
+     
     }
   }
 };

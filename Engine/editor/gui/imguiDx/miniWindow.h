@@ -45,13 +45,16 @@ public:
       }
       if (couldClose) {
 
-        ImGui::Begin(id.c_str(), &bOpen, state);
+        if (ImGui::Begin(id.c_str(), &bOpen, state)) {
+          imguiRenderCBK();
+          ImGui::End();
+        };
       } else {
-        ImGui::Begin(id.c_str(), nullptr, state);
+        if (ImGui::Begin(id.c_str(), nullptr, state)) {
+          imguiRenderCBK();
+          ImGui::End();
+        };
       }
-
-      imguiRenderCBK();
-      ImGui::End();
     }
   }
 };

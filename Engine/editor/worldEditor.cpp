@@ -1,6 +1,7 @@
 #include "worldEditor.h"
 #include "materialEditPanel.h"
-#include"fileManager.h"
+#include "fileManager.h"
+#include"gui/imguiDx/d11TextureAtlas.h"
 static std::function<void()> popCbk;
 PopUpWindow *windowPop;
 void WorldEditorWindow::setUI() {
@@ -177,6 +178,14 @@ void WorldEditorWindow::setUI() {
   //////////////////////////////////////////////////////////////////////////
   MiniWindow*windowBottom=UI->createWindow<PanelNoResizeMove>("对象浏览",0);
   UI->layout.areaBottom.addWindow(windowBottom);
+  windowBottom->setWindowUi([]() {
+    if (ImGui::BeginChild("child")) {
+      ImGui::SetCursorPos({10, 10});
+      RenderAtlasImage("system/texture/a.png", {10,10}, {100,100});
+      
+    }
+    ImGui::EndChild();
+  });
   ///////////////////////////////////////////////////执行布局
   UI->layout.match(UI->hwndMainWindow);
 };

@@ -2,6 +2,7 @@
 #include "guiDx.h"
 #include "Windows.h"
 #include "filesystem"
+#include"d11TextureAtlas.h"
 static const wchar_t *imguiWindowName = L"EditorWindowImgui10111";
 // 主窗口
 static LRESULT CALLBACK editorWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
@@ -187,6 +188,8 @@ bool CreateDeviceD3D() {
 
   dxgiAdapter->Release();
   dxgiDevice->Release();
+  //图片纹理集
+  CreateTextureAtlas(g_pd3dDevice);
   return true;
 }
 
@@ -378,7 +381,7 @@ HWND CreateWindowWithPrivateData(const WCHAR *className, const WCHAR *title,
 
   ImGui_ImplWin32_Init(hWnd);
   ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-
+  
   SetWindowLongPtr(hWnd, GWLP_USERDATA,
                    reinterpret_cast<LONG_PTR>(*outWndData));
 
@@ -496,6 +499,7 @@ void initImguiEnv() {
   }
 }
 void cleanImguiEnv() {
+  CleanupTextureAtlas();
   CleanupGlobalFonts();
   UnregisterClass(imguiWindowName, GetModuleHandle(nullptr));
   UnregisterClass(L"eidtorWindow", GetModuleHandle(nullptr));
