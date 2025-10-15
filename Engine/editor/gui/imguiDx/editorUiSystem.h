@@ -39,8 +39,9 @@ public:
       ImGui::SetNextWindowSize(size);
       if (ImGui::Begin(id.c_str(), nullptr, ImGuiWindowFlags_NoResize)) {
         imguiRenderCBK();
-        ImGui::End();
+       
       }
+       ImGui::End();
     }
   }
 };
@@ -55,8 +56,9 @@ public:
       if (ImGui::Begin(id.c_str(), nullptr,
                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
         imguiRenderCBK();
-        ImGui::End();
+       
       }
+       ImGui::End();
     }
   }
 };
@@ -109,8 +111,9 @@ public:
       ImVec2 pos = ImGui::GetCursorScreenPos();
       ImVec2 size = ImGui::GetContentRegionAvail();
       MoveWindow(otherHwnd, pos.x, pos.y, size.x, size.y, true);
-      ImGui::End();
-    };
+      
+    }
+    ImGui::End();
 
     style.WindowPadding = originalPadding;
     style.WindowBorderSize = originalBorderSize;
