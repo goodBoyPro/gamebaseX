@@ -1,3 +1,5 @@
+#ifndef EDITORUISYSTEM_H
+#define EDITORUISYSTEM_H
 #include "guidx.h"
 class UIManager {
   // const WCHAR *sharedClassName = L"ImGui_DX11_Shared_Window";
@@ -114,3 +116,4 @@ public:
     style.WindowBorderSize = originalBorderSize;
   };
 };
+#endif

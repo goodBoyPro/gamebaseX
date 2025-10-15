@@ -1,7 +1,7 @@
 #include "worldEditor.h"
 #include "materialEditPanel.h"
 #include "fileManager.h"
-#include"gui/imguiDx/d11TextureAtlas.h"
+#include"assetBrowser.h"
 static std::function<void()> popCbk;
 PopUpWindow *windowPop;
 void WorldEditorWindow::setUI() {
@@ -176,18 +176,9 @@ void WorldEditorWindow::setUI() {
       actorChecker.window.getSystemHandle();
   UI->layout.areaBottomRgiht.addWindow(checkerPort);
   //////////////////////////////////////////////////////////////////////////
-  MiniWindow*windowBottom=UI->createWindow<PanelNoResizeMove>("对象浏览",0);
+  MiniWindow*windowBottom=UI->createWindow<AssetBrowser>("对象浏览",0);
   UI->layout.areaBottom.addWindow(windowBottom);
-  windowBottom->setWindowUi([]() {
-    if (ImGui::BeginChild("childxxy")) {
-      ImGui::Text("test");
-      ImGui::Separator();
-      ImGui::SetCursorPos({10, 10});
-      RenderAtlasImage("system/texture/a.png", {10,10}, {100,100});
-      
-    }
-    ImGui::EndChild();
-  });
+  
   ///////////////////////////////////////////////////执行布局
   UI->layout.match(UI->hwndMainWindow);
 };
