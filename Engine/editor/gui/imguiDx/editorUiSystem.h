@@ -39,9 +39,8 @@ public:
       ImGui::SetNextWindowSize(size);
       if (ImGui::Begin(id.c_str(), nullptr, ImGuiWindowFlags_NoResize)) {
         imguiRenderCBK();
-       
       }
-       ImGui::End();
+      ImGui::End();
     }
   }
 };
@@ -56,9 +55,8 @@ public:
       if (ImGui::Begin(id.c_str(), nullptr,
                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
         imguiRenderCBK();
-       
       }
-       ImGui::End();
+      ImGui::End();
     }
   }
 };
@@ -105,14 +103,12 @@ public:
     ImGui::SetNextWindowBgAlpha(0);
     ImGui::SetNextWindowSize(size);
     ImGui::SetNextWindowPos(position);
-    if (ImGui::Begin(id.c_str(), nullptr,
-                     ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize |
-                         ImGuiWindowFlags_NoMove)) {
-      ImVec2 pos = ImGui::GetCursorScreenPos();
-      ImVec2 size = ImGui::GetContentRegionAvail();
-      MoveWindow(otherHwnd, pos.x, pos.y, size.x, size.y, true);
-      
-    }
+    ImGui::Begin(id.c_str(), nullptr,
+                 ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize |
+                     ImGuiWindowFlags_NoMove);
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    ImVec2 size = ImGui::GetContentRegionAvail();
+    MoveWindow(otherHwnd, pos.x, pos.y, size.x, size.y, true);
     ImGui::End();
 
     style.WindowPadding = originalPadding;
