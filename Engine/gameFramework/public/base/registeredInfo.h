@@ -3,17 +3,27 @@
 #include "framework.h"
 class ActorInfoIf {
 public:
+  static std::vector<ActorInfoIf *> allInfos;
+  ActorInfoIf() { allInfos.push_back(this); }
+  virtual ~ActorInfoIf() {
+    auto it = std::remove_if(allInfos.begin(), allInfos.end(),
+                             [this](ActorInfoIf *ptr) { return ptr == this; });
+    allInfos.erase(it, allInfos.end());
+  }
+
+  virtual GActor *createInWorld(GWorld *world_) = 0;
+//properties
+public:
   std::string type;
-  virtual GActor* createInWorld(GWorld *world_) = 0;
+  std::string name;
 };
 class StaticActorInfo : public ActorInfoIf {
 public:
-  std::string name;
   size_t id;
   size_t texId;
   std::string texPath;
   int texIndex;
-  GActor* createInWorld(GWorld *world_) override {
+  GActor *createInWorld(GWorld *world_) override {
     GStaticActor *ac = world_->createActor<GStaticActor>();
     ac->construct(GTextureTree::getSource().getObject(texPath), texIndex);
     return ac;
@@ -26,7 +36,7 @@ private:
 
 public:
   std::map<std::string, StaticActorInfo> staticiActors;
-  static std::map<std::string,StaticActorInfo> &getStaticActors() {
+  static std::map<std::string, StaticActorInfo> &getStaticActors() {
     return a.staticiActors;
   }
   ClassInfo();

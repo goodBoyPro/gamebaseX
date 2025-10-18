@@ -1,4 +1,5 @@
 #include "registeredInfo.h"
+std::vector<ActorInfoIf *>ActorInfoIf:: allInfos;
 ClassInfo ClassInfo::a;
 ClassInfo::ClassInfo() {
   std::ifstream ifile;

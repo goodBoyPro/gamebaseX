@@ -4,6 +4,7 @@
 ## 1. 命名
  1. 静态图片
    - arr_id_level_row_column_centerX_centerY_name.png
+   - 当前实现：(只要文件名以_c_c_c_c结尾，即可正确读取)
  2. 动画图片
    - ani_id_level_row_column_centerX_centerY_name.png
  3. 资源应使用导入器导入

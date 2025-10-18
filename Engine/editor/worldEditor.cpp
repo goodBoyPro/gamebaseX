@@ -176,7 +176,8 @@ void WorldEditorWindow::setUI() {
       actorChecker.window.getSystemHandle();
   UI->layout.areaBottomRgiht.addWindow(checkerPort);
   //////////////////////////////////////////////////////////////////////////
-  MiniWindow*windowBottom=UI->createWindow<PanelNoResizeMove>("对象浏览",0);
+  AssetBrowser*windowBottom = (AssetBrowser*)(UI->createWindow<AssetBrowser>("对象浏览", 0));
+  windowBottom->mainWindow=this;
   UI->layout.areaBottom.addWindow(windowBottom);
   
   ///////////////////////////////////////////////////执行布局
