@@ -29,11 +29,10 @@ FVector3 GSceneComponent::getPositionWs() {
   if (parentComp) {
     return parentComp->getPositionWs() + positionRelative;
   }
-  if (owner)
-  {
+  if (owner) {
     return owner->getPositionWs() + positionRelative;
   }
-  return {0,0,0};
+  return {0, 0, 0};
 }
 void GSceneComponent::setPositionWs(const FVector3 &posWs_) {
   setPositionRelative(posWs_ - owner->getPositionWs());
@@ -81,15 +80,14 @@ GPlayer::GPlayer() {
 }
 
 void GPlayer::beginPlay() {
-  sprComp->setTex(
-      GTextureTree::getSource().getObject("res/base/player.png"));
+  sprComp->setTex(GTextureTree::getSource().getObject("res/base/player.png"));
   sprComp->getSprite().setId(0);
   sprComp->getSprite().setCenter(0.5, 1);
   sprComp->setSizeWs({1, 1, 0});
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 void GWorld::loadBaseActors(const std::string &jsonPath_) {
-  std::thread th([this,jsonPath_]() { asyncLoad(jsonPath_); });
+  std::thread th([this, jsonPath_]() { asyncLoad(jsonPath_); });
   th.detach();
 }
 GStaticActor *GWorld::createStaticActor(const std::string &name_,
@@ -117,7 +115,6 @@ void GWorld::asyncLoad(std::string jsonPath_) {
   // 初始化地图
   gridMap.init(jsobj["mapInfo"]["row"], jsobj["mapInfo"]["column"],
                jsobj["mapInfo"]["width"], jsobj["mapInfo"]["height"]);
- 
 
   // staticActor
   for (auto info : jsobj["staticActors"]) {
@@ -160,12 +157,13 @@ void GWorld::asyncLoad(std::string jsonPath_) {
   gm.player->setPositionWs({playerPos[0], playerPos[1], playerPos[2]});
   ////////////////////////////////////////////////////////////////////
   // 解除阻塞
-    isDataLoadComplete = true;
+  isDataLoadComplete = true;
 }
 void GWorld::pollActorsActive(GameWindow &window_) {
   int centerId =
       gridMap.getPositionIndex(window_.getCameraActve()->getPositionWs());
-  if(centerId==-1)return;
+  if (centerId == -1)
+    return;
   gridMap.setActorsAlive(centerId);
   for (GActor *actor : gridMap.actorsAlive) {
     actor->loop(deltaTime, window_);
@@ -179,7 +177,7 @@ void GWorld::pollActorsActive(GameWindow &window_) {
   allRenderObj.resize(0);
 }
 void GWorld::bindDefaultCameraController() {
-useDefaultControllerAndCamera();
+  useDefaultControllerAndCamera();
   controllerDefault.bindLinearInput(GController::w, [&]() {
     cameraDefault.setPositionWs(cameraDefault.getPositionWs() +
                                 FVector3(0, -0.1, 0));
@@ -215,6 +213,12 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
   timeManager.loop();
   // 渲染
   window_.clear(ColorBase::Black);
+  render(window_, event_);
+  GDebug::debugDisplay(window_);
+  window_.display();
+}
+void GWorld::render(GameWindow &window_, EventBase &event_) {
+
   // 渲染地图
   landScape.draw(window_);
   // actor逻辑
@@ -223,13 +227,11 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
   tick();
   // UI逻辑
   //
-  // debug
   showGridMap(window_);
-  GDebug::debugDisplay(window_);
+
   // test
   PRINTDEBUG(L"Actors:%d", gridMap.getActorsNumber());
-  window_.display();
-}
+};
 void GCameraObj::drawSpr(GRenderObjComponent *spr_, GameWindow &window_) {
   int winW = window_.getDefaultView().getSize().x;
   int winH = window_.getDefaultView().getSize().y;
@@ -253,10 +255,9 @@ void GWorld::showGridMap(GameWindow &window_) {
 #ifdef EDITOR
   int id = gridMap.getPositionIndex(
       gm.gameIns->window.getCameraActve()->getPositionWs());
-  if(id==-1)return;
-  FVector2 p = gridMap
-                   .allNode[id]
-                   .point;
+  if (id == -1)
+    return;
+  FVector2 p = gridMap.allNode[id].point;
   FVector3 p1 = {p.x, p.y, 0};
   FVector3 p2 = {p.x + gridmapNode<GActor>::gridmapNodeWidth, p.y, 0};
   FVector3 p3 = {p.x + gridmapNode<GActor>::gridmapNodeWidth,
@@ -284,7 +285,7 @@ GActor::GActor() {
 };
 void GWorld::useDefaultControllerAndCamera() {
   gm.gameIns->window.setCameraActive(&cameraDefault);
-  controllerActive=&controllerDefault;
+  controllerActive = &controllerDefault;
 }
 void PageGameWaitSourceLoad::loop(GameWindow &window_, EventBase &event_) {
   while (window_.pollEvent(event_)) {
@@ -295,9 +296,8 @@ void PageGameWaitSourceLoad::loop(GameWindow &window_, EventBase &event_) {
   window_.clear();
   printText(window_, L"加载中");
   window_.display();
-  if (gm.gameIns->worldLoading&&gm.gameIns->worldLoading->isLoadComplete()) {
+  if (gm.gameIns->worldLoading && gm.gameIns->worldLoading->isLoadComplete()) {
     gm.gameIns->curWorld = gm.gameIns->worldLoading;
     doSomethingBoforeToWorld();
-    
   }
 }

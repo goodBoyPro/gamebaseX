@@ -2,6 +2,7 @@
 #define FRAMEWORK_H
 #include "GComman.h"
 #include "controllerX.h"
+#include "gameConfig.h"
 #include "gridWorld.h"
 #include "render/gameShader.h"
 #include "render/gsource.h"
@@ -10,7 +11,7 @@
 #include <gameLog.h>
 #include <nlohmann_json/json.hpp>
 #include <timeManager.h>
-#include"gameConfig.h"
+
 // 反射
 #define REGISTER_CLASS(className)                                              \
   class className;                                                             \
@@ -279,7 +280,20 @@ public:
 
     return winToWs(posfix, window_);
   };
-
+  void drawLineWin(const std::vector<FVector2> &points_,GameWindow &window_, ColorBase color = ColorBase::Red) {
+    static std::vector<sf::Vertex> points;
+    points.resize(0);
+    int n = 0;
+    for (const FVector2 &pos : points_) {
+      points.emplace_back(
+          sf::Vertex({(float)pos.x, (float)pos.y}, color));
+      if (n)
+        points.emplace_back(
+            sf::Vertex({(float)pos.x, (float)pos.y}, color));
+      n++;
+    }
+    window_.draw(points.data(), points.size(), sf::Lines);
+  }
   void drawLineWs(const std::vector<FVector3> &pointsVector_,
                   GameWindow &window_, ColorBase color = ColorBase::Red) {
     points.resize(0);
@@ -423,7 +437,6 @@ class GLandScape : public GSprite {
   float widhtTotal;
   float heightTotal;
   GMaterial landMaterial;
-  
 
 public:
   GSprite spr;
@@ -531,6 +544,7 @@ public:
   virtual void beginPlay() {}
   void pollActorsActive(GameWindow &window_);
   virtual void loop(GameWindow &window_, EventBase &event_);
+  virtual void render(GameWindow &window_, EventBase &event_);
   ~GWorld() {}
   GStaticActor *createStaticActor(const std::string &name_,
                                   const FVector3 &pos_ = {0, 0, 0},
@@ -564,11 +578,11 @@ public:
     window.setCameraActive(camera_);
   };
   GameWindow window;
-  template <class T> GWorld *loadWorld(const std::string &jsonPath_="") {
+  template <class T> GWorld *loadWorld(const std::string &jsonPath_ = "") {
     delete worldLoading;
     worldLoading = nullptr;
     curWorld = &waitPage;
-    
+
     worldLoading = new T;
 
     worldLoading->gm.gameIns = this;
@@ -592,9 +606,10 @@ public:
     worldLoading->bindDefaultCameraController();
     const std::vector<float> mapbs =
         worldLoading->getGridMap().getMapBeginPosAndTotalSize();
-    if(matJson_!="")
-    {worldLoading->landScape.init(mapbs[0], mapbs[1], mapbs[2], mapbs[3],
-                                 matJson_);}
+    if (matJson_ != "") {
+      worldLoading->landScape.init(mapbs[0], mapbs[1], mapbs[2], mapbs[3],
+                                   matJson_);
+    }
     curWorld = worldLoading;
     return worldLoading;
   }
@@ -603,16 +618,18 @@ public:
     curWorld = &waitPage;
     waitPage.gm.gameIns = this;
 
-    window.create(sf::VideoMode(getGameConfig().windowWidth,getGameConfig().windowHeight), "Game");
+    window.create(sf::VideoMode(getGameConfig().windowWidth,
+                                getGameConfig().windowHeight),
+                  "Game");
     window.setFramerateLimit(getGameConfig().frameLimit);
     sf::Image icon;
     icon.loadFromFile(getGameConfig().windowIcon);
     window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
   }
   ~GGame() {
-    if(curWorld!=&waitPage)
-    delete curWorld;
-   }
+    if (curWorld != &waitPage)
+      delete curWorld;
+  }
   virtual void loop() {
 
     while (window.isOpen()) {

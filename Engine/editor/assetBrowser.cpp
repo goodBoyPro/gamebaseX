@@ -1,6 +1,5 @@
 #include "assetBrowser.h"
 #include "worldEditor.h"
-static void x() {}
 AssetBrowser::AssetBrowser(const std::string &id, int state)
     : PanelNoResizeMove(id, state) {
   setWindowUi([this]() {
