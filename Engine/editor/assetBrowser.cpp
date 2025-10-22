@@ -41,6 +41,7 @@ AssetBrowser::AssetBrowser(const std::string &id, int state)
             selectedActor->destroyActor();
           }
           selectedActor = infoptr->createInWorld(mainWindow->actorChecker.curWorld);
+          dynamic_cast<GStaticActor*>(selectedActor)->sprComp->setSizeWs({2,2,0.5});
         };
         ImGui::SetCursorPos(pos);
         RenderAtlasImage("system/texture/a.png", pos, {30, 30});

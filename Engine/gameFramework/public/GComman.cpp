@@ -1,4 +1,5 @@
 #include "GComman.h"
+#include <cstdarg>
 sf::Font &getFont(int id) {
     static sf::Font font[5];
     static volatile bool f = []() {
@@ -14,6 +15,14 @@ sf::Font &getFont(int id) {
 struct __useGetFontAutoBeforMain {
   __useGetFontAutoBeforMain(){getFont(0);};
 }__useGetFontinst;
+void printTextFormat(GameWindow &window_, int x, int y, int size, ColorBase color, int fontId, const wchar_t *format, ...) {
+    wchar_t str[1024];
+    va_list args;
+    va_start(args, format);
+    vswprintf_s(str, format, args);
+    va_end(args);
+    printText(window_, str, x, y, size, color, fontId);
+}
 void printText(GameWindow &window_, const std::wstring &str, int x, int y, int size, ColorBase color, int fontId) {
     static sf::Text text;
     text.setFont(getFont(fontId));

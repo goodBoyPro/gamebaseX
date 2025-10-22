@@ -195,7 +195,7 @@ public:
   FlagCenter shapeOfCenter;
   std::set<GActor *> actorsSelected;
   enum { nothing, selected, selecting, moveCamera } state = nothing;
-  WorldForEditor() {}
+  WorldForEditor() {referLine.setActive();}
   void bindInput() {
 
     getControllerActive()->bindLinearInput(GController::custom, [this]() {
@@ -298,6 +298,7 @@ public:
   void tick() override {
     PRINTDEBUG(L"Actors:%d", getGridMap().getActorsNumber());
   }
+  ReferLine referLine;
   void loop(GameWindow &window_, EventBase &event_) override {
     getControllerActive()->loop(window_, event_);
     window_.clear();
@@ -311,6 +312,7 @@ public:
     }
     rectForMouseSelect.loop(window_, event_);
     showSelectedActors(window_);
+    referLine.drawLines(window_);
     GDebug::debugDisplay(window_);
 
     window_.display();
