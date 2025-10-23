@@ -1,7 +1,8 @@
 #include "worldEditor.h"
-#include "materialEditPanel.h"
+#include "assetBrowser.h"
 #include "fileManager.h"
-#include"assetBrowser.h"
+#include "materialEditPanel.h"
+
 static std::function<void()> popCbk;
 PopUpWindow *windowPop;
 void WorldEditorWindow::setUI() {
@@ -23,19 +24,20 @@ void WorldEditorWindow::setUI() {
           auto &filesMap = FileManager::getFileManager().filesGmap;
           if (filesMap.size() == 0) {
             ImGui::Text("无可用地图");
-            return;}
-          static int mapIndex=0;
-          if(ImGui::BeginCombo("地图",filesMap[mapIndex].name.c_str())){
-            for(size_t i=0;i<filesMap.size();i++){
-              if(ImGui::Selectable(filesMap[i].path.c_str(),mapIndex==i)){
-                mapIndex=i;               
+            return;
+          }
+          static int mapIndex = 0;
+          if (ImGui::BeginCombo("地图", filesMap[mapIndex].name.c_str())) {
+            for (size_t i = 0; i < filesMap.size(); i++) {
+              if (ImGui::Selectable(filesMap[i].path.c_str(), mapIndex == i)) {
+                mapIndex = i;
               }
             }
             ImGui::EndCombo();
           }
 
           if (ImGui::Button("确定")) {
-           
+
             load(filesMap[mapIndex].path);
             windowPop->close();
           };
@@ -46,33 +48,34 @@ void WorldEditorWindow::setUI() {
         });
         windowPop->open();
       }
-     
+
       if (ImGui::MenuItem("新建地图")) {
         static float mapInfo[4] = {0};
-        static char path[128]={0};
+        static char path[128] = {0};
         windowPop->setWindowUi([this]() {
           ImGui::InputText("路径", path, sizeof(path));
           ImGui::InputFloat("行", mapInfo);
           ImGui::InputFloat("列", mapInfo + 1);
           ImGui::InputFloat("单元宽", mapInfo + 2);
           ImGui::InputFloat("单元高", mapInfo + 3);
-          auto&filesMat=FileManager::getFileManager().filesGmat;
-          static int matIndex=0;
-          if(ImGui::BeginCombo("地形材质",filesMat[matIndex].name.c_str())){
-            for(size_t i=0;i<filesMat.size();i++){
-              if(ImGui::Selectable(filesMat[i].path.c_str(),matIndex==i)){
-                matIndex=i;               
+          auto &filesMat = FileManager::getFileManager().filesGmat;
+          static int matIndex = 0;
+          if (ImGui::BeginCombo("地形材质", filesMat[matIndex].name.c_str())) {
+            for (size_t i = 0; i < filesMat.size(); i++) {
+              if (ImGui::Selectable(filesMat[i].path.c_str(), matIndex == i)) {
+                matIndex = i;
               }
             }
             ImGui::EndCombo();
           }
 
           if (ImGui::Button("确定")) {
-            if(path[0]==0)return;
+            if (path[0] == 0)
+              return;
             create(mapInfo[0], mapInfo[1], mapInfo[2], mapInfo[3],
                    filesMat[matIndex].path);
-            
-            worldFilePath=setExpand(path, ".gmap");
+
+            worldFilePath = setExpand(path, ".gmap");
             windowPop->close();
           };
           ImGui::SameLine();
@@ -101,19 +104,23 @@ void WorldEditorWindow::setUI() {
       ImGui::EndMenu();
     }
   });
+  // 右侧面板///////////////////////////////////////////////////////////////////////
+  MiniWindow *rightPanel = UI->createWindow<PanelNoResizeMove>("属性面板", 0);
+  UI->layout.areaRight.addWindow(rightPanel);
+  rightPanel->setWindowUi([&]() { landScapeMaterialPanel(); });
   //////////////////////////////////////////////////////////////////////////////////
-  MiniWindow *landScapeMaterial =
-      UI->createWindow<PanelNoResizeMove>("地形材质", 0);
-  UI->layout.areaRight.addWindow(landScapeMaterial);
-  landScapeMaterial->setWindowUi([&]() {
-    if(curWorld==&waitPage){return;}
-    materialEditPanel(curWorld->landScape.getMaterial());
-    ImGui::Separator();
-    float pixSize=window.getCameraActve()->getPixSize();//这里不能用static
-    if (ImGui::DragFloat("视口缩放", &pixSize,0.0001,0.001,100,"%.4f")) {
-      window.getCameraActve()->setPixSize(pixSize);
-    }
-  });
+  // MiniWindow *landScapeMaterial =
+  //     UI->createWindow<PanelNoResizeMove>("地形材质", 0);
+  // UI->layout.areaRight.addWindow(landScapeMaterial);
+  // landScapeMaterial->setWindowUi([&]() {
+  //   if(curWorld==&waitPage){return;}
+  //   materialEditPanel(curWorld->landScape.getMaterial());
+  //   ImGui::Separator();
+  //   float pixSize=window.getCameraActve()->getPixSize();//这里不能用static
+  //   if (ImGui::DragFloat("视口缩放", &pixSize,0.0001,0.001,100,"%.4f")) {
+  //     window.getCameraActve()->setPixSize(pixSize);
+  //   }
+  // });
   //////////////////////////////////////////////////////////////////////////////////
   MiniWindow *win1 = UI->createWindow<PanelNoResizeMove>("window1", 0);
   UI->layout.areaLeft.addWindow(win1);
@@ -144,30 +151,28 @@ void WorldEditorWindow::setUI() {
     ////////////////////////////////////////////////////////注册staticActor
     static char name[64] = {0};
     static int texIndex = 0;
-   
+
     ImGui::InputText("名称##regSA", name, sizeof name);
-    auto &files=FileManager::getFileManager().filesPng;
-    static int curIndex=0;
-    if(ImGui::BeginCombo("序列图", files[curIndex].name.c_str())){
-      for(size_t i=0;i<files.size();i++){
-        if(ImGui::Selectable(files[i].path.c_str(),curIndex==i)){
-          curIndex = i;       
+    auto &files = FileManager::getFileManager().filesPng;
+    static int curIndex = 0;
+    if (ImGui::BeginCombo("序列图", files[curIndex].name.c_str())) {
+      for (size_t i = 0; i < files.size(); i++) {
+        if (ImGui::Selectable(files[i].path.c_str(), curIndex == i)) {
+          curIndex = i;
         }
       }
       ImGui::EndCombo();
-
     }
     ImGui::InputInt("index", &texIndex);
     if (ImGui::Button("注册")) {
       printf("register\n");
-      ClassInfo::registerStaticActors(name,files[curIndex].path, texIndex);
+      ClassInfo::registerStaticActors(name, files[curIndex].path, texIndex);
     }
   });
   ////////////////////////////////////////////////地图视口
   MiniWindow *port = UI->createWindow<PortCarrierWindow>("port");
-  ((PortCarrierWindow*)port)->otherHwnd=window.getSystemHandle();
+  ((PortCarrierWindow *)port)->otherHwnd = window.getSystemHandle();
   UI->layout.areaCenter.addWindow(port);
-
 
   ///////////////////////////////////////////////checker视口
   MiniWindow *checkerPort = UI->createWindow<PortCarrierWindow>("CheckerPort");
@@ -176,10 +181,11 @@ void WorldEditorWindow::setUI() {
       actorChecker.window.getSystemHandle();
   UI->layout.areaBottomRgiht.addWindow(checkerPort);
   //////////////////////////////////////////////////////////////////////////
-  AssetBrowser*windowBottom = (AssetBrowser*)(UI->createWindow<AssetBrowser>("对象浏览", 0));
-  windowBottom->mainWindow=this;
+  AssetBrowser *windowBottom =
+      (AssetBrowser *)(UI->createWindow<AssetBrowser>("对象浏览", 0));
+  windowBottom->mainWindow = this;
   UI->layout.areaBottom.addWindow(windowBottom);
-  
+
   ///////////////////////////////////////////////////执行布局
   UI->layout.match(UI->hwndMainWindow);
 };
@@ -190,5 +196,25 @@ void WorldEditorWindow::loop() {
     actorChecker.loop();
   } else {
     actorChecker.window.close();
-    }
+  }
 }
+void WorldEditorWindow::landScapeMaterialPanel() {
+  static bool bLandScapeMaterialPanel = true;
+  if (ImGui::CollapsingHeader("地形材质", bLandScapeMaterialPanel)) {
+    if (curWorld == &waitPage) {
+      return;
+    }
+    materialEditPanel(curWorld->landScape.getMaterial());
+    ImGui::Separator();
+    float pixSize = window.getCameraActve()->getPixSize(); // 这里不能用static
+    if (ImGui::DragFloat("视口缩放", &pixSize, 0.0001, 0.001, 100, "%.4f")) {
+      window.getCameraActve()->setPixSize(pixSize);
+    }
+  }
+  static bool bActorMaterialPanel = true;
+  if (ImGui::CollapsingHeader("对象材质", bActorMaterialPanel)) {
+    if (actorChecker.currentActor) {
+      ImGui::Text("test");
+    }
+  }
+};

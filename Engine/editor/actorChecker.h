@@ -23,6 +23,8 @@ public:
                   GameStatics::getWindowContexSettings());
     createWorld<WorldForActorChecker>(2, 2, 600, 600);
   }
-  void loop() override { curWorld->loop(window, event); }
+  void loop() override {
+    
+     curWorld->loop(window, event); }
 };
 #endif // ACTORCHECHER_H
