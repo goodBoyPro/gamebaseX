@@ -3,6 +3,7 @@
 #include "gui/imguiDx/d11TextureAtlas.h"
 #include "gui/imguiDx/editorUiSystem.h"
 #include"base/registeredInfo.h"
+inline constexpr const char *ASSET_BROWSER_DRAG_TYPE = "ASSET_BROWSER_ITEM";
 class AssetBrowser : public PanelNoResizeMove {
 public:
   int selectedIndex = -1;

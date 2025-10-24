@@ -110,12 +110,18 @@ public:
   void loop(sf::RenderWindow &window, sf::Event &event) {
 
     // 点击时
+     bool isGained=false;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::LostFocus) {
         isFocused = false;
       }
+     
       if (event.type == sf::Event::GainedFocus) {
-        isFocused = true;
+        isGained = true;
+      }
+      if(isGained&&event.type == sf::Event::MouseButtonReleased){
+
+        isFocused=true;
       }
       if (!isFocused) {
         return;

@@ -106,6 +106,7 @@ public:
     ImGui::Begin(id.c_str(), nullptr,
                  ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize |
                      ImGuiWindowFlags_NoMove);
+    imguiRenderCBK();
     ImVec2 pos = ImGui::GetCursorScreenPos();
     ImVec2 size = ImGui::GetContentRegionAvail();
     MoveWindow(otherHwnd, pos.x, pos.y, size.x, size.y, true);

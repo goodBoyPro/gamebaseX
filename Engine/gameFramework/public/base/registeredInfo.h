@@ -25,6 +25,7 @@ public:
   int texIndex;
   GActor *createInWorld(GWorld *world_) override {
     GStaticActor *ac = world_->createActor<GStaticActor>();
+    ac->infoPtr=this;
     ac->construct(GTextureTree::getSource().getObject(texPath), texIndex);
     return ac;
   };

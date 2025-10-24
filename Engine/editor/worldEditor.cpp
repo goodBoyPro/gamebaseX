@@ -1,7 +1,9 @@
 #include "worldEditor.h"
 #include "assetBrowser.h"
 #include "fileManager.h"
+#include "gui/imguiDx/imguiLib/imgui_internal.h"
 #include "materialEditPanel.h"
+
 
 static std::function<void()> popCbk;
 PopUpWindow *windowPop;
@@ -169,11 +171,38 @@ void WorldEditorWindow::setUI() {
       ClassInfo::registerStaticActors(name, files[curIndex].path, texIndex);
     }
   });
+
   ////////////////////////////////////////////////地图视口
   MiniWindow *port = UI->createWindow<PortCarrierWindow>("port");
   ((PortCarrierWindow *)port)->otherHwnd = window.getSystemHandle();
   UI->layout.areaCenter.addWindow(port);
+  port->setWindowUi([&]() {
+    ImVec2 windowContentSize = ImGui::GetContentRegionAvail();
 
+    ImRect rect = ImRect(ImGui::GetCursorScreenPos(),
+                         {ImGui::GetCursorScreenPos().x + windowContentSize.x,
+                          ImGui::GetCursorScreenPos().y + windowContentSize.y});
+    // 检测拖拽目标并处理回调
+
+    // if (ImGui::BeginDragDropTarget()) {
+    if (ImGui::BeginDragDropTargetCustom(rect,ImGui::GetID("dragAreaOfPort"))) {
+
+      if (const ImGuiPayload *payload =
+              ImGui::AcceptDragDropPayload(ASSET_BROWSER_DRAG_TYPE)) {
+        // 验证拖拽数据有效性
+        IM_ASSERT(payload->DataSize == sizeof(ActorInfoIf *));
+        ActorInfoIf *draggedAsset = *(ActorInfoIf **)payload->Data;
+
+        // 松开鼠标时执行的回调（可根据需求自定义）
+        GActor*actor=draggedAsset->createInWorld(curWorld);
+        actor->setPositionWs(window.getMousePositionWs());
+        if (auto staticActor = dynamic_cast<GStaticActor *>(actor)) {
+          staticActor->sprComp->setSizeWs({2, 2, 0.5});
+        }
+      }
+      ImGui::EndDragDropTarget();
+    }
+  });
   ///////////////////////////////////////////////checker视口
   MiniWindow *checkerPort = UI->createWindow<PortCarrierWindow>("CheckerPort");
   UI->addOtherWindow(actorChecker.window.getSystemHandle());
