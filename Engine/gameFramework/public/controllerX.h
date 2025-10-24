@@ -115,14 +115,15 @@ public:
       if (event.type == sf::Event::LostFocus) {
         isFocused = false;
       }
-     
-      if (event.type == sf::Event::GainedFocus) {
-        isGained = true;
-      }
-      if(isGained&&event.type == sf::Event::MouseButtonReleased){
 
+      if (event.type == sf::Event::GainedFocus) {
         isFocused=true;
+        // isGained = true;
       }
+      // if(isGained&&event.type == sf::Event::MouseButtonReleased){
+
+      //   isFocused=true;
+      // }
       if (!isFocused) {
         return;
       }
