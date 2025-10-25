@@ -139,17 +139,25 @@ public:
     });
   }
 };
-///////////////
+///////////////用于框选的框
 class RectForEditor {
+  FVector2 size = {100, 100};
+
 public:
   sf::ConvexShape shape;
-  sf::Color color = {255, 255, 0, 255};
   sf::Color fillColor = {0, 0, 0, 0};
   IVector2 posInWin = {100, 100};
-  FVector2 size = {100, 100};
+  FVector2 &getSize() { return size; }
   float lineThickness = 3;
   bool containPos(const IVector2 &posWIn_) {
     return shape.getGlobalBounds().contains(posWIn_.x, posWIn_.y);
+  }
+  void setSize(const FVector2 &size_) {
+    size = size_;
+    shape.setPoint(0, {0, 0});
+    shape.setPoint(1, {size.x, 0});
+    shape.setPoint(2, {size.x, size.y});
+    shape.setPoint(3, {0, size.y});
   }
   RectForEditor() {
     shape.setPointCount(4);
@@ -159,32 +167,37 @@ public:
     shape.setPoint(3, {0, size.y});
     shape.setPosition(posInWin.x, posInWin.y);
     shape.setFillColor(fillColor);
-    shape.setOutlineColor(color);
+    shape.setOutlineColor({255, 255, 0, 255});
     shape.setOutlineThickness(lineThickness);
   }
-  void loop(GameWindow &window_, EventBase event_) {
+  void loop(GameWindow &window_) {
     shape.setPosition(posInWin.x, posInWin.y);
-    shape.setPoint(0, {0, 0});
-    shape.setPoint(1, {size.x, 0});
-    shape.setPoint(2, {size.x, size.y});
-    shape.setPoint(3, {0, size.y});
     window_.draw(shape);
   }
 };
 class FlagCenter {
 public:
+  GActor *curActor = nullptr;
   sf::ConvexShape shape;
+  RectForEditor rect;
   FlagCenter() {
     shape.setPointCount(3);
     shape.setPoint(0, {0, 0});
     shape.setPoint(1, {4, 4});
     shape.setPoint(2, {-4, 4});
     shape.setFillColor(sf::Color(255, 0, 0));
+    rect.setSize({15, 15});
+    rect.shape.setOutlineThickness(2);
+    rect.shape.setOutlineColor({0, 255, 0});
+    rect.shape.setOrigin(0, 15);
   }
 
   void draw(GameWindow &window_, const IVector2 &posWin_) {
     shape.setPosition(posWin_.x, posWin_.y);
     window_.draw(shape);
+    rect.posInWin = posWin_;
+
+    rect.loop(window_);
   }
 };
 //////////////
@@ -195,12 +208,33 @@ public:
   FlagCenter shapeOfCenter;
   std::set<GActor *> actorsSelected;
   enum { nothing, selected, selecting, moveCamera } state = nothing;
-  WorldForEditor() {referLine.setActive();}
+  WorldForEditor() { referLine.setActive(); }
   void bindInput() {
+    getControllerActive()->bindClickInput(GController::mleft, [this]() {
+      if (state == nothing) {
 
+        for (auto actor : getGridMap().actorsAlive) {
+          
+          const IVector2 &posTemp =
+              gm.gameIns->window.wsToWin(actor->getPositionWs());
+          shapeOfCenter.draw(gm.gameIns->window, posTemp);
+          shapeOfCenter.curActor = actor;
+
+          bool b = shapeOfCenter.rect.containPos(
+              {(int)(gm.gameIns->window.getMousePositionWin().x),
+               (int)(gm.gameIns->window.getMousePositionWin().y)});
+          if (b) {
+            actorsSelected.insert(actor);
+            state = selected;
+            break;
+          }
+        }
+      }
+    });
     getControllerActive()->bindLinearInput(GController::custom, [this]() {
       if (state == selected) {
         axis.selected = true;
+        axisAttachActor();
         axis.listenEvent(gm.gameIns->window, gm.gameIns->event);
         if (axis.activeMO) {
           auto deltaMove = axis.getDeltaPosWin() *
@@ -213,17 +247,17 @@ public:
           state = nothing;
         }
       } else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+
         IVector2 posMouse =
             (IVector2)(gm.gameIns->window.getMousePositionWin());
-        ;
         if (actorsSelected.empty()) {
           if (state != selecting) {
             rectForMouseSelect.posInWin =
                 (IVector2)(gm.gameIns->window.getMousePositionWin());
           }
           state = selecting;
-          rectForMouseSelect.size =
-              (FVector2)(posMouse - rectForMouseSelect.posInWin);
+          rectForMouseSelect.setSize(
+              (FVector2)(posMouse - rectForMouseSelect.posInWin));
         }
       } else {
         if (state == selecting) {
@@ -235,7 +269,7 @@ public:
           state = selected;
         }
 
-        rectForMouseSelect.size = {0, 0};
+        rectForMouseSelect.setSize({0, 0});
         rectForMouseSelect.posInWin = {-1, -1};
       }
       if (state == nothing) {
@@ -246,20 +280,21 @@ public:
         if (isMiddleFirstPressed) {
           mouseLastPos = posTemp;
           isMiddleFirstPressed = false;
-          
+
         } else {
           mouseDeltaMove = posTemp - mouseLastPos;
           mouseLastPos = posTemp;
           GCameraObj *camera = gm.gameIns->window.getCameraActve();
-          FVector2 delta=gm.gameIns->window.getCameraActve()->getPixSize()*mouseDeltaMove;
-          camera->setPositionWs(camera->getPositionWs()-FVector3(delta.x,delta.y,0));
+          FVector2 delta = gm.gameIns->window.getCameraActve()->getPixSize() *
+                           mouseDeltaMove;
+          camera->setPositionWs(camera->getPositionWs() -
+                                FVector3(delta.x, delta.y, 0));
         }
-        
+
       } else {
         isMiddleFirstPressed = true;
-        mouseDeltaMove = {0, 0};   
+        mouseDeltaMove = {0, 0};
       }
-         
     });
   }
   bool isMiddleFirstPressed = true;
@@ -285,14 +320,17 @@ public:
       }
     }
     if (!actorsSelected.empty()) {
-      axis.selected = true;
+      // axis.selected = true;
     }
+    axis.selected = true; //这里框选与点击冲突
   }
-  void showSelectedActors(GameWindow &window_) {
-    for (auto actor : actorsSelected) {
-      const IVector2 posTemp =
+  void showActiveActors(GameWindow &window_,
+                        const std::vector<GActor *> &actors_) {
+    for (auto actor : actors_) {
+      const IVector2 &posTemp =
           gm.gameIns->window.wsToWin(actor->getPositionWs());
       shapeOfCenter.draw(window_, posTemp);
+      shapeOfCenter.curActor = actor;
     }
   }
   void tick() override {
@@ -300,7 +338,7 @@ public:
   }
   ReferLine referLine;
   void loop(GameWindow &window_, EventBase &event_) override {
-    getControllerActive()->loop(window_, event_);
+
     window_.clear();
     tick();
     landScape.draw(window_);
@@ -310,12 +348,13 @@ public:
       axis.loop(window_, event_);
       axisAttachActor();
     }
-    rectForMouseSelect.loop(window_, event_);
-    showSelectedActors(window_);
+    rectForMouseSelect.loop(window_);
+    showActiveActors(window_, getGridMap().actorsAlive);
     referLine.drawLines(window_);
     GDebug::debugDisplay(window_);
 
     window_.display();
+    getControllerActive()->loop(window_, event_);
   }
   void saveWorldData(const std::string &path_) {
     std::ofstream ofile;
@@ -401,7 +440,8 @@ public:
   BigWindow *UI = nullptr;
   EditorWindowWithPanel() {
     window.close();
-    window.create(sf::VideoMode(800, 600), "", sf::Style::None,GameStatics::getWindowContexSettings());
+    window.create(sf::VideoMode(800, 600), "", sf::Style::None,
+                  GameStatics::getWindowContexSettings());
     UI = getUiManager().createBigWindow(L"Editor");
     UI->addOtherWindow(window.getSystemHandle());
   }

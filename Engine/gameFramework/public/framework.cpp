@@ -301,3 +301,237 @@ void PageGameWaitSourceLoad::loop(GameWindow &window_, EventBase &event_) {
     doSomethingBoforeToWorld();
   }
 }
+GObject *GObject::constructObject(const std::string &className_) {
+  if (GClass::getClassRegInfo().find(className_) ==
+      GClass::getClassRegInfo().end()) {
+    throw std::overflow_error(className_ +
+                              ":constructObject use unRegistered className\n");
+  }
+  return GClass::getClassRegInfo()[className_].constructCbk();
+}
+void GSceneComponent::setPositionRelative(const FVector3 &posRelative_) {
+  positionRelative = posRelative_;
+}
+void GSceneComponent::attachToComponent(GSceneComponent *parent_) {
+  parentComp = parent_;
+}
+FVector3 &GSceneComponent::getPositionRelative() { return positionRelative; }
+FVector3 GSceneComponent::getSizeWs() { return sizeWs; }
+void GSceneComponent::setSizeWs(const FVector3 &sizeWs_) { sizeWs = sizeWs_; }
+void GRenderObjComponent::setRenderSpr(GSprite *spr_) { sprite = spr_; }
+GSprite *GRenderObjComponent::getRenderSpr() { return sprite; }
+void GRenderObjComponent::setSizeWin(float width_, float height_) {
+  sprite->setSizeWin(width_, height_);
+}
+GStaticSpriteComponent::GStaticSpriteComponent() { setRenderSpr(&spr); }
+void GStaticSpriteComponent::setTex(GTexture &tex) { spr.init(tex); }
+GSprite &GStaticSpriteComponent::getSprite() { return spr; }
+GStaticSpriteComponent::GStaticSpriteComponent(GTexture &tex) { setTex(tex); }
+GSympleAnimationComponent::GSympleAnimationComponent() {
+  setRenderSpr(&anim);
+  anim.play();
+}
+GAnimation &GSympleAnimationComponent::getAnimation() { return anim; }
+void GSympleAnimationComponent::setAnim(GTexture &tex, int beg_, int end_) {
+  anim.init(tex, beg_, end_);
+}
+void GSympleAnimationComponent::loop(GameWindow &window_, float deltaTime_) {
+  GRenderObjComponent::loop(window_, deltaTime_);
+  anim.loop(deltaTime_);
+}
+void GActor::actorBaseInit(GWorld *worldPtr_) { worldPtr = worldPtr_; }
+GWorld *GActor::getWorld() { return worldPtr; }
+const FVector3 &GActor::getPositionWs() const { return positionWs; }
+void GActor::addPositionOffsetWs(const FVector3 &offset) {
+  setPositionWs(positionWs + offset);
+}
+void GActor::setRootComponent(GSceneComponent *comp_) {
+  rootComponent = comp_;
+  comp_->construct(this);
+}
+void GActor::destroyActor() { isValid = false; };
+GActor::~GActor() {
+  for (GComponent *comp : __allComponents) {
+    delete comp;
+  }
+};
+void GActor::loopAllActorsActive(std::vector<GActor *> allActorsActive_,
+                                 float deltatime_, class GCameraObj *camera_,
+                                 GameWindow &window_) {
+  for (GActor *actor : allActorsActive_) {
+    actor->loop(deltatime_, window_);
+  }
+}
+void GCameraObj::renderFix() { positionForRender = getPositionWs(); }
+FVector3 GCameraObj::getPositionWs() {
+  if (parentComp) {
+    return parentComp->getPositionWs();
+  }
+  return positionWs;
+}
+void GCameraObj::setPositionWs(const FVector3 &posWs_) {
+  if (parentComp) {
+    return;
+  }
+  positionWs = posWs_;
+}
+IVector2 GCameraObj::wsToWin(const FVector3 &PositionInWS, float winW_,
+                             float win_H) {
+  return {(int)(((PositionInWS.x - getPositionWs().x) / pixSize + winW_ / 2.f)),
+          (int)(((PositionInWS.y - getPositionWs().y) / pixSize + win_H / 2.f -
+                 (PositionInWS.z / pixSize)))};
+}
+void GCameraObj::setWindow(GameWindow *window_) { window = window_; }
+GameWindow *GCameraObj::getWindow() { return window; }
+float GCameraObj::getPixSize() { return pixSize; }
+void GCameraObj::setPixSize(float pSize_) { pixSize = pSize_; }
+FVector3 GCameraObj::winToWs(const FVector2 &posWin_, GameWindow &window_) {
+  return {(posWin_.x - window_.getDefaultView().getSize().x / 2) * pixSize +
+              getPositionWs().x,
+          (posWin_.y - window_.getDefaultView().getSize().y / 2) * pixSize +
+              getPositionWs().y,
+          0};
+}
+FVector3 GCameraObj::getMousePositionWs(GameWindow &window_) {
+  const IVector2 &posWin = sf::Mouse::getPosition(window_);
+  FVector2 posfix = {
+      (posWin.x * window_.getDefaultView().getSize().x / window_.getSize().x),
+      (posWin.y * window_.getDefaultView().getSize().y / window_.getSize().y)};
+
+  return winToWs(posfix, window_);
+};
+void GCameraObj::drawLineWin(const std::vector<FVector2> &points_,
+                             GameWindow &window_, ColorBase color) {
+  static std::vector<sf::Vertex> points;
+  points.resize(0);
+  int n = 0;
+  for (const FVector2 &pos : points_) {
+    points.emplace_back(sf::Vertex({(float)pos.x, (float)pos.y}, color));
+    if (n)
+      points.emplace_back(sf::Vertex({(float)pos.x, (float)pos.y}, color));
+    n++;
+  }
+  window_.draw(points.data(), points.size(), sf::Lines);
+}
+void GCameraObj::drawLineWs(const std::vector<FVector3> &pointsVector_,
+                            GameWindow &window_, ColorBase color) {
+  points.resize(0);
+  int n = 0;
+  int winW = window_.getDefaultView().getSize().x;
+  int winH = window_.getDefaultView().getSize().y;
+  for (const FVector3 &pos : pointsVector_) {
+    const IVector2 &poswin = wsToWin(pos, winW, winH);
+    points.emplace_back(sf::Vertex({(float)poswin.x, (float)poswin.y}, color));
+    if (n)
+      points.emplace_back(
+          sf::Vertex({(float)poswin.x, (float)poswin.y}, color));
+    n++;
+  }
+
+  window_.draw(points.data(), points.size(), sf::Lines);
+}
+GCameraComponent::GCameraComponent() { camera.parentComp = this; }
+FVector3 GMoveComponent::getMoveVector() { return moveVector; }
+void GMoveComponent::move(float deltaTime_) {
+  moveVector = vectorNormalize({moveX, moveY, moveZ});
+  owner->addPositionOffsetWs(moveVector * speed * deltaTime_);
+  moveX = 0;
+  moveY = 0;
+  moveZ = 0;
+}
+void GMoveComponent::autoMove(float deltaTime_) {
+  const FVector3 &vec = target - owner->getPositionWs();
+  float len = getVectorLen(vec);
+  if (len < 0.01) {
+    moveVector = {0, 0, 0};
+    isAutoMove = false;
+  } else {
+    moveVector = vectorNormalize(vec);
+  }
+  owner->addPositionOffsetWs(moveVector * speed * deltaTime_);
+}
+void GMoveComponent::loop(GameWindow &window_, float deltaTime_) {
+  if (isAutoMove) {
+    autoMove(deltaTime_);
+  } else {
+    move(deltaTime_);
+  }
+}
+void GAnimActor::construct(GTexture &tex_, int begin_, int end_,
+                           int frameSpeed_) {
+  sprComp = createComponent<GSympleAnimationComponent>();
+  sprComp->setAnim(tex_, begin_, end_);
+  sprComp->getAnimation().setFramePerS(frameSpeed_);
+}
+void GStaticActor::construct(GTexture &tex_, int id_) {
+  sprComp = createComponent<GStaticSpriteComponent>();
+  sprComp->getSprite().init(tex_);
+  sprComp->getSprite().setId(id_);
+}
+GMaterial &GLandScape::getMaterial() { return landMaterial; }
+void GLandScape::init(float beginX_, float beginY_, float widthTotal_,
+                      float heightTotal_, const std::string &matPath_) {
+  beginX = beginX_;
+  beginY = beginY_;
+  widhtTotal = widthTotal_;
+  heightTotal = heightTotal_;
+  spr.init(GTextureTree::getSource().getObject("res/base/texture/pix1.png"));
+  if (matPath_ == "") {
+  } else {
+    landMaterial.init(matPath_);
+  }
+}
+void GLandScape::draw(GameWindow &window_) {
+  float pixSize = window_.getCameraActve()->getPixSize();
+  const IVector2 &winpos = window_.wsToWin({beginX, beginY, 0});
+  spr.setPositionWin(winpos.x, winpos.y);
+  spr.setSizeWin(widhtTotal / pixSize, heightTotal / pixSize);
+  landMaterial.draw(spr, window_);
+}
+void GWorld::setControllerActive(GController *controller_) {
+  controllerActive = controller_;
+}
+void GWorld::setActorContext() {
+  actorContext.______worldParamForCreate = this;
+}
+GridMap<GActor> &GWorld::getGridMap() { return gridMap; }
+GActor *GWorld::createActorByClassName(const std::string &className_,
+                                       const FVector3 &position) {
+  setActorContext();
+  GActor *rtn = (GActor *)GObject::constructObject(className_);
+  rtn->nodeId = gridMap.addActor(rtn);
+  rtn->setPositionWs(position);
+  rtn->beginPlay();
+  return rtn;
+}
+std::vector<GRenderObjComponent *> &GWorld::getRenderObjComps() {
+  return allRenderObj;
+}
+GController *GWorld::getControllerActive() { return controllerActive; }
+TimeManager &GWorld::getTimeManager() { return timeManager; }
+void GGame::setCameraActive(GCameraObj *camera_) {
+  window.setCameraActive(camera_);
+};
+GGame::GGame() {
+  curWorld = &waitPage;
+  waitPage.gm.gameIns = this;
+
+  window.create(
+      sf::VideoMode(getGameConfig().windowWidth, getGameConfig().windowHeight),
+      "Game");
+  window.setFramerateLimit(getGameConfig().frameLimit);
+  sf::Image icon;
+  icon.loadFromFile(getGameConfig().windowIcon);
+  window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+}
+GGame::~GGame() {
+  if (curWorld != &waitPage)
+    delete curWorld;
+}
+void GGame::loop() {
+
+  while (window.isOpen()) {
+
+    curWorld->loop(window, event);
+  }
+}
