@@ -203,6 +203,7 @@ public:
 //////////////
 class WorldForEditor : public GWorld {
 public:
+bool clickSelected= false;
   MovableAxis axis;
   RectForEditor rectForMouseSelect;
   FlagCenter shapeOfCenter;
@@ -211,10 +212,11 @@ public:
   WorldForEditor() { referLine.setActive(); }
   void bindInput() {
     getControllerActive()->bindClickInput(GController::mleft, [this]() {
+       printf("mleft\n");
       if (state == nothing) {
-
+       
         for (auto actor : getGridMap().actorsAlive) {
-          
+          printf("clickA\n");
           const IVector2 &posTemp =
               gm.gameIns->window.wsToWin(actor->getPositionWs());
           shapeOfCenter.draw(gm.gameIns->window, posTemp);
@@ -223,9 +225,12 @@ public:
           bool b = shapeOfCenter.rect.containPos(
               {(int)(gm.gameIns->window.getMousePositionWin().x),
                (int)(gm.gameIns->window.getMousePositionWin().y)});
+               
           if (b) {
+            printf("clicked\n");
             actorsSelected.insert(actor);
             state = selected;
+            clickSelected= true;
             break;
           }
         }
@@ -243,14 +248,14 @@ public:
             actor->addPositionOffsetWs({deltaMove.x, deltaMove.y, deltaMove.z});
           }
         }
-        if (axis.selected == false) {
+        if (axis.selected == false&&!clickSelected) {
           state = nothing;
         }
       } else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 
         IVector2 posMouse =
             (IVector2)(gm.gameIns->window.getMousePositionWin());
-        if (actorsSelected.empty()) {
+        if (actorsSelected.empty()&&!clickSelected) {
           if (state != selecting) {
             rectForMouseSelect.posInWin =
                 (IVector2)(gm.gameIns->window.getMousePositionWin());
@@ -263,7 +268,7 @@ public:
         if (state == selecting) {
           selectActors(rectForMouseSelect);
         }
-        if (actorsSelected.empty()) {
+        if (actorsSelected.empty()&&!clickSelected) {
           state = nothing;
         } else {
           state = selected;
@@ -320,9 +325,9 @@ public:
       }
     }
     if (!actorsSelected.empty()) {
-      // axis.selected = true;
-    }
-    axis.selected = true; //这里框选与点击冲突
+      axis.selected = true;
+    }else{clickSelected= false;}
+    // axis.selected = true; //这里框选与点击冲突
   }
   void showActiveActors(GameWindow &window_,
                         const std::vector<GActor *> &actors_) {
