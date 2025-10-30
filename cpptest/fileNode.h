@@ -68,8 +68,8 @@ inline void FileTree::addChildren(FileNode* parentNode, const std::filesystem::p
 
                 // 设置子节点基本属性
                 child->parent = parentNode;
-                child->name = wstring_to_utf8(entryPath.filename().wstring());
-                child->path = wstring_to_utf8(entryPath.wstring());
+                child->name =(entryPath.filename().string());
+                child->path =(entryPath.string());
 
                 // 判断条目类型并处理
                 if (entry.is_directory()) {
@@ -111,8 +111,8 @@ inline void FileTree::loadTree(const std::string& rootPath) {
 
         // 初始化根节点
         root.parent = nullptr;
-        root.path = wstring_to_utf8(rootFsPath.wstring());
-        root.name = wstring_to_utf8(rootFsPath.filename().wstring());
+        root.path = (rootFsPath.string());
+        root.name = (rootFsPath.filename().string());
         root.type = FileNode::eDir;
         root.expand = "";
         root.childs.clear(); // 清空原有子节点（避免重复加载）
