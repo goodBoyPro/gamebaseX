@@ -29,32 +29,8 @@ class FileTree{
     public:
     FileNode root;
     void loadTree(const std::string&rootPath);
-    std::string wstring_to_utf8(const std::wstring& wstr) {
-    if (wstr.empty()) return "";
-    // 计算转换所需的缓冲区大小
-    int utf8_size = WideCharToMultiByte(
-        CP_UTF8,         // 目标编码：UTF-8
-        0,               // 转换标志：默认
-        wstr.c_str(),    // 源宽字符串
-        (int)wstr.size(),// 源字符串长度
-        nullptr,         // 目标缓冲区：先不填，仅计算大小
-        0,               // 目标缓冲区大小：0 表示仅计算
-        nullptr, nullptr // 无效字符替换（默认）
-    );
-    if (utf8_size <= 0) return ""; // 转换失败
-    // 分配缓冲区并执行转换
-    std::string utf8_str(utf8_size, 0);
-    WideCharToMultiByte(
-        CP_UTF8,
-        0,
-        wstr.c_str(),
-        (int)wstr.size(),
-        &utf8_str[0],    // 目标缓冲区
-        utf8_size,
-        nullptr, nullptr
-    );
-    return utf8_str;
-}  
+   
+
     
 };
 //////////////////////////////////////////
