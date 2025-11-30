@@ -4,45 +4,9 @@
 #include "cmath"
 #include "gstring.h"
 #include "string"
+#include"gtexture.h"
 
-class GSourceObj {
-public:
-  Gstring idAndPath;
 
-  virtual ~GSourceObj() {}
-};
-class GTexture : public GSourceObj {
-public:
-  TextureBase texture;
-  int column = 1;
-  int row = 1;
-  float centerX = 0;
-  float centerY = 0;
-  // 纹理小格单元尺寸
-  IVector2 sizeTexUnit;
-  GTexture() {};
-  void init(int row_, int column_, float centerX_, float centerY_,
-            const std::string &path) {
-    if (!texture.loadFromFile(path)) {
-      texture.loadFromFile("system/texture/invalidTex.png");     
-      sizeTexUnit = {(int)(texture.getSize().x / column_),
-                     (int)(texture.getSize().y / row_)};
-      return;
-    };
-    texture.generateMipmap();
-    texture.setSmooth(true);
-    row = row_;
-    column = column_;
-    centerX = centerX_;
-    centerY = centerY_;
-    sizeTexUnit = {(int)(texture.getSize().x / column_),
-                   (int)(texture.getSize().y / row_)};
-  }
-  GTexture(int row_, int column_, float centerX_, float centerY_,
-           const std::string &path) {
-    init(row_, column_, centerX_, centerY_, path);
-  }
-};
 // 图片资源大小应为2的幂
 class GSprite {
 protected:
