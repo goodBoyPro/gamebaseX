@@ -10,6 +10,7 @@ public:
   float centerY = 0;
   // 纹理小格单元尺寸
   IVector2 sizeTexUnit;
+  ~GTexture()override{}
   GTexture() {};
   void init(int row_, int column_, float centerX_, float centerY_,
             const std::string &path) {

@@ -36,7 +36,7 @@ protected:
 
 public:
   ~GResourceTree() {
-    for (const std::pair<const size_t, SourceRefer<T>>&ref : data) {
+    for (std::pair<const size_t, SourceRefer<T>>&ref : data) {
       ref.second.releaseSrc();
     }
   }
@@ -50,7 +50,6 @@ public:
   SourceRefer<T> getObject(const Gstring &str) {
     auto it = data.find(str.get_hash());
     if (it == data.end()) {
-       printf("%s\n",str.getStringStd().c_str());
       SourceRefer<T> s = loadFromPath(str);
      
       return s;

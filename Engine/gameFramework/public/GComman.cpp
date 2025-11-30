@@ -24,7 +24,7 @@ void printTextFormat(GameWindow &window_, int x, int y, int size, ColorBase colo
     printText(window_, str, x, y, size, color, fontId);
 }
 void printText(GameWindow &window_, const std::wstring &str, int x, int y, int size, ColorBase color, int fontId) {
-    static sf::Text text;
+    thread_local static sf::Text text;
     text.setFont(getFont(fontId));
     text.setString(str);
     text.setPosition(sf::Vector2f(x, y));
@@ -33,7 +33,7 @@ void printText(GameWindow &window_, const std::wstring &str, int x, int y, int s
     window_.draw(text);
 }
 void printTextLimit(GameWindow &window_, const std::wstring &str, float x, float y, int size, const FVector2 &sprSize, const ColorBase &color, int fontId) {
-    static sf::Text text;
+    thread_local static sf::Text text;
     text.setFont(getFont(fontId));
     text.setString(str);
     text.setPosition(x, y);

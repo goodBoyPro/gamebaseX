@@ -80,7 +80,8 @@ GPlayer::GPlayer() {
 }
 
 void GPlayer::beginPlay() {
-  sprComp->setTex(*(GTextureTree::getSource().getObject("res/base/player.png").getPtr()));
+  sprComp->setTex(
+      *(GTextureTree::getSource().getObject("res/base/player.png").getPtr()));
   sprComp->getSprite().setId(0);
   sprComp->getSprite().setCenter(0.5, 1);
   sprComp->setSizeWs({1, 1, 0});
@@ -97,8 +98,9 @@ GStaticActor *GWorld::createStaticActor(const std::string &name_,
 
   StaticActorInfo &staticActorInfo = ClassInfo::getStaticActorInfo(name_);
   actor->infoPtr = &staticActorInfo;
-  actor->construct(*(GTextureTree::getSource().getObject(staticActorInfo.texPath).getPtr()),
-                   staticActorInfo.texIndex);
+  actor->construct(
+      *(GTextureTree::getSource().getObject(staticActorInfo.texPath).getPtr()),
+      staticActorInfo.texIndex);
   actor->sprComp->setSizeWs(sizeWs_);
   return actor;
 }
@@ -139,8 +141,8 @@ void GWorld::asyncLoad(std::string jsonPath_) {
     const std::vector<float> &size = info["sizeWs"].get<std::vector<float>>();
     FVector3 sizeWs = {size[0], size[1], size[2]};
     auto actor = createActor<GAnimActor>(position);
-    actor->construct(*(GTextureTree::getSource().getObject(texId).getPtr()), beginIndex,
-                     endIndex, frameSpeed);
+    actor->construct(*(GTextureTree::getSource().getObject(texId).getPtr()),
+                     beginIndex, endIndex, frameSpeed);
     actor->sprComp->setSizeWs(sizeWs);
   }
   // landscape
@@ -475,7 +477,9 @@ void GLandScape::init(float beginX_, float beginY_, float widthTotal_,
   beginY = beginY_;
   widhtTotal = widthTotal_;
   heightTotal = heightTotal_;
-  spr.init(*(GTextureTree::getSource().getObject("res/base/texture/pix1.png").getPtr()));
+  spr.init(*(GTextureTree::getSource()
+                 .getObject("res/base/texture/pix1.png")
+                 .getPtr()));
   if (matPath_ == "") {
   } else {
     landMaterial.init(matPath_);
@@ -525,8 +529,9 @@ GGame::GGame() {
   window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }
 GGame::~GGame() {
-  if (curWorld != &waitPage)
+  if (curWorld != &waitPage) {
     delete curWorld;
+  }
 }
 void GGame::loop() {
 
