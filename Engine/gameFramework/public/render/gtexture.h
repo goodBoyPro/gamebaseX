@@ -32,6 +32,7 @@ public:
            const std::string &path) {
     init(row_, column_, centerX_, centerY_, path);
   }
+  
 };
 class GTextureTree : public GResourceTree<GTexture> {
   enum Info {
@@ -54,31 +55,31 @@ public:
     return sr;
   }
   // 已弃用
-  void loadResource() {
-    std::vector<std::vector<std::string>> vec = collectFiles("res", ".png");
-    for (std::vector<std::string> &cvec : vec) {
-      const std::string &path = cvec[0];
-      GTexture &gtex = emplace(path);
-      if (cvec.size() != count) {
-        gtex.init(1, 1, 0, 0, path);
-        continue;
-      }
-      try {
-        int row = std::stoi(cvec[erow]);
-        int column = std::stoi(cvec[ecolumn]);
-        float centerX = std::stof(cvec[ecenterX]);
-        float centerY = std::stof(cvec[ecenterY]);
+  // void loadResource() {
+  //   std::vector<std::vector<std::string>> vec = collectFiles("res", ".png");
+  //   for (std::vector<std::string> &cvec : vec) {
+  //     const std::string &path = cvec[0];
+  //     GTexture &gtex = emplace(path);
+  //     if (cvec.size() != count) {
+  //       gtex.init(1, 1, 0, 0, path);
+  //       continue;
+  //     }
+  //     try {
+  //       int row = std::stoi(cvec[erow]);
+  //       int column = std::stoi(cvec[ecolumn]);
+  //       float centerX = std::stof(cvec[ecenterX]);
+  //       float centerY = std::stof(cvec[ecenterY]);
 
-        gtex.init(row, column, centerX, centerY, path);
+  //       gtex.init(row, column, centerX, centerY, path);
 
-      } catch (const std::exception &e) {
-        std::cerr << "invalid file! " << e.what() << std::endl;
-        gtex.init(1, 1, 0, 0, path);
-        continue;
-      }
-    }
-  }
-  GTexture &loadFromPath(const Gstring &path_);
+  //     } catch (const std::exception &e) {
+  //       std::cerr << "invalid file! " << e.what() << std::endl;
+  //       gtex.init(1, 1, 0, 0, path);
+  //       continue;
+  //     }
+  //   }
+  // }
+  SourceRefer<GTexture> loadFromPath(const Gstring &path_)override;
   GTextureTree() {
   }
   ~GTextureTree() {}

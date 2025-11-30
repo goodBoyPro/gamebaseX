@@ -31,21 +31,28 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 template <class T> class GResourceTree : public GSourceTreeIF {
 protected:
-  std::map<size_t, T> data;
-  T defaultObj;
+  std::map<size_t, SourceRefer<T>> data;
+  SourceRefer<T> defaultObj;
 
 public:
-  T &getObject(size_t id) {
+  ~GResourceTree() {
+    for (const std::pair<const size_t, SourceRefer<T>>&ref : data) {
+      ref.second.releaseSrc();
+    }
+  }
+  SourceRefer<T> getObject(size_t id) {
     auto it = data.find(id);
     if (it == data.end())
       return defaultObj;
 
     return it->second;
   }
-  T &getObject(const Gstring &str) {
+  SourceRefer<T> getObject(const Gstring &str) {
     auto it = data.find(str.get_hash());
     if (it == data.end()) {
-      T &s = loadFromPath(str);
+       printf("%s\n",str.getStringStd().c_str());
+      SourceRefer<T> s = loadFromPath(str);
+     
       return s;
     }
     return it->second;
@@ -57,19 +64,22 @@ public:
     }
     data.erase(it);
   }
-  virtual T &loadFromPath(const Gstring &path_) {
+  virtual SourceRefer<T> loadFromPath(const Gstring &path_) {
     printf("error");
     return defaultObj;
   }
-  T &emplace(const std::string &path_) {
-    size_t id = Gstring::calculateHash(path_);
+ SourceRefer<T> emplace(const std::string &path_,T*newPtr) {
+   size_t id = Gstring::calculateHash(path_);
+   
     const auto &pair =
         data.emplace(std::piecewise_construct, std::forward_as_tuple(id),
                      std::forward_as_tuple());
     if (!pair.second) {
       throw std::overflow_error("Resource error: hash confilcted--" + path_);
     }
-    pair.first->second.idAndPath = path_;
+    
+    pair.first->second=newPtr->template makeRefer<T>();
+    pair.first->second->idAndPath = path_;
     return pair.first->second;
   }
 };

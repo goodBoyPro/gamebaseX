@@ -8,12 +8,21 @@ class SourceRefer {
    private:
     T* ptr = nullptr;
 
-   public:
+  public:
+    T *getPtr() const {
+      return ptr;
+    }
     friend class SourceIF;
     T* operator->() {
-        assert(ptr != nullptr && "Dereferencing null pointer");
+        // assert(ptr != nullptr && "Dereferencing null pointer");
         return ptr;
     };
+    const T* operator->() const {
+    if (ptr == nullptr) {
+        // assert(false && "Dereferencing null pointer in const operator->()");
+    }
+    return ptr;
+}
     void* operator&() = delete;
     void* operator&() const = delete;
     SourceRefer() {
@@ -55,6 +64,9 @@ class SourceRefer {
             return 0;
         }
     };
+    void releaseSrc()const {
+      if(ptr){delete ptr;}
+    }
 };
 class SourceIF {
    public:
@@ -63,11 +75,10 @@ class SourceIF {
     friend class SourceRefer;
     int referCount = 0;
     virtual ~SourceIF() {};
-    //实现时必须调用initReferCount()创建引用管理器
-    virtual SourceRefer<SourceIF> loadFromFile(const char* filePath){SourceRefer<SourceIF> ref;return ref;}; 
-    SourceRefer<SourceIF>  initReferCount(){
-        SourceRefer<SourceIF> ref;
-        ref.ptr = this;
+    template<class T>
+    SourceRefer<T>  makeRefer(){
+        SourceRefer<T> ref;
+        ref.ptr = (T*)this;
         ref.ptr->referCount++;
         return ref;
     }

@@ -31,7 +31,8 @@ public:
     auto strss = collectFiles("res/shaders", ".frag");
     for (std::vector<std::string> &strs : strss) {
       const std::string path = strs[0];
-      emplace(path).init(path);
+      ShaderFrag*ptr=new ShaderFrag;
+      emplace(path,ptr)->init(path);
     }
   }
 };
@@ -87,7 +88,7 @@ public:
       textures[texture.key()] = texture.value().get<std::string>();
     }
     ////////////////////////////////////////////////////////////设置
-    shader = &(GResourceShader::getResourceShaders().getObject(fragPath));
+    shader = (GResourceShader::getResourceShaders().getObject(fragPath).getPtr());
     for (auto &p : properties) {
       shader->getShader()->setUniform(p.first, p.second.value);
     }
@@ -99,7 +100,7 @@ public:
           p.first, {p.second[0], p.second[1], p.second[2], p.second[3]});
     }
     for (auto &t : textures) {
-      sf::Texture &tex = GTextureTree::getSource().getObject(t.second).texture;
+      sf::Texture &tex = GTextureTree::getSource().getObject(t.second).getPtr()->texture;
       tex.setRepeated(true);
       shader->getShader()->setUniform(t.first, tex);
     }

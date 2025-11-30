@@ -1,5 +1,5 @@
 #include "gtexture.h"
-GTexture &GTextureTree::loadFromPath(const Gstring &path_) {
+SourceRefer<GTexture>GTextureTree::loadFromPath(const Gstring &path_) {
 
   const std::vector<std::string> &strs = splitString(
       std::filesystem::path(path_.getStringStd()).filename().string());
@@ -17,7 +17,10 @@ GTexture &GTextureTree::loadFromPath(const Gstring &path_) {
       }
     }
   }
-  GTexture &gtex = emplace(path);
+  GTexture *ptr = new GTexture;
+  SourceRefer<GTexture> gtex = emplace(path,ptr);
+  
+  // gtex=ptr->makeRefer<GTexture>();
 
   if (isRightFormat) {
     int num = strs.size() - 1;
@@ -26,9 +29,9 @@ GTexture &GTextureTree::loadFromPath(const Gstring &path_) {
     float centerX = std::stof(strs[num - 1]);
     float centerY = std::stof(strs[num]);
 
-    gtex.init(row, column, centerX, centerY, path);
+    gtex->init(row, column, centerX, centerY, path);
     return gtex;
   }
-  gtex.init(1, 1, 0, 0, path);
+  gtex->init(1, 1, 0, 0, path);
   return gtex;
 };
