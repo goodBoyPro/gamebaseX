@@ -9,8 +9,9 @@
 #include <regex>
 #include <thread>
 #include <vector>
-#include"base/base.h"
-class GSourceObj {
+#include "base/base.h"
+#include"base/sourceRefer.h"
+class GSourceObj:public SourceIF {
 public:
   Gstring idAndPath;
 
@@ -28,7 +29,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> class GReourceTree : public GSourceTreeIF {
+template <class T> class GResourceTree : public GSourceTreeIF {
 protected:
   std::map<size_t, T> data;
   T defaultObj;

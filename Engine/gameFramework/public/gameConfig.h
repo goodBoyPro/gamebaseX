@@ -19,7 +19,7 @@ public:
     }
     nlohmann::json jObj;
     iflile >> jObj;
-    iflile.close();
+    iflile.close();    
     ///////////////////////////读取配置
     try {
       windowWidth = jObj["windowWidth"];
