@@ -46,10 +46,13 @@ public:
 };
 int main() {
   
-  GGame g;
-  GWorld *world = g.loadWorld<GWorld>("res/myWorld.json");
+  // GGame g;
+  // GWorld *world = g.loadWorld<GWorld>("res/myWorld.json");
   
   
 
-  g.loop();
+  // g.loop();
+   GGame g;
+      g.loadWorld<GWorld>("temp/mapTemp.json");
+      g.loop();
 };
