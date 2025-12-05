@@ -57,11 +57,6 @@ public:
     SetParent(other_, hwndMainWindow);
     SetWindowPos(other_, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
   }
-  void removeAllOtherWindowFromParent() {
-    for (HWND otherH : otherHwnd) {
-      SetParent(otherH, NULL);
-    }
-  }
   void setParentWindow(HWND parent_) {
     parentHwnd = parent_;
     SetLayeredWindowAttributes(hWnd, ImColor(0, 0, 0), NULL, LWA_COLORKEY);

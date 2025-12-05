@@ -22,7 +22,7 @@ public:
     ImGuiStyle &style = ImGui::GetStyle();
     style.Colors[ImGuiCol_Text] = ImVec4(0.1, 0.1, 0.1, 1);
   };
-  virtual ~MiniWindow() {};
+  virtual ~MiniWindow() { printf("uncons\n"); };
   std::function<void()> imguiRenderCBK = []() {};
   void disableClose() { couldClose = false; }
 

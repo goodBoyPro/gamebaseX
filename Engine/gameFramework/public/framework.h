@@ -343,7 +343,7 @@ private:
   struct ActorContext {
     GWorld *______worldParamForCreate;
   };
-  inline thread_local static ActorContext actorContext;
+  inline static ActorContext actorContext;
 
 public:
   bool isLoadComplete() { return isDataLoadComplete; }

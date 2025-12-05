@@ -11,7 +11,6 @@ static LRESULT CALLBACK editorWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
   switch (uMsg) {
   case WM_DESTROY:
     if (data->isMainWindow) {
-      data->removeAllOtherWindowFromParent();
       PostQuitMessage(0);
     } else {
       data->bValid = false;

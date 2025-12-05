@@ -115,6 +115,5 @@ public:
     style.WindowPadding = originalPadding;
     style.WindowBorderSize = originalBorderSize;
   };
-  ~PortCarrierWindow()override{}
 };
 #endif

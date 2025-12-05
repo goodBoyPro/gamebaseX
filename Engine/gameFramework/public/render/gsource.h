@@ -9,9 +9,8 @@
 #include <regex>
 #include <thread>
 #include <vector>
-#include "base/base.h"
-#include"base/sourceRefer.h"
-class GSourceObj:public SourceIF {
+#include"base/base.h"
+class GSourceObj {
 public:
   Gstring idAndPath;
 
@@ -29,29 +28,23 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> class GResourceTree : public GSourceTreeIF {
+template <class T> class GReourceTree : public GSourceTreeIF {
 protected:
-  std::map<size_t, SourceRefer<T>> data;
-  SourceRefer<T> defaultObj;
+  std::map<size_t, T> data;
+  T defaultObj;
 
 public:
-  ~GResourceTree() {
-    for (std::pair<const size_t, SourceRefer<T>>&ref : data) {
-      ref.second.releaseSrc();
-    }
-  }
-  SourceRefer<T> getObject(size_t id) {
+  T &getObject(size_t id) {
     auto it = data.find(id);
     if (it == data.end())
       return defaultObj;
 
     return it->second;
   }
-  SourceRefer<T> getObject(const Gstring &str) {
+  T &getObject(const Gstring &str) {
     auto it = data.find(str.get_hash());
     if (it == data.end()) {
-      SourceRefer<T> s = loadFromPath(str);
-     
+      T &s = loadFromPath(str);
       return s;
     }
     return it->second;
@@ -63,22 +56,19 @@ public:
     }
     data.erase(it);
   }
-  virtual SourceRefer<T> loadFromPath(const Gstring &path_) {
+  virtual T &loadFromPath(const Gstring &path_) {
     printf("error");
     return defaultObj;
   }
- SourceRefer<T> emplace(const std::string &path_,T*newPtr) {
-   size_t id = Gstring::calculateHash(path_);
-   
+  T &emplace(const std::string &path_) {
+    size_t id = Gstring::calculateHash(path_);
     const auto &pair =
         data.emplace(std::piecewise_construct, std::forward_as_tuple(id),
                      std::forward_as_tuple());
     if (!pair.second) {
       throw std::overflow_error("Resource error: hash confilcted--" + path_);
     }
-    
-    pair.first->second=newPtr->template makeRefer<T>();
-    pair.first->second->idAndPath = path_;
+    pair.first->second.idAndPath = path_;
     return pair.first->second;
   }
 };
