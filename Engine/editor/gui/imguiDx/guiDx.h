@@ -40,6 +40,7 @@ class BigWindow {
 
 public:
   WindowLayOut layout;
+  //imgui的主窗口
   HWND hWnd = nullptr;
   HWND parentHwnd = nullptr;
   
@@ -49,6 +50,7 @@ public:
   bool isMainWindow = false;
   bool bValid = true;
   bool brun = true;
+  //最上层窗口容器
   HWND hwndMainWindow = nullptr;
   friend class UIManager;
   void addOtherWindow(HWND other_) {
@@ -56,6 +58,11 @@ public:
     otherHwnd.push_back(other_);
     SetParent(other_, hwndMainWindow);
     SetWindowPos(other_, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+  }
+  void removeAllOtherHwnd() {
+    for (HWND h : otherHwnd) {
+      SetParent(h, NULL);
+    }
   }
   void setParentWindow(HWND parent_) {
     parentHwnd = parent_;

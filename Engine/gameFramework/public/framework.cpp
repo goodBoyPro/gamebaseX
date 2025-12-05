@@ -526,7 +526,7 @@ GGame::GGame() {
 }
 GGame::~GGame() {
   if (curWorld != &waitPage)
-    delete curWorld;
+    {delete curWorld;}
 }
 void GGame::loop() {
 

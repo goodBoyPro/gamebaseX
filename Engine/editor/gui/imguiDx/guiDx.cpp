@@ -10,7 +10,8 @@ static LRESULT CALLBACK editorWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam,
   BigWindow *data = (BigWindow *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
   switch (uMsg) {
   case WM_DESTROY:
-    if (data->isMainWindow) {
+    data->removeAllOtherHwnd();
+    if (data->isMainWindow) {      
       PostQuitMessage(0);
     } else {
       data->bValid = false;

@@ -459,7 +459,7 @@ public:
   }
 
   GGame();
-  ~GGame();
+  ~GGame()override;
   virtual void loop();
 };
 
