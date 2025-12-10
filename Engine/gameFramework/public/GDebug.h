@@ -5,6 +5,8 @@
 #include<GComman.h>
 #include <mutex>
 #include <set>
+#include <gameStatics.h>
+#include<base/textDrawer.h>
 #define STRINGSIZE 128
 #define PRINTDEBUG(...)                                                        \
     {                                                                          \
@@ -59,7 +61,7 @@ inline GDebug::~GDebug() {
 
 inline void GDebug::drawLog(GameWindow&window_,int index)
 {
-    printText(window_,wchar_, 0, 30 * index);
+    GameStatics::getTextDrawer().printTextW(window_,wchar_, 0, 30 * index);
 }
  
  

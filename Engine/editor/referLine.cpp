@@ -29,7 +29,7 @@ void ReferLine::drawLines(GameWindow &window_) {
     } else {
       window_.getCameraActve()->drawLineWin(points, window_, lineColor);
     }
-    printTextFormat(window_, x, 0, numberSize, numberColor, 0, L"%.2fm", v);
+    GameStatics::getTextDrawer().printTextFormat(window_, x, 0, numberSize, numberColor, TextDrawer::EFontName::heiti, L"%.2fm", v);
     v++;
   }
   v = 0;
@@ -44,7 +44,7 @@ void ReferLine::drawLines(GameWindow &window_) {
     } else {
       window_.getCameraActve()->drawLineWin(points, window_, lineColor);
     }
-    printTextFormat(window_, x, 0, numberSize, numberColor, 0, L"%.2fm", v);
+    GameStatics::getTextDrawer().printTextFormat(window_, x, 0, numberSize, numberColor, TextDrawer::EFontName::heiti, L"%.2fm", v);
     v--;
   }
   v = 0;
@@ -59,7 +59,7 @@ void ReferLine::drawLines(GameWindow &window_) {
     } else {
       window_.getCameraActve()->drawLineWin(points, window_, lineColor);
     }
-    printTextFormat(window_, 0, y, numberSize, numberColor, 0, L"%.2fm", v);
+    GameStatics::getTextDrawer().printTextFormat(window_, 0, y, numberSize, numberColor, TextDrawer::EFontName::heiti, L"%.2fm", v);
     v++;
   }
   v = 0;
@@ -74,7 +74,7 @@ void ReferLine::drawLines(GameWindow &window_) {
     } else {
       window_.getCameraActve()->drawLineWin(points, window_, lineColor);
     }
-    printTextFormat(window_, 0, y, numberSize, numberColor, 0, L"%.2fm", v);
+    GameStatics::getTextDrawer().printTextFormat(window_, 0, y, numberSize, numberColor, TextDrawer::EFontName::heiti, L"%.2fm", v);
     v--;
   }
 };

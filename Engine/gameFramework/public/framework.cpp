@@ -1,6 +1,6 @@
 #include "base/registeredInfo.h"
 #include <framework.h>
-
+#include<base/textDrawer.h>
 void GActor::loop(float deltatime, GameWindow &window_) {
   for (GComponent *comp : __allComponents) {
     comp->loop(window_, deltatime);
@@ -294,7 +294,7 @@ void PageGameWaitSourceLoad::loop(GameWindow &window_, EventBase &event_) {
     }
   }
   window_.clear();
-  printText(window_, L"加载中");
+  GameStatics::getTextDrawer().printTextW(window_, L"加载中");
   window_.display();
   if (gm.gameIns->worldLoading && gm.gameIns->worldLoading->isLoadComplete()) {
     gm.gameIns->curWorld = gm.gameIns->worldLoading;
