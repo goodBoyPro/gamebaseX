@@ -7,5 +7,6 @@ sf::ContextSettings &getWindowContexSettings();
 GameClock &getGameClcok();
 
 TextDrawer &getTextDrawer();
-} // namespace GameStatics
+}; // namespace GameStatics
+namespace GS = GameStatics;
 #endif // GAMESTATICS_H
