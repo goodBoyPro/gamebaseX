@@ -215,6 +215,8 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
   window_.clear(ColorBase::Black);
   render(window_, event_);
   GDebug::debugDisplay(window_);
+  window_.displayDebugs();
+  window_.Debug.print("xxxxxxxxxxxxxxxxxxxxxxxxxtest");
   window_.display();
 }
 void GWorld::render(GameWindow &window_, EventBase &event_) {
@@ -533,5 +535,6 @@ void GGame::loop() {
   while (window.isOpen()) {
 
     curWorld->loop(window, event);
+
   }
 }

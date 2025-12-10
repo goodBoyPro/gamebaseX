@@ -1,5 +1,6 @@
 #include"gameWindow.h"
 #include "framework.h"
+#include"GDebug2.h"
 IVector2 GameWindow::wsToWin(const FVector3 &posWs_) {
   
   return cameraActive->wsToWin(posWs_, getDefaultView().getSize().x,
@@ -15,4 +16,7 @@ FVector2 GameWindow::getMousePositionWin() {
   const IVector2 &posWin = sf::Mouse::getPosition(*this);
   return {(posWin.x * this->getDefaultView().getSize().x / this->getSize().x),
           (posWin.y * this->getDefaultView().getSize().y / this->getSize().y)};
+};
+void GameWindow::displayDebugs() {
+  Debug.debugDisplay(*this);
 };

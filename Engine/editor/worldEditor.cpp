@@ -3,7 +3,7 @@
 #include "fileManager.h"
 #include "gui/imguiDx/imguiLib/imgui_internal.h"
 #include "materialEditPanel.h"
-
+#include<GDebug2.h>
 
 static std::function<void()> popCbk;
 PopUpWindow *windowPop;
@@ -223,6 +223,7 @@ void WorldEditorWindow::loop() {
   if (window.isOpen()) {
     curWorld->loop(window, event);
     actorChecker.loop();
+    
   } else {
     actorChecker.window.close();
   }
