@@ -1,5 +1,6 @@
 #include "referLine.h"
 #include "framework.h"
+#include<base/gameWindow.h>
 void ReferLine::drawLines(GameWindow &window_) {
   if (!isActive)
     return;

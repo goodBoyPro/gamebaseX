@@ -5,7 +5,7 @@
 #include "gstring.h"
 #include "string"
 #include"gtexture.h"
-
+#include<base/gameWindow.h>
 
 // 图片资源大小应为2的幂
 class GSprite {

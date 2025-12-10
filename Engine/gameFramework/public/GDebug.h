@@ -7,6 +7,7 @@
 #include <set>
 #include <gameStatics.h>
 #include<base/textDrawer.h>
+#include<base/gameWindow.h>
 #define STRINGSIZE 128
 #define PRINTDEBUG(...)                                                        \
     {                                                                          \

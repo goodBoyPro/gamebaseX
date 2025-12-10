@@ -12,19 +12,7 @@ typedef sf::Sprite SpriteBase;
 typedef sf::Texture TextureBase;
 typedef sf::Color ColorBase;
 typedef sf::Clock GameClock;
-class GameWindow : public WindowBase {
-  class GCameraObj *cameraActive = nullptr;
 
-public:
-  void setCameraActive(GCameraObj *cameraComp_) {
-    cameraActive = cameraComp_;
-  }
-  GCameraObj *getCameraActve() { return cameraActive; }
-  IVector2 wsToWin(const FVector3 &posWs_);
-  FVector3 winToWs(FVector2 posWin_);
-  FVector3 getMousePositionWs();
-  FVector2 getMousePositionWin();
-};
 
 // 检查文件是否存在
 bool isFileExist(const std::string &filePath);

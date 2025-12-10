@@ -11,7 +11,7 @@
 #include <gameLog.h>
 #include <nlohmann_json/json.hpp>
 #include <timeManager.h>
-
+#include<base/gameWindow.h>
 // 反射
 #define REGISTER_CLASS(className)                                              \
   class className;                                                             \

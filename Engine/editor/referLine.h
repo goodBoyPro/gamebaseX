@@ -11,7 +11,7 @@ public:
   int numberSize = 10;
   bool isActive = false;
   ReferLine()=default;
-  void drawLines(GameWindow &window_);
+  void drawLines(class GameWindow &window_);
   void setActive();
   void disableActive();
 };

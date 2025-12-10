@@ -5,6 +5,7 @@
 #include "nlohmann_json/json.hpp"
 #include "sprite.h"
 #include <fstream>
+#include<base/gameWindow.h>
 
 class ShaderFrag : public GSourceObj {
   sf::Shader shader;
