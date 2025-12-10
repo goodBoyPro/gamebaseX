@@ -1,14 +1,11 @@
 #ifndef GAMESTATICS_H
 #define GAMESTATICS_H
 #include <base/base.h>
+class TextDrawer;
 namespace GameStatics {
-inline sf::ContextSettings &getWindowContexSettings() {
-  static sf::ContextSettings settings;
-  return settings;
-}
-inline GameClock &getGameClcok() {
-  static GameClock clock;
-  return clock;
-}
+sf::ContextSettings &getWindowContexSettings();
+GameClock &getGameClcok();
+
+TextDrawer &getTextDrawer();
 } // namespace GameStatics
 #endif // GAMESTATICS_H

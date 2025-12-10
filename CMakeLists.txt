@@ -68,6 +68,8 @@ target_compile_definitions(${exeName} PRIVATE -DEDITOR)
 #mainTest
 set(exeName mainTest)
 file(GLOB_RECURSE src 
+    ${ABS_DIR}/Engine/gameFramework/public/base/textDrawer.cpp
+    ${ABS_DIR}/Engine/gameFramework/public/gameStatics.cpp
     ${ABS_DIR}/cpptest/mainTest.cpp
     ${ABS_DIR}/Engine/editor/gui/imguiDx/imguiLib/*.cpp
     )
