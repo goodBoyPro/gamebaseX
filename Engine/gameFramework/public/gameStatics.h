@@ -6,7 +6,6 @@ class GameConfig;
 namespace GameStatics {
 sf::ContextSettings &getWindowContexSettings();
 GameClock &getGameClcok();
-
 TextDrawer &getTextDrawer();
 GameConfig &getGameConfig();
 }; // namespace GameStatics
