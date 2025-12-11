@@ -223,6 +223,7 @@ void WorldEditorWindow::loop() {
   if (window.isOpen()) {
     curWorld->loop(window, event);
     actorChecker.loop();
+    runcbk();
     
   } else {
     actorChecker.window.close();

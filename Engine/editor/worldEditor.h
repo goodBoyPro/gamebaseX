@@ -497,14 +497,32 @@ public:
     ClassInfo::saveAllInfo();
     FileManager::getFileManager().updateFiles();
   }
+  // void runGame() {
+  //   ((WorldForEditor *)curWorld)->saveWorldData(jsonTemp);
+  //   std::thread th([this]() {
+  //     GGame g;
+  //     g.loadWorld<GWorld>(jsonTemp);
+  //     g.loop();
+  //   });
+  //   th.detach();
+  // }
+  std::function<void()>runcbk=[](){};
   void runGame() {
+    GGame *g=new GGame;
+
     ((WorldForEditor *)curWorld)->saveWorldData(jsonTemp);
-    std::thread th([this]() {
-      GGame g;
-      g.loadWorld<GWorld>(jsonTemp);
-      g.loop();
-    });
-    th.detach();
+    g->loadWorld<GWorld>(jsonTemp);
+    runcbk=[this,g]() {
+     
+      if(g->window.isOpen()) {
+
+        g->curWorld->loop(g->window, g->event);
+
+      } else {
+        runcbk = []() {};
+        delete g;
+      }
+    };
   }
   // 窗口方法
   void landScapeMaterialPanel();
