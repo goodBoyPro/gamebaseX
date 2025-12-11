@@ -4,8 +4,8 @@
 class TextDrawer;
 class GameConfig;
 namespace GameStatics {
-sf::ContextSettings &getWindowContexSettings();
-GameClock &getGameClcok();
+sf::ContextSettings &getWindowContextSettings();
+GameClock &getGameClock();
 TextDrawer &getTextDrawer();
 GameConfig &getGameConfig();
 }; // namespace GameStatics

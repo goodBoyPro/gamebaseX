@@ -20,7 +20,7 @@ public:
   ActorChecker() {
     window.close();
     window.create(sf::VideoMode(400, 400), "", sf::Style::None,
-                  GameStatics::getWindowContexSettings());
+                  GameStatics::getWindowContextSettings());
     createWorld<WorldForActorChecker>(2, 2, 600, 600);
   }
   void loop() override {

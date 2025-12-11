@@ -12,7 +12,7 @@ bool TextDrawer::loadFonts() {
   }
   return ret;
 }
-void TextDrawer::printTextFormat(WindowBase &window_, int x, int y, int size,
+void TextDrawer::printTextFormatW(WindowBase &window_, int x, int y, int size,
                                  ColorBase color, EFontName fontId,
                                  const wchar_t *format, ...) {
   wchar_t str[1024];

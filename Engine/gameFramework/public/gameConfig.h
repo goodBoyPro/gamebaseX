@@ -5,10 +5,6 @@
 #include"gameStatics.h"
 class GameConfig {
   GameConfig() { loadData(); };
-  static GameConfig &getGameConfig() {
-    static GameConfig ret;
-    return ret;
-  }
   friend GameConfig&GameStatics::getGameConfig();
 public:
   

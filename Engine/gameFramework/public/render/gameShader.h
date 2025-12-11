@@ -110,7 +110,7 @@ public:
       return;
     }
     shader->getShader()->setUniform(
-        "time", GameStatics::getGameClcok().getElapsedTime().asSeconds());
+        "time", GameStatics::getGameClock().getElapsedTime().asSeconds());
     window_.draw(spr_.getSpriteBase(), shader->getShader());
     sf::RectangleShape shape;
     window_.draw(shape, shader->getShader());

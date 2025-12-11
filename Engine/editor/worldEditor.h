@@ -445,7 +445,7 @@ public:
   EditorWindowWithPanel() {
     window.close();
     window.create(sf::VideoMode(800, 600), "", sf::Style::None,
-                  GameStatics::getWindowContexSettings());
+                  GameStatics::getWindowContextSettings());
     UI = getUiManager().createBigWindow(L"Editor");
     UI->addOtherWindow(window.getSystemHandle());
   }

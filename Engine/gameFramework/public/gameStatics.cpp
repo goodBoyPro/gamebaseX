@@ -2,26 +2,32 @@
 #include <base/textDrawer.h>
 #include <gameConfig.h>
 //////////
-static TextDrawer textDrawer;
-TextDrawer &GameStatics::getTextDrawer() { return textDrawer; }
+
+TextDrawer &GameStatics::getTextDrawer() {
+  static TextDrawer textDrawer;
+  return textDrawer;
+}
 /////////
-GameClock &GameStatics::getGameClcok() {
+GameClock &GameStatics::getGameClock() {
   static GameClock clock;
   return clock;
 }
 /////////
-sf::ContextSettings &GameStatics::getWindowContexSettings() {
+sf::ContextSettings &GameStatics::getWindowContextSettings() {
   static sf::ContextSettings settings;
   return settings;
 }
 ////////
-GameConfig &GameStatics::getGameConfig() { return GameConfig::getGameConfig(); }
+GameConfig &GameStatics::getGameConfig() {
+  static GameConfig gameConfig;
+  return gameConfig;
+}
 // 强制全局对象初始化,确保初始化顺序正确//
-static struct ____GlobalObjectInit {
-  ____GlobalObjectInit() {
+static struct GlobalObjectInit {
+  GlobalObjectInit() {
     GS::getGameConfig();
     GS::getTextDrawer();
-    GameStatics::getGameClcok();
-    GameStatics::getWindowContexSettings();
+    GameStatics::getGameClock();
+    GameStatics::getWindowContextSettings();
   }
-} __globalObjectInit;
+} globalObjectInit;

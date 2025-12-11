@@ -24,7 +24,7 @@ public:
   TextDrawer() { loadFonts(); }
 
 public:
-  void printTextFormat(WindowBase &window_, int x, int y, int size,
+  void printTextFormatW(WindowBase &window_, int x, int y, int size,
                        ColorBase color, EFontName fontId, const wchar_t *format,
                        ...);
   void printTextW(WindowBase &window_, const std::wstring &str = L"未输入文字",
@@ -50,5 +50,6 @@ public:
                  EFontName fontId = EFontName::heiti,
                  ColorBase outlineColor = {0, 0, 0},
                  float outlineThickness = 0);
+  
 };
 #endif // TEXTDRAWER_H
