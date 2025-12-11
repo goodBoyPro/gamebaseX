@@ -23,7 +23,8 @@ void TextDrawer::printTextFormat(WindowBase &window_, int x, int y, int size,
   printTextW(window_, str, x, y, size, color, fontId);
 }
 void TextDrawer::printTextW(WindowBase &window_, const std::wstring &str, int x,
-                           int y, int size, sf::Color color, EFontName fontId) {
+                            int y, int size, sf::Color color,
+                            EFontName fontId) {
   thread_local static sf::Text text;
   text.setFont(fonts[static_cast<int>(fontId)]);
   text.setString(str);
@@ -61,12 +62,15 @@ void TextDrawer::printNum(WindowBase &window_, int __int, int x, int y,
 }
 
 void TextDrawer::printText(WindowBase &window_, const std::string &str, int x,
-                           int y, int size, sf::Color color, EFontName fontId) {
+                           int y, int size, sf::Color color, EFontName fontId,
+                           ColorBase outlineColor, float outlineThickness) {
   static sf::Text text;
   text.setFont(fonts[static_cast<int>(fontId)]);
   text.setString(sf::String::fromUtf8(str.begin(), str.end()));
   text.setPosition(sf::Vector2f(x, y));
   text.setFillColor(color);
+  text.setOutlineColor(outlineColor);
+  text.setOutlineThickness(outlineThickness);
   text.setCharacterSize(size);
   window_.draw(text);
 }

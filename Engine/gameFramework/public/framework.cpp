@@ -214,9 +214,8 @@ void GWorld::loop(GameWindow &window_, EventBase &event_) {
   // 渲染
   window_.clear(ColorBase::Black);
   render(window_, event_);
-  GDebug::debugDisplay(window_);
+  // GDebug::debugDisplay(window_);
   window_.displayDebugs();
-  window_.Debug.print("xxxxxxxxxxxxxxxxxxxxxxxxxtest");
   window_.display();
 }
 void GWorld::render(GameWindow &window_, EventBase &event_) {
@@ -232,7 +231,8 @@ void GWorld::render(GameWindow &window_, EventBase &event_) {
   showGridMap(window_);
 
   // test
-  PRINTDEBUG(L"Actors:%d", gridMap.getActorsNumber());
+  // PRINTDEBUG(L"Actors:%d", gridMap.getActorsNumber());
+  window_.Debug.print(formatStr("Actors:%d", gridMap.getActorsNumber()));
 };
 void GCameraObj::drawSpr(GRenderObjComponent *spr_, GameWindow &window_) {
   int winW = window_.getDefaultView().getSize().x;
@@ -519,11 +519,11 @@ GGame::GGame() {
   waitPage.gm.gameIns = this;
 
   window.create(
-      sf::VideoMode(getGameConfig().windowWidth, getGameConfig().windowHeight),
+      sf::VideoMode(GS::getGameConfig().windowWidth, GS::getGameConfig().windowHeight),
       "Game");
-  window.setFramerateLimit(getGameConfig().frameLimit);
+  window.setFramerateLimit(GS::getGameConfig().frameLimit);
   sf::Image icon;
-  icon.loadFromFile(getGameConfig().windowIcon);
+  icon.loadFromFile(GS::getGameConfig().windowIcon);
   window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }
 GGame::~GGame() {

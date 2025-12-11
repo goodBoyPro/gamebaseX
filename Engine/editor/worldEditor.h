@@ -81,8 +81,6 @@ public:
     };
   }
   void loop(GameWindow &window_, EventBase &event_) {
-    PRINTDEBUG(L"zpos:%f", zPosWin);
-
     axisX.draw(window_, posInWin);
     axisY.draw(window_, posInWin);
     axisZ.draw(window_, posInWin);
@@ -339,7 +337,7 @@ bool clickSelected= false;
     }
   }
   void tick() override {
-    PRINTDEBUG(L"Actors:%d", getGridMap().getActorsNumber());
+    
   }
   ReferLine referLine;
   void loop(GameWindow &window_, EventBase &event_) override {
@@ -356,7 +354,8 @@ bool clickSelected= false;
     rectForMouseSelect.loop(window_);
     showActiveActors(window_, getGridMap().actorsAlive);
     referLine.drawLines(window_);
-    GDebug::debugDisplay(window_);
+    // GDebug::debugDisplay(window_);
+    window_.displayDebugs();
 
     window_.display();
     getControllerActive()->loop(window_, event_);

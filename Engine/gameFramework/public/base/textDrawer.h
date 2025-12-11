@@ -28,9 +28,9 @@ public:
                        ColorBase color, EFontName fontId, const wchar_t *format,
                        ...);
   void printTextW(WindowBase &window_, const std::wstring &str = L"未输入文字",
-                 int x = 0, int y = 0, int size = 30,
-                 sf::Color color = ColorBase(255, 255, 255),
-                 EFontName fontId = EFontName::heiti);
+                  int x = 0, int y = 0, int size = 30,
+                  sf::Color color = ColorBase(255, 255, 255),
+                  EFontName fontId = EFontName::heiti);
   void printTextLimit(WindowBase &window_,
                       const std::wstring &str = L"未输入文字", float x = 0,
                       float y = 0, int size = 30,
@@ -47,6 +47,8 @@ public:
   void printText(WindowBase &window_, const std::string &str, int x = 0,
                  int y = 0, int size = 30,
                  sf::Color color = ColorBase(255, 255, 255),
-                 EFontName fontId = EFontName::heiti);
+                 EFontName fontId = EFontName::heiti,
+                 ColorBase outlineColor = {0, 0, 0},
+                 float outlineThickness = 0);
 };
 #endif // TEXTDRAWER_H

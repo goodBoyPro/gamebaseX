@@ -16,9 +16,6 @@ public:
   friend class GameWindow;
   GDebug2() = default;
   virtual ~GDebug2() = default;
-  void print(std::string text) {
-    std::unique_lock lk(mut);
-    texts.push_back(std::move(text));
-  }
+  void print(std::string text);
 };
 #endif // GDEBUG2_H

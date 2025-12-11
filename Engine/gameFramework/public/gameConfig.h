@@ -2,15 +2,16 @@
 #define GAMECONFIG_H
 #include "fstream"
 #include "nlohmann_json/json.hpp"
-
+#include"gameStatics.h"
 class GameConfig {
   GameConfig() { loadData(); };
-
-public:
   static GameConfig &getGameConfig() {
     static GameConfig ret;
     return ret;
   }
+  friend GameConfig&GameStatics::getGameConfig();
+public:
+  
   void loadData() {
     std::ifstream iflile("system/config.json");
     if (!iflile.is_open()) {
@@ -36,5 +37,5 @@ public:
   int frameLimit = 60;
   std::string windowIcon = "system/texture/a.png";
 };
-inline GameConfig &getGameConfig() { return GameConfig::getGameConfig(); }
+
 #endif // GAMECONFIG_H

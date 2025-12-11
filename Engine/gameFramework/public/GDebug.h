@@ -9,7 +9,7 @@
 #include<base/textDrawer.h>
 #include<base/gameWindow.h>
 #define STRINGSIZE 128
-#define PRINTDEBUG(...)                                                        \
+#define PRINTDEBUGX(...)                                                        \
     {                                                                          \
         static GDebug __g__;                                                   \
         swprintf(__g__.wchar_,STRINGSIZE-1, __VA_ARGS__);                                   \

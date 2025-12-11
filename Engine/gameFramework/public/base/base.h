@@ -1,6 +1,7 @@
 #ifndef BASE_H
 #define BASE_H
-
+#include<stdio.h>
+#include<stdarg.h>
 #include <SFML/Graphics.hpp>
 typedef sf::Vector3f FVector3;
 typedef sf::Glsl::Vec4 FVector4 ;
@@ -64,5 +65,13 @@ inline std::string setExpand(const std::string& name, const std::string& exp_) {
   } else {
       return name;
   }
+}
+inline std::string formatStr(const char*format,...){
+    char buffer[1024];
+    va_list args;
+    va_start(args, format);
+    vsnprintf_s(buffer,1024, format, args);
+    va_end(args);
+    return std::string(buffer);
 }
 #endif // BASE_H
