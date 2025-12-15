@@ -33,7 +33,7 @@ public:
     init(row_, column_, centerX_, centerY_, path);
   }
 };
-class GTextureTree : public GReourceTree<GTexture> {
+class GTextureTree : public GResourceTree<GTexture> {
   enum Info {
     epath,
     etype, //

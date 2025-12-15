@@ -1,5 +1,5 @@
 #include "gsource.h"
-std::vector<std::string> GSourceTreeIF::splitString(const std::string &filename) {
+std::vector<std::string> GResourceTreeIF::splitString(const std::string &filename) {
   std::vector<std::string> tokens;
 
   // 分离文件名与扩展名
@@ -19,7 +19,7 @@ std::vector<std::string> GSourceTreeIF::splitString(const std::string &filename)
   return tokens;
 }
 std::vector<std::vector<std::string>>
-GSourceTreeIF::collectFiles(const std::string &directory,
+GResourceTreeIF::collectFiles(const std::string &directory,
                         const std::string &extension) {
   std::vector<std::vector<std::string>> fileStringTree;
   try {
@@ -51,7 +51,7 @@ GSourceTreeIF::collectFiles(const std::string &directory,
 
   return fileStringTree;
 }
-bool GSourceTreeIF::isNumber(const std::string &str) {
+bool GResourceTreeIF::isNumber(const std::string &str) {
   // 空字符串不是数值
   if (str.empty()) {
     return false;

@@ -17,18 +17,18 @@ public:
   virtual ~GSourceObj() {}
 };
 
-class GSourceTreeIF {
+class GResourceTreeIF {
 public:
   std::vector<std::string> splitString(const std::string &filename);
   std::vector<std::vector<std::string>>
   collectFiles(const std::string &directory, const std::string &extension);
-  virtual ~GSourceTreeIF() {}
+  virtual ~GResourceTreeIF() {}
   bool isNumber(const std::string &str);
 };
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> class GReourceTree : public GSourceTreeIF {
+template <class T> class GResourceTree : public GResourceTreeIF {
 protected:
   std::map<size_t, T> data;
   T defaultObj;
